@@ -1,0 +1,37 @@
+{% set page = page_meta.page %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Roll</th><th>Name</th><th>Batch</th><th>Submissions</th><th>Average</th><th></th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td class="mono">{{ item.student.external_id }}</td>
+        <td><a href="/students/{{ item.student.id }}">{{ item.student.name }}</a></td>
+        <td class="muted small">{{ item.batch.name if item.batch else '—' }}</td>
+        <td>{{ item.submissions }}</td>
+        <td>
+          {% if item.avg is not none %}
+          <span class="badge {{ 'green' if item.avg >= 60 else 'amber' if item.avg >= 35 else 'red' }}">{{ item.avg }}%</span>
+          {% else %}<span class="muted small">—</span>{% endif %}
+        </td>
+        <td><a class="btn small" href="/students/{{ item.student.id }}">Open</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">No students match “{{ q }}”</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="pagination">
+  <span class="pages">
+    {% if page_meta.total %}Showing {{ page_meta.start }}–{{ page_meta.end }} of {{ "{:,}".format(page_meta.total) }}{% else %}No results{% endif %}
+  </span>
+  <span class="spacer" style="flex:1"></span>
+  {% if page_meta.has_prev %}
+  <a class="btn small" href="/students?page={{ page - 1 }}&per_page={{ per_page }}&q={{ q }}" hx-get="/students?page={{ page - 1 }}&per_page={{ per_page }}&q={{ q }}" hx-target="#students-table" hx-push-url="true">← Prev</a>
+  {% endif %}
+  <span class="pages">Page {{ page }} / {{ page_meta.pages }}</span>
+  {% if page_meta.has_next %}
+  <a class="btn small" href="/students?page={{ page + 1 }}&per_page={{ per_page }}&q={{ q }}" hx-get="/students?page={{ page + 1 }}&per_page={{ per_page }}&q={{ q }}" hx-target="#students-table" hx-push-url="true">Next →</a>
+  {% endif %}
+</div>

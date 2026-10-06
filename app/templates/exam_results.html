@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ exam.name }} — Results{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="/exams">Exams</a> / <a href="/exams/{{ exam.id }}">{{ exam.name }}</a> / Results</div>
+<div class="topbar">
+  <div><h1>Results</h1><div class="subtitle">{{ "{:,}".format(page_meta.total) }} submissions</div></div>
+  <div class="pill-row">
+    <a class="btn" href="/exams/{{ exam.id }}">← Exam</a>
+    <a class="btn primary" href="/exams/{{ exam.id }}/results.csv">⬇ Export CSV</a>
+  </div>
+</div>
+
+<div class="grid cols-2 mb">
+  <div class="card">
+    <h2 style="margin-top:0">Score distribution</h2>
+    {% for bucket, count in distribution.items() %}
+    <div style="display:flex;align-items:center;gap:10px;margin:6px 0">
+      <span class="small muted" style="width:52px">{{ bucket }}%</span>
+      <progress value="{{ count }}" max="{{ distribution.values() | max if distribution.values() | max > 0 else 1 }}" style="flex:1"></progress>
+      <span class="small" style="width:36px;text-align:right">{{ count }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0">Filters</h2>
+    <form class="toolbar" hx-get="/exams/{{ exam.id }}/results" hx-target="#results-table" hx-push-url="true">
+      <select name="state" hx-get="/exams/{{ exam.id }}/results" hx-target="#results-table" hx-push-url="true">
+        <option value="">All states</option>
+        {% for s in ['completed', 'needs_review', 'failed', 'processing', 'pending'] %}
+        <option value="{{ s }}" {{ 'selected' if s == state }}>{{ s.replace('_', ' ') }}</option>
+        {% endfor %}
+      </select>
+      <select name="per_page" hx-get="/exams/{{ exam.id }}/results" hx-target="#results-table" hx-push-url="true">
+        {% for choice in per_page_choices %}<option value="{{ choice }}" {{ 'selected' if choice == per_page }}>{{ choice }}/page</option>{% endfor %}
+      </select>
+    </form>
+    <p class="small muted">Rows load {{ per_page }} at a time. Total: {{ "{:,}".format(page_meta.total) }}.</p>
+  </div>
+</div>
+
+<div id="results-table">
+  {% include "partials/results_table.html" %}
+</div>
+{% endblock %}

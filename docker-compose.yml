@@ -1,0 +1,67 @@
+name: exam-eval
+
+x-app: &app
+  build: .
+  image: exam-eval:local
+  env_file:
+    - .env
+  environment:
+    DATABASE_URL: postgresql+asyncpg://exameval:exameval@db:5432/exam_eval
+    STORAGE_ROOT: /data
+  volumes:
+    - ./data:/data
+    # live source mounts so `docker compose` reflects local edits immediately;
+    # the image itself is complete (Dockerfile COPY) and works without them.
+    - ./app:/srv/app/app
+    - ./worker:/srv/app/worker
+    - ./scripts:/srv/app/scripts
+    - ./tests:/srv/app/tests
+    - ./alembic:/srv/app/alembic
+    - ./alembic.ini:/srv/app/alembic.ini
+    - ./pytest.ini:/srv/app/pytest.ini
+    - ./reports:/srv/app/reports
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: exameval
+      POSTGRES_PASSWORD: exameval
+      POSTGRES_DB: exam_eval
+    ports:
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exameval -d exam_eval"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  web:
+    <<: *app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+    ports:
+      - "127.0.0.1:8090:8000"
+    restart: unless-stopped
+    # conservative ceilings for a 16 GB office laptop
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  worker:
+    <<: *app
+    command: python -m worker.main
+    restart: unless-stopped
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+volumes:
+  pgdata:

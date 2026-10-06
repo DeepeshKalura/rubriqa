@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Import{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Import</h1><div class="subtitle">Files are deduplicated by content hash — re-importing is safe</div></div>
+  <div class="pill-row">
+    <a class="btn primary" href="/imports/new">⇧ New import</a>
+    <a class="btn" href="/google">Google Forms</a>
+  </div>
+</div>
+{% if request.query_params.get('committed') %}
+<div class="flash success">Import batch #{{ request.query_params.get('committed') }} committed. Submissions are being processed.</div>
+{% endif %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>#</th><th>Exam</th><th>Source</th><th>Discovered</th><th>Already imported</th><th>New</th><th>Unmatched</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for batch in batches %}
+      <tr>
+        <td class="mono">{{ batch.id }}</td>
+        <td>{{ exams.get(batch.exam_id).name if exams.get(batch.exam_id) else batch.exam_id }}</td>
+        <td class="small">{{ batch.source }}<div class="muted mono small">{{ (batch.root_path or '')[:70] }}</div></td>
+        <td>{{ batch.discovered }}</td>
+        <td><span class="badge {{ 'green' if batch.already_imported }}">{{ batch.already_imported }}</span></td>
+        <td><span class="badge blue">{{ batch.new_documents }}</span></td>
+        <td><span class="badge {{ 'amber' if batch.unmatched else 'grey' }}">{{ batch.unmatched }}</span></td>
+        <td><span class="badge {{ 'green' if batch.status == 'committed' else 'red' if batch.status == 'failed' else 'grey' }}">{{ batch.status }}</span></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="empty">No imports yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

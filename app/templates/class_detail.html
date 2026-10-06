@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ klass.name }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="/classes">Classes</a> / {{ klass.name }}</div>
+<div class="topbar">
+  <div><h1>{{ klass.name }}</h1><div class="subtitle">Batches and exams</div></div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2 style="margin-top:0">Batches</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Batch</th><th>Year</th><th>Students</th><th></th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td><a href="/batches/{{ row.batch.id }}">{{ row.batch.name }}</a></td>
+            <td class="muted">{{ row.batch.year or '—' }}</td>
+            <td>{{ row.students }}</td>
+            <td><a class="btn small" href="/batches/{{ row.batch.id }}">Open</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No batches</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Exams</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Exam</th><th>Date</th><th>Submissions</th><th></th></tr></thead>
+        <tbody>
+          {% for row in exams %}
+          <tr>
+            <td><a href="/exams/{{ row.exam.id }}">{{ row.exam.name }}</a></td>
+            <td class="muted">{{ row.exam.exam_date or '—' }}</td>
+            <td>
+              {% for state, count in row.states.items() %}
+              <span class="badge {{ 'green' if state == 'completed' else 'amber' if state == 'needs_review' else 'red' if state == 'failed' else 'grey' }}">{{ state }}: {{ count }}</span>
+              {% else %}<span class="muted small">none</span>{% endfor %}
+            </td>
+            <td><a class="btn small" href="/exams/{{ row.exam.id }}">Open</a></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No exams</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

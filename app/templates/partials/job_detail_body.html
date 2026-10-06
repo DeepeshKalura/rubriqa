@@ -1,0 +1,35 @@
+{% set state_colors = {'queued': 'grey', 'running': 'blue', 'reading': 'blue', 'validating': 'blue', 'extracting': 'blue', 'scoring': 'blue', 'completed': 'green', 'failed': 'red', 'cancelled': 'grey'} %}
+{% set done_stages = ['read', 'validate', 'validate_answers', 'extract', 'score'] %}
+<div class="grid cols-3 mb">
+  <div class="card stat">
+    <div class="value"><span class="badge {{ state_colors.get(job.state.value, 'grey') }}">{{ job.state.value }}</span></div>
+    <div class="label">State</div>
+    <div class="hint">attempt {{ job.attempts }} / {{ job.max_attempts }}</div>
+  </div>
+  <div class="card stat">
+    <div class="value">{{ job.progress_current }}{% if job.progress_total %} / {{ job.progress_total }}{% endif %}</div>
+    <div class="label">Progress</div>
+    <div class="hint">locked by {{ job.locked_by or '—' }}</div>
+  </div>
+  <div class="card stat">
+    <div class="value" data-relative="{{ job.heartbeat_at.isoformat() if job.heartbeat_at else '' }}">{{ job.heartbeat_at.strftime('%H:%M:%S') if job.heartbeat_at else '—' }}</div>
+    <div class="label">Last heartbeat</div>
+    <div class="hint">created {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+  </div>
+</div>
+
+{% if job.error %}
+<div class="flash error"><strong>{{ job.error_code }}</strong> — {{ job.error }}<div class="mt small">Fix the cause, then press Retry. Completed stages are skipped.</div></div>
+{% endif %}
+
+<h2>Stage timeline</h2>
+<div class="card mb">
+  {% for event in events | reverse %}
+  <div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid #edf1f6" class="small">
+    <span class="mono muted nowrap" style="width:170px">{{ event.created_at.strftime('%H:%M:%S') }}</span>
+    <span class="badge {{ 'green' if event.status == 'ok' else 'red' if event.status == 'error' else 'grey' }}">{{ event.stage }}</span>
+    <span>{{ event.message or '' }}</span>
+    {% if event.duration_ms %}<span class="muted nowrap">({{ '%.0f' | format(event.duration_ms) }} ms)</span>{% endif %}
+  </div>
+  {% endfor %}
+</div>

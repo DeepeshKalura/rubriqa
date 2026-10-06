@@ -1,0 +1,13 @@
+.env
+.env.dev
+.env.local
+data/
+reports/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.venv/
+node_modules/

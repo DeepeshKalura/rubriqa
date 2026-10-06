@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Exams{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Exams</h1><div class="subtitle">{{ items | length }} exams</div></div>
+  <div class="pill-row"><a class="btn" href="/imports/new">⇧ Import submissions</a></div>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Exam</th><th>Class</th><th>Date</th><th>Questions</th><th>Submissions</th><th></th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td><a href="/exams/{{ item.exam.id }}">{{ item.exam.name }}</a><div class="muted small">{{ item.exam.subject or '' }}</div></td>
+        <td><a href="/classes/{{ item.klass.id }}">{{ item.klass.name }}</a></td>
+        <td class="muted">{{ item.exam.exam_date or '—' }}</td>
+        <td>{{ item.questions }}</td>
+        <td>
+          {% for state, count in item.states.items() %}
+          <span class="badge {{ 'green' if state == 'completed' else 'amber' if state == 'needs_review' else 'red' if state == 'failed' else 'grey' }}">{{ state }}: {{ count }}</span>
+          {% else %}<span class="muted small">none</span>{% endfor %}
+        </td>
+        <td class="nowrap">
+          <a class="btn small" href="/exams/{{ item.exam.id }}/results">Results</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">No exams yet. Run <span class="mono">make seed</span>.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

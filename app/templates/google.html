@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Google Forms{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Google Forms</h1><div class="subtitle">Separate connector · flag-controlled</div></div>
+</div>
+{% if request.query_params.get('connected') %}<div class="flash success">Google account connected. Refresh tokens are encrypted with APP_SECRET_KEY.</div>{% endif %}
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2 style="margin-top:0">Connection</h2>
+    <div class="kv mb">
+      <dt>Enabled</dt><dd><span class="badge {{ 'green' if settings.google_forms_enabled else 'grey' }}">{{ settings.google_forms_enabled }}</span></dd>
+      <dt>Provider</dt><dd><span class="badge {{ 'blue' if settings.google_forms_provider == 'google' else 'grey' }}">{{ settings.google_forms_provider }}</span></dd>
+      <dt>Client configured</dt><dd>{{ 'yes' if configured else 'no — set GOOGLE_CLIENT_ID / SECRET in .env' }}</dd>
+      <dt>Redirect URI</dt><dd class="mono small">{{ settings.google_redirect_uri }}</dd>
+    </div>
+    {% if configured %}
+    <a class="btn primary" href="/google/oauth/start">Connect Google account</a>
+    {% else %}
+    <p class="small muted">Follow <span class="mono">docs/setup.md</span> to create an OAuth client. Until then the mock provider serves fixture data in tests.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Connected accounts</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Account</th><th>Scopes</th><th>Added</th></tr></thead>
+        <tbody>
+          {% for credential in credentials %}
+          <tr>
+            <td>{{ credential.account_email }}</td>
+            <td class="small muted">{{ (credential.scopes or '')[:80] }}</td>
+            <td class="small">{{ credential.created_at.strftime('%Y-%m-%d') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="empty">No accounts connected</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <h2>Import a form</h2>
+    <form method="post" action="/google/import">
+      <label class="field mb">
+        <span>Google Form ID</span>
+        <input type="text" name="form_id" placeholder="1FAIpQLS…" required>
+      </label>
+      <button class="btn">Fetch responses</button>
+    </form>
+    <p class="small muted">Responses are matched to students by roll number and become documents like any other submission.</p>
+  </div>
+</div>
+{% endblock %}

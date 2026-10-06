@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Classes{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Classes</h1><div class="subtitle">Class → Batch → Student hierarchy</div></div>
+</div>
+<div class="grid cols-3">
+  {% for row in tree %}
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:start">
+      <div>
+        <h2 style="margin:0"><a href="/classes/{{ row.klass.id }}">{{ row.klass.name }}</a></h2>
+        <div class="muted small">{{ row.klass.section or '' }} {% if row.klass.section %}section{% endif %}</div>
+      </div>
+      <span class="badge blue">{{ row.exams }} exam{{ '' if row.exams == 1 else 's' }}</span>
+    </div>
+    <div class="kv mt">
+      <dt>Batches</dt><dd>{{ row.batches }}</dd>
+      <dt>Students</dt><dd>{{ row.students }}</dd>
+    </div>
+  </div>
+  {% else %}
+  <div class="card empty" style="grid-column: 1 / -1">No classes yet. Run <span class="mono">make seed</span> or create data through the API.</div>
+  {% endfor %}
+</div>
+{% endblock %}

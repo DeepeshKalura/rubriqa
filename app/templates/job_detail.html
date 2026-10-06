@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Job #{{ job.id }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="/jobs">Jobs</a> / #{{ job.id }}</div>
+<div class="topbar">
+  <div>
+    <h1>Job #{{ job.id }}</h1>
+    <div class="subtitle">{{ job.type.value }}{% if student_name %} · {{ student_name }}{% endif %}</div>
+  </div>
+  <div class="pill-row">
+    {% if job.state.value not in ('completed',) %}
+    <form method="post" action="/jobs/{{ job.id }}/retry"><button class="btn">↻ Retry</button></form>
+    {% endif %}
+    {% if job.state.value in ('queued', 'running', 'reading', 'validating', 'extracting', 'scoring') %}
+    <form method="post" action="/jobs/{{ job.id }}/cancel" data-confirm="Cancel this job?"><button class="btn danger">✕ Cancel</button></form>
+    {% endif %}
+    {% if job.submission_id %}<a class="btn small" href="/submissions/{{ job.submission_id }}">Submission</a>{% endif %}
+  </div>
+</div>
+
+<div id="job-body" hx-get="/jobs/{{ job.id }}" hx-trigger="{{ 'every 2s' if job.state.value not in ('completed', 'failed', 'cancelled') else 'none' }}" hx-target="#job-body" hx-swap="innerHTML">
+  {% include "partials/job_detail_body.html" %}
+</div>
+{% endblock %}

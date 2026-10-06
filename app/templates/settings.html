@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Settings</h1><div class="subtitle">Feature flags · runtime overrides stored in the database</div></div>
+</div>
+{% if request.query_params.get('saved') %}<div class="flash success">Settings saved. The worker picks them up on the next job.</div>{% endif %}
+{% if request.query_params.get('cleared') %}<div class="flash info">Override cleared — .env value is active again.</div>{% endif %}
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2 style="margin-top:0">Feature flags</h2>
+    <p class="small muted">DB values override <span class="mono">.env</span>. Clear an override to fall back.</p>
+    <form method="post" action="/settings">
+      {% for key in keys %}
+      <div class="mb">
+        <label class="field">
+          <span>{{ key }} {% if key in overrides %}<span class="badge blue">override</span>{% else %}<span class="badge grey">from .env</span>{% endif %}</span>
+          <div style="display:flex;gap:6px">
+            <input type="text" name="{{ key }}" value="{{ overrides.get(key, env | attr(key)) }}" style="flex:1">
+          </div>
+        </label>
+        {% if key in overrides %}
+        <button class="btn small" formaction="/settings/{{ key }}/clear" formmethod="post">Clear override</button>
+        {% endif %}
+      </div>
+      {% endfor %}
+      <button class="btn primary">Save settings</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Environment</h2>
+    <div class="kv">
+      <dt>LLM provider</dt><dd>{{ env.llm_provider }}</dd>
+      <dt>Reader mode</dt><dd>{{ env.reader_mode }}</dd>
+      <dt>Hybrid chain</dt><dd class="mono">{{ env.hybrid_reader_chain }}</dd>
+      <dt>Scoring strategy</dt><dd>{{ env.scoring_strategy }}</dd>
+      <dt>Feedback</dt><dd>{{ env.scoring_enable_feedback }}</dd>
+      <dt>MiniMax key</dt><dd>{{ api_key_hint }}</dd>
+      <dt>Text model</dt><dd>{{ env.minimax_text_model }}</dd>
+      <dt>Vision model</dt><dd>{{ env.minimax_vision_model }}</dd>
+      <dt>Worker concurrency</dt><dd>{{ env.worker_concurrency }}</dd>
+      <dt>Google Forms</dt><dd>{{ env.google_forms_enabled }} ({{ env.google_forms_provider }})</dd>
+    </div>
+    <h2>LLM usage</h2>
+    <div class="kv">
+      <dt>Calls</dt><dd>{{ llm_totals.calls }}</dd>
+      <dt>Tokens</dt><dd>{{ "{:,}".format(llm_totals.tokens) }}</dd>
+      <dt>Avg latency</dt><dd>{{ llm_totals.avg_latency_ms }} ms</dd>
+    </div>
+    <div class="table-wrap mt" style="max-height:320px;overflow:auto">
+      <table>
+        <thead><tr><th>Stage</th><th>Model</th><th>Tokens</th><th>ms</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for call in llm_usage %}
+          <tr>
+            <td class="small">{{ call.stage }}</td>
+            <td class="small mono">{{ call.model or '—' }}</td>
+            <td>{{ call.total_tokens or '—' }}</td>
+            <td>{{ call.latency_ms or '—' }}</td>
+            <td><span class="badge {{ 'green' if call.status == 'ok' else 'red' }}">{{ call.status }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty">No LLM calls recorded yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

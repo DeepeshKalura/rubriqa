@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Submission #{{ submission.id }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs">
+  <a href="/students">Students</a> / <a href="/students/{{ student.id }}">{{ student.name }}</a> / <a href="/exams/{{ exam.id }}">{{ exam.name }}</a> / Submission #{{ submission.id }}
+</div>
+<div class="topbar">
+  <div>
+    <h1>{{ student.name }}</h1>
+    <div class="subtitle">{{ exam.name }} · submission #{{ submission.id }}</div>
+  </div>
+  <div class="pill-row">
+    <span class="badge {{ 'green' if submission.state.value == 'completed' else 'amber' if submission.state.value == 'needs_review' else 'red' if submission.state.value == 'failed' else 'grey' }}">{{ submission.state.value }}</span>
+    {% if submission.percentage is not none %}
+    <span class="badge blue">{{ submission.total_score }} / {{ submission.max_score }} · {{ submission.percentage }}%</span>
+    {% endif %}
+    {% if not active_job %}
+    <form method="post" action="/submissions/{{ submission.id }}/retry"><button class="btn small">↻ Retry</button></form>
+    <form method="post" action="/submissions/{{ submission.id }}/rescore"><button class="btn small">∑ Rescore</button></form>
+    {% else %}
+    <span class="badge blue"><span class="spinner"></span> {{ active_job.state.value }}</span>
+    {% endif %}
+  </div>
+</div>
+
+{% if submission.notes %}<div class="flash {{ 'error' if submission.state.value == 'failed' else 'info' }}">{{ submission.notes }}</div>{% endif %}
+
+{% if issues %}
+<h2>Validation issues</h2>
+<div class="table-wrap mb">
+  <table>
+    <thead><tr><th>Severity</th><th>Code</th><th>Message</th><th>Resolved</th></tr></thead>
+    <tbody>
+      {% for issue in issues %}
+      <tr>
+        <td><span class="badge {{ 'red' if issue.severity == 'error' else 'amber' if issue.severity == 'warning' else 'grey' }}">{{ issue.severity }}</span></td>
+        <td class="mono small">{{ issue.code }}</td>
+        <td>{{ issue.message }}</td>
+        <td>{{ 'yes' if issue.resolved else 'no' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<h2>Question scores</h2>
+<div class="table-wrap mb">
+  <table>
+    <thead><tr><th>Q</th><th>Answer</th><th>Criterion</th><th>Score</th><th>Rationale</th></tr></thead>
+    <tbody>
+      {% for row in questions %}
+      {% set score_count = row.scores | length %}
+      {% if score_count == 0 %}
+      <tr>
+        <td class="mono nowrap">{{ row.question.q_no }}</td>
+        <td>{{ (row.answer.text if row.answer else '—')[:220] }}</td>
+        <td colspan="3" class="muted small">not scored (blocked or empty)</td>
+      </tr>
+      {% endif %}
+      {% for score in row.scores %}
+      <tr>
+        {% if loop.first %}
+        <td class="mono nowrap" rowspan="{{ score_count }}">{{ row.question.q_no }}</td>
+        <td rowspan="{{ score_count }}">{{ (row.answer.text if row.answer else '')[:220] }}{% if row.answer and row.answer.text | length > 220 %}…{% endif %}</td>
+        {% endif %}
+        <td><span class="badge grey">{{ score.criterion }}</span></td>
+        <td class="nowrap">
+          <span class="score-value {{ 'full' if score.awarded >= score.max_score and score.max_score > 0 else 'zero' if score.awarded == 0 else 'partial' }}">{{ score.awarded }}</span>
+          <span class="muted small">/ {{ score.max_score }}</span>
+        </td>
+        <td class="small muted">{{ (score.rationale or '')[:200] }}{% if score.feedback %}<div><em>feedback: {{ score.feedback[:160] }}</em></div>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="small muted mb">
+  Current run: #{{ current_run.id if current_run else '—' }} ({{ current_run.strategy if current_run else '' }}, {{ current_run.provider if current_run else '' }}/{{ current_run.model if current_run else '' }}) ·
+  {{ runs_count }} run(s) kept in history
+</div>
+
+<h2>Documents & readings</h2>
+{% for row in documents %}
+{% set document = row.document %}
+<div class="card mb">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+    <div>
+      <strong>{{ document.original_filename }}</strong>
+      <div class="muted small">{{ document.kind.value }} · {{ human_bytes(document.size_bytes) }} · sha <span class="mono">{{ document.sha256[:12] }}…</span> · {{ document.page_count }} page(s)</div>
+    </div>
+    <span class="badge grey">{{ document.source }}</span>
+  </div>
+
+  {% for page_row in row.pages %}
+  {% set page = page_row.page %}
+  <div class="mt" style="border-top:1px solid var(--border);padding-top:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <strong>Page {{ page.index + 1 }}</strong>
+        <span class="badge {{ 'green' if page.state.value == 'read' else 'red' if page.state.value == 'error' else 'amber' if page.state.value == 'deferred' else 'grey' }}">{{ page.state.value }}</span>
+        {% if page.has_text_layer %}<span class="badge blue">text layer</span>{% endif %}
+      </div>
+      <form method="post" action="/pages/{{ page.id }}/reprocess"><button class="btn small">↻ Reprocess page</button></form>
+    </div>
+
+    {% if page.image_path %}
+    <div class="mt"><img class="page-thumb" style="max-width:340px" src="/files/{{ page.image_path }}" alt="page {{ page.index + 1 }}" loading="lazy"></div>
+    {% endif %}
+
+    {% if page_row.selected %}
+    <div class="mt small">
+      <span class="badge violet">{{ page_row.selected.provider }}</span>
+      <span class="badge grey">{{ page_row.selected.mode }}</span>
+      {% if page_row.selected.confidence is not none %}<span class="badge {{ 'green' if page_row.selected.confidence >= 0.75 else 'amber' if page_row.selected.confidence >= 0.5 else 'red' }}">conf {{ page_row.selected.confidence }}</span>{% endif %}
+      {% if page_row.selected.model %}<span class="muted mono">{{ page_row.selected.model }}</span>{% endif %}
+      {% if page_row.selected.warnings %}<span class="muted">{{ page_row.selected.warnings }}</span>{% endif %}
+    </div>
+    <pre style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap">{{ page_row.selected.text or '(empty)' }}</pre>
+    {% endif %}
+
+    {% for repair in page_row.repairs %}
+    <div class="diff mt">
+      <div>
+        <h4>Original OCR (conf {{ repair.original_confidence }})</h4>
+        <pre class="original">{{ repair.original_text }}</pre>
+      </div>
+      <div>
+        <h4>Repaired ({{ repair.provider }}, conf {{ repair.repaired_confidence }}) {% if repair.accepted %}<span class="badge green">accepted</span>{% elif repair.accepted_by == 'human' %}<span class="badge red">rejected by human</span>{% else %}<span class="badge amber">pending</span>{% endif %}</h4>
+        <pre>{{ repair.repaired_text }}</pre>
+        {% if repair.accepted_by is none %}
+        <div class="pill-row mt">
+          <form method="post" action="/repairs/{{ repair.id }}/accept"><input type="hidden" name="submission_id" value="{{ submission.id }}"><button class="btn small primary">✓ Accept repair</button></form>
+          <form method="post" action="/repairs/{{ repair.id }}/reject"><input type="hidden" name="submission_id" value="{{ submission.id }}"><button class="btn small danger">✗ Keep original</button></form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

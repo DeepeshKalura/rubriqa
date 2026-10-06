@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Students</h1><div class="subtitle">{{ "{:,}".format(page_meta.total) }} students</div></div>
+  <form class="toolbar" hx-get="/students" hx-target="#students-table" hx-trigger="submit, keyup changed delay:400ms from:input[name=q]" hx-push-url="true">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search name or roll number…">
+    <select name="per_page" hx-get="/students" hx-target="#students-table" hx-push-url="true">
+      {% for choice in per_page_choices %}<option value="{{ choice }}" {{ 'selected' if choice == per_page }}>{{ choice }}/page</option>{% endfor %}
+    </select>
+    <span class="htmx-indicator spinner"></span>
+  </form>
+</div>
+<div id="students-table">
+  {% include "partials/students_table.html" %}
+</div>
+{% endblock %}

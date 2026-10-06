@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Confirm import{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="/imports">Import</a> / Confirm</div>
+<div class="topbar">
+  <div><h1>Confirm import</h1><div class="subtitle">{{ exam.name }} · {{ root }}</div></div>
+</div>
+
+<div class="grid cols-4 mb">
+  <div class="card stat"><div class="value">{{ report.discovered }}</div><div class="label">Files discovered</div></div>
+  <div class="card stat"><div class="value">{{ report.already_imported }}</div><div class="label">Already imported</div><div class="hint">skipped by content hash</div></div>
+  <div class="card stat"><div class="value">{{ report.new_documents }}</div><div class="label">New documents</div></div>
+  <div class="card stat"><div class="value">{{ report.unmatched }}</div><div class="label">Unmatched</div><div class="hint">no student roll number found</div></div>
+</div>
+
+<div class="grid cols-2">
+  <div class="card">
+    <h2 style="margin-top:0">Per student</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Student</th><th>New files</th></tr></thead>
+        <tbody>
+          {% for student, count in report.per_student.items() %}
+          <tr><td class="mono">{{ student }}</td><td>{{ count }}</td></tr>
+          {% else %}
+          <tr><td colspan="2" class="empty">No student files matched</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if report.unmatched_files %}
+    <h2>Unmatched files</h2>
+    <div class="small muted" style="max-height:160px;overflow:auto">
+      {% for path in report.unmatched_files[:50] %}<div class="mono">{{ path }}</div>{% endfor %}
+      {% if report.unmatched_files | length > 50 %}<div>… and {{ report.unmatched_files | length - 50 }} more</div>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Commit</h2>
+    <p class="small muted">Re-running this import later will skip every file whose hash is already stored.</p>
+    <form method="post" action="/imports/commit">
+      <input type="hidden" name="exam_id" value="{{ exam.id }}">
+      <input type="hidden" name="root" value="{{ root }}">
+      <label class="field mb"><span>After importing</span>
+        <select name="queue">
+          <option value="1">Queue processing jobs now</option>
+          <option value="0">Only register documents</option>
+        </select>
+      </label>
+      <div class="pill-row">
+        <button class="btn primary">✓ Commit import ({{ report.new_documents }} new)</button>
+        <a class="btn" href="/imports/new">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

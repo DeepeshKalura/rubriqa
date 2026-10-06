@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Review{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Review</h1><div class="subtitle">Blocking issues and pending OCR repairs</div></div>
+  <div class="toolbar">
+    <a class="btn small {{ 'primary' if severity == 'error' }}" href="/review?severity=error">Errors</a>
+    <a class="btn small {{ 'primary' if severity == 'warning' }}" href="/review?severity=warning">Warnings</a>
+    <a class="btn small {{ 'primary' if severity == '' }}" href="/review?severity=">All</a>
+  </div>
+</div>
+
+<h2>Validation issues ({{ page_meta.total }})</h2>
+<div class="table-wrap mb">
+  <table>
+    <thead><tr><th>Severity</th><th>Code</th><th>Student</th><th>Exam</th><th>Message</th><th></th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td><span class="badge {{ 'red' if item.issue.severity == 'error' else 'amber' if item.issue.severity == 'warning' else 'grey' }}">{{ item.issue.severity }}</span></td>
+        <td class="mono small">{{ item.issue.code }}</td>
+        <td><a href="/students/{{ item.student.id }}">{{ item.student.name }}</a><div class="muted mono small">{{ item.student.external_id }}</div></td>
+        <td class="small"><a href="/exams/{{ item.exam.id }}">{{ item.exam.name }}</a></td>
+        <td class="small">{{ item.issue.message }}</td>
+        <td class="nowrap">
+          <a class="btn small" href="/submissions/{{ item.submission.id }}">Open submission</a>
+          <form method="post" action="/review/{{ item.issue.id }}/resolve" style="display:inline"><button class="btn small">Resolve</button></form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">Nothing here. The pipeline is clean.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="pagination">
+  {% if page_meta.has_prev %}<a class="btn small" href="/review?page={{ page_meta.page - 1 }}&severity={{ severity }}">← Prev</a>{% endif %}
+  <span class="pages">Page {{ page_meta.page }} / {{ page_meta.pages }}</span>
+  {% if page_meta.has_next %}<a class="btn small" href="/review?page={{ page_meta.page + 1 }}&severity={{ severity }}">Next →</a>{% endif %}
+</div>
+
+<h2>Pending OCR repairs</h2>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>#</th><th>Provider</th><th>Original conf</th><th>Repaired conf</th><th>Original text</th><th></th></tr></thead>
+    <tbody>
+      {% for repair in pending_repairs %}
+      <tr>
+        <td class="mono">{{ repair.id }}</td>
+        <td class="small">{{ repair.provider }}</td>
+        <td>{{ repair.original_confidence }}</td>
+        <td>{{ repair.repaired_confidence }}</td>
+        <td class="small">{{ repair.original_text[:150] }}</td>
+        <td class="nowrap">
+          <a class="btn small" href="/review/repair/{{ repair.id }}">Compare</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="empty">No pending repairs</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

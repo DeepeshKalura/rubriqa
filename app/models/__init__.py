@@ -1,0 +1,67 @@
+"""Import all models so Alembic/Base.metadata sees them."""
+from app.models.base import Base, TimestampMixin, enum_column
+from app.models.exam import Exam, Question, Rubric, RubricCriterion
+from app.models.google import GoogleCredential
+from app.models.job import (
+    ACTIVE_STATES,
+    ImportBatch,
+    Job,
+    JobEvent,
+    JobState,
+    JobType,
+    LlmCall,
+    Setting,
+)
+from app.models.org import Batch, Enrollment, Klass, Organization, Student
+from app.models.submission import (
+    Answer,
+    Document,
+    DocumentKind,
+    Page,
+    PageState,
+    ReadingRun,
+    ReadingStatus,
+    Repair,
+    Score,
+    ScoringRun,
+    Submission,
+    SubmissionState,
+    ValidationIssue,
+)
+
+__all__ = [
+    "Base",
+    "TimestampMixin",
+    "enum_column",
+    "Organization",
+    "Klass",
+    "Batch",
+    "Student",
+    "Enrollment",
+    "Exam",
+    "Question",
+    "Rubric",
+    "RubricCriterion",
+    "Submission",
+    "SubmissionState",
+    "Document",
+    "DocumentKind",
+    "Page",
+    "PageState",
+    "ReadingRun",
+    "ReadingStatus",
+    "Repair",
+    "ValidationIssue",
+    "Answer",
+    "ScoringRun",
+    "Score",
+    "Job",
+    "JobState",
+    "JobType",
+    "ACTIVE_STATES",
+    "JobEvent",
+    "ImportBatch",
+    "LlmCall",
+    "Setting",
+    "GoogleCredential",
+]

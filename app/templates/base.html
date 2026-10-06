@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Exam Eval{% endblock %} · Exam Eval</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/htmx.min.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">EE</div>
+      <div>
+        <div class="name">Exam Eval</div>
+        <div class="sub">local · Hindi + English</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="/" class="{{ 'active' if active == 'dashboard' }}"><span class="icon">▦</span> Dashboard</a>
+      <div class="nav-group">Hierarchy</div>
+      <a href="/classes" class="{{ 'active' if active == 'classes' }}"><span class="icon">▤</span> Classes</a>
+      <a href="/students" class="{{ 'active' if active == 'students' }}"><span class="icon">☺</span> Students</a>
+      <div class="nav-group">Assessment</div>
+      <a href="/exams" class="{{ 'active' if active == 'exams' }}"><span class="icon">✎</span> Exams</a>
+      <a href="/imports" class="{{ 'active' if active == 'imports' }}"><span class="icon">⇧</span> Import</a>
+      <a href="/results" class="{{ 'active' if active == 'results' }}"><span class="icon">≡</span> Results</a>
+      <div class="nav-group">Operations</div>
+      <a href="/jobs" class="{{ 'active' if active == 'jobs' }}"><span class="icon">⚙</span> Jobs</a>
+      <a href="/review" class="{{ 'active' if active == 'review' }}"><span class="icon">⚑</span> Review</a>
+      <a href="/settings" class="{{ 'active' if active == 'settings' }}"><span class="icon">⚗</span> Settings</a>
+    </nav>
+  </aside>
+  <main class="main">
+    {% if flash %}<div class="flash {{ flash_kind or 'info' }}">{{ flash }}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

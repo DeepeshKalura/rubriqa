@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ exam.name }}{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="/exams">Exams</a> / {{ exam.name }}</div>
+<div class="topbar">
+  <div>
+    <h1>{{ exam.name }}</h1>
+    <div class="subtitle">{{ exam.subject or '' }} · {{ exam.exam_date or '' }} · <a href="/classes/{{ klass.id }}">{{ klass.name }}</a></div>
+  </div>
+  <div class="pill-row">
+    <button class="btn" hx-post="/exams/{{ exam.id }}/process" hx-target="#process-result" hx-swap="innerHTML">▶ Process pending</button>
+    <button class="btn" hx-post="/exams/{{ exam.id }}/rescore" hx-target="#process-result" hx-swap="innerHTML" data-confirm="Re-score all submissions with the current strategy?">↻ Rescore all</button>
+    <a class="btn primary" href="/exams/{{ exam.id }}/results">Results</a>
+    <a class="btn" href="/exams/{{ exam.id }}/results.csv">⬇ CSV</a>
+  </div>
+</div>
+<div id="process-result"></div>
+
+<div class="grid cols-4 mb">
+  <div class="card stat"><div class="value">{{ rows | length }}</div><div class="label">Questions</div></div>
+  <div class="card stat"><div class="value">{{ states.get('completed', 0) }}</div><div class="label">Completed</div></div>
+  <div class="card stat"><div class="value">{{ states.get('needs_review', 0) }}</div><div class="label">Needs review</div></div>
+  <div class="card stat"><div class="value">{{ states.get('failed', 0) }}</div><div class="label">Failed</div></div>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Q</th><th>Question</th><th>Marks</th><th>Strategy</th><th>Answer key</th><th>Rubric</th></tr></thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td class="mono nowrap">{{ row.question.q_no }}</td>
+        <td>
+          {{ row.question.text }}
+          {% if row.question.text_hindi %}<div class="muted">{{ row.question.text_hindi }}</div>{% endif %}
+        </td>
+        <td>{{ row.question.max_score }}</td>
+        <td><span class="badge violet">{{ row.question.strategy or 'inherit' }}</span></td>
+        <td class="small muted">{{ (row.question.answer_key or '—')[:140] }}{% if row.question.answer_key and row.question.answer_key | length > 140 %}…{% endif %}</td>
+        <td class="small">
+          {% if row.rubric %}
+            {{ row.rubric.name }}
+            <div class="muted">{{ row.criteria | map(attribute='name') | join(' · ') }}</div>
+          {% else %}<span class="muted">single criterion</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

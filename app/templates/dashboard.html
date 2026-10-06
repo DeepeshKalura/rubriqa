@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1>Dashboard</h1>
+    <div class="subtitle">Local exam evaluation · Hindi + English</div>
+  </div>
+  <div class="pill-row">
+    <a class="btn" href="/imports/new">⇧ Import</a>
+    <a class="btn primary" href="/exams">Open exams</a>
+  </div>
+</div>
+
+<div class="grid cols-4">
+  <div class="card stat"><div class="value">{{ stats.classes }}</div><div class="label">Classes</div><div class="hint">{{ stats.students }} students enrolled</div></div>
+  <div class="card stat"><div class="value">{{ stats.exams }}</div><div class="label">Exams</div><div class="hint">{{ stats.submissions }} submissions</div></div>
+  <div class="card stat"><div class="value">{{ stats.documents }}</div><div class="label">Documents</div><div class="hint">{{ stats.pages }} pages · {{ stats.answers }} answers</div></div>
+  <div class="card stat">
+    <div class="value">{{ stats.active_jobs }}</div>
+    <div class="label">Active jobs</div>
+    <div class="hint">{{ stats.job_counts.get('completed', 0) }} completed · {{ stats.job_counts.get('failed', 0) }} failed</div>
+  </div>
+</div>
+
+<div class="grid cols-2 mt">
+  <div class="card">
+    <h2 style="margin-top:0">Processing state</h2>
+    <div class="kv">
+      <dt>Queued</dt><dd><span class="badge grey">{{ stats.job_counts.get('queued', 0) }}</span></dd>
+      <dt>Running</dt><dd><span class="badge blue">{{ stats.job_counts.get('running', 0) + stats.job_counts.get('reading', 0) + stats.job_counts.get('validating', 0) + stats.job_counts.get('extracting', 0) + stats.job_counts.get('scoring', 0) }}</span></dd>
+      <dt>Completed</dt><dd><span class="badge green">{{ stats.job_counts.get('completed', 0) }}</span></dd>
+      <dt>Failed</dt><dd><span class="badge red">{{ stats.job_counts.get('failed', 0) }}</span></dd>
+      <dt>Open blocking issues</dt><dd><span class="badge amber">{{ stats.open_errors }}</span></dd>
+    </div>
+    <h2>Submissions</h2>
+    <div class="kv">
+      {% for state, count in stats.submission_states.items() %}
+      <dt>{{ state.replace('_', ' ') | title }}</dt><dd><span class="badge {{ 'green' if state == 'completed' else 'amber' if state == 'needs_review' else 'red' if state == 'failed' else 'grey' }}">{{ count }}</span></dd>
+      {% else %}
+      <dt class="muted">No submissions yet</dt><dd></dd>
+      {% endfor %}
+    </div>
+    <h2>LLM usage</h2>
+    <div class="kv">
+      <dt>Calls</dt><dd>{{ stats.llm_calls }}</dd>
+      <dt>Total tokens</dt><dd>{{ "{:,}".format(stats.llm_tokens or 0) }}</dd>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin-top:0">Recent jobs</h2>
+      <a class="small" href="/jobs">View all →</a>
+    </div>
+    {% include "partials/jobs_table.html" with context %}
+  </div>
+</div>
+{% endblock %}

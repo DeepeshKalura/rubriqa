@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div><h1>Results</h1><div class="subtitle">All submissions, newest first</div></div>
+  <form class="toolbar" method="get" action="/results">
+    <select name="exam_id" onchange="this.form.submit()">
+      <option value="">All exams</option>
+      {% for exam in exams %}<option value="{{ exam.id }}" {{ 'selected' if exam_id == exam.id }}>{{ exam.name }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>#</th><th>Student</th><th>Exam</th><th>State</th><th>Score</th><th>%</th><th></th></tr></thead>
+    <tbody>
+      {% for submission, student, exam in items %}
+      <tr>
+        <td class="mono">{{ submission.id }}</td>
+        <td><a href="/students/{{ student.id }}">{{ student.name }}</a></td>
+        <td class="small"><a href="/exams/{{ exam.id }}">{{ exam.name }}</a></td>
+        <td><span class="badge {{ 'green' if submission.state.value == 'completed' else 'amber' if submission.state.value == 'needs_review' else 'red' if submission.state.value == 'failed' else 'grey' }}">{{ submission.state.value }}</span></td>
+        <td class="nowrap">
+          {% if submission.total_score is not none %}
+          <span class="score-value {{ 'full' if submission.percentage >= 80 else 'zero' if submission.percentage == 0 else 'partial' }}">{{ submission.total_score }}</span>
+          <span class="muted small">/ {{ submission.max_score }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>{% if submission.percentage is not none %}{{ submission.percentage }}%{% else %}—{% endif %}</td>
+        <td><a class="btn small" href="/submissions/{{ submission.id }}">Detail</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="empty">No submissions yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="pagination">
+  {% if page_meta.has_prev %}<a class="btn small" href="/results?page={{ page_meta.page - 1 }}{% if exam_id %}&exam_id={{ exam_id }}{% endif %}">← Prev</a>{% endif %}
+  <span class="pages">Page {{ page_meta.page }} / {{ page_meta.pages }} · {{ "{:,}".format(page_meta.total) }} rows</span>
+  {% if page_meta.has_next %}<a class="btn small" href="/results?page={{ page_meta.page + 1 }}{% if exam_id %}&exam_id={{ exam_id }}{% endif %}">Next →</a>{% endif %}
+</div>
+{% endblock %}
