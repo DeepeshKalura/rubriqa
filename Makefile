@@ -34,8 +34,8 @@ test:          ## unit + integration + api tests against a scratch database
 test-live:     ## tests marked as live (real MiniMax calls, costs tokens)
 	$(COMPOSE) run --rm web pytest -q -m live
 
-seed:          ## create org/class/batches/exam from demo_data/definition.json
-	$(COMPOSE) run --rm web python -m scripts.seed_demo
+seed:          ## create org/class/batches/exam AND import ./data/demo
+	$(COMPOSE) run --rm web python -m scripts.seed_demo --docs /data/demo
 
 demo:          ## generate synthetic dataset AND seed it
 	$(COMPOSE) run --rm web python -m scripts.gen_synthetic --out /data/demo
