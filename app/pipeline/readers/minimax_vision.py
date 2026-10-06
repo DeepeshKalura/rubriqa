@@ -70,6 +70,7 @@ class MiniMaxVisionReader:
         legibility = _clamp(float(data.get("legibility") or 0.0))
         warnings = []
         status = ReadingStatus.OK
+        legibility_thresh = self.settings.low_legibility_threshold
         if parse_failed:
             # Model answered but not with valid JSON (usually truncation of long
             # transcripts). The raw transcript is still useful; keep it and mark
@@ -80,7 +81,7 @@ class MiniMaxVisionReader:
         if not text:
             status = ReadingStatus.EMPTY
             warnings.append("empty_vision_reading")
-        elif legibility < 0.6 and "low_legibility" not in warnings:
+        elif legibility < legibility_thresh and "low_legibility" not in warnings:
             status = ReadingStatus.LOW_CONFIDENCE
             warnings.append("low_legibility")
         return ReadingResult(

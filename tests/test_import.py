@@ -120,3 +120,50 @@ async def test_register_skips_unknown_students(session, clean_db, folder):
     batch = await register_documents(session, exam_id=exam.id, plan=plan)
     assert batch.unmatched == 2  # random.txt + STU999 file
     assert batch.new_documents == 2
+
+
+# ---------------------------------------------------------------------------
+# Security regressions
+# ---------------------------------------------------------------------------
+
+async def _ensure_exam_one(session):
+    from app.models import Exam, Klass, Organization
+
+    org = (await session.execute(select(Organization).where(Organization.name == "_sec"))).scalar_one_or_none()
+    if org is None:
+        org = Organization(name="_sec"); session.add(org); await session.flush()
+    klass = (await session.execute(select(Klass).where(Klass.organization_id == org.id, Klass.name == "_k"))).scalar_one_or_none()
+    if klass is None:
+        klass = Klass(organization_id=org.id, name="_k"); session.add(klass); await session.flush()
+    exam = (await session.execute(select(Exam).where(Exam.class_id == klass.id, Exam.name == "_e"))).scalar_one_or_none()
+    if exam is None:
+        exam = Exam(class_id=klass.id, name="_e"); session.add(exam); await session.flush()
+    return exam.id
+
+
+async def test_scan_path_rejects_traversal_outside_storage_root(client, session, test_settings):
+    """A request with path=../../etc must NOT resolve; scan-path must return 400."""
+    exam_id = str(await _ensure_exam_one(session))
+    await session.commit()
+    response = await client.post(
+        "/imports/scan-path",
+        data={"exam_id": exam_id, "path": "../../../etc"},
+    )
+    assert response.status_code == 200  # renders the wizard with an error
+    body = response.text
+    assert "Path not found" in body or "not found" in body.lower()
+
+
+async def test_scan_path_rejects_absolute_path_outside_root(client, session, tmp_path, test_settings):
+    """An absolute path outside the storage root must also be rejected."""
+    outside = tmp_path / "elsewhere"
+    outside.mkdir()
+    (outside / "a.txt").write_text("x", encoding="utf-8")
+    exam_id = str(await _ensure_exam_one(session))
+    await session.commit()
+    response = await client.post(
+        "/imports/scan-path",
+        data={"exam_id": exam_id, "path": str(outside)},
+    )
+    assert response.status_code == 200
+    assert "not found" in response.text.lower()

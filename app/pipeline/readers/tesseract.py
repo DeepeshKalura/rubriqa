@@ -5,6 +5,7 @@ scores; very low scores usually mean handwriting -> escalation signal.
 from __future__ import annotations
 
 import asyncio
+import uuid
 import csv
 import io
 from pathlib import Path
@@ -55,7 +56,7 @@ class TesseractReader:
     def _run_tesseract(self, png_bytes: bytes, page: CanonicalPage, started: float) -> ReadingResult:
         import time
 
-        png_path = Path(f"/tmp/tess-{id(png_bytes)}.png")
+        png_path = Path(f"/tmp/tess-{uuid.uuid4().hex}.png")
         png_path.write_bytes(png_bytes)
         try:
             proc = __import__("subprocess").run(
@@ -113,10 +114,11 @@ class TesseractReader:
 
         warnings: list[str] = []
         status = ReadingStatus.OK
+        low_thresh = self.settings.low_confidence_threshold
         if not text.strip():
             status = ReadingStatus.EMPTY
             warnings.append("empty_ocr")
-        elif confidence < 0.55:
+        elif confidence < low_thresh:
             status = ReadingStatus.LOW_CONFIDENCE
             warnings.append("low_confidence_ocr")
         if low_ratio > 0.5:

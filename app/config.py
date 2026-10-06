@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     tesseract_langs: str = "eng+hin"
     tesseract_min_word_confidence: int = 45
     vision_max_image_side: int = 2200
+    # Confidence threshold below which a page reading is marked low-confidence
+    # (and which may trigger a vision repair pass).
+    low_confidence_threshold: float = 0.55
+    # Vision legibility threshold for the same purpose.
+    low_legibility_threshold: float = 0.6
     repair_enabled: bool = True
     repair_auto_accept_min_legibility: float = 0.72
     reading_version: str = "v1"

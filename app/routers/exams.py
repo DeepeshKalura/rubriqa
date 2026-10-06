@@ -46,25 +46,39 @@ async def exams(request: Request, session: AsyncSession = Depends(get_session)):
         )
         .all()
     )
-    items = []
-    for exam, klass in rows:
-        question_count = (
+    # One round-trip per aggregation via LEFT JOIN + GROUP BY.
+    exam_ids = [exam.id for exam, _ in rows]
+    question_counts = dict(
+        (
             await session.execute(
-                select(func.count(Question.id)).where(Question.exam_id == exam.id)
+                select(Question.exam_id, func.count(Question.id))
+                .where(Question.exam_id.in_(exam_ids))
+                .group_by(Question.exam_id)
             )
-        ).scalar_one()
-        counts = dict(
-            (
-                await session.execute(
-                    select(Submission.state, func.count(Submission.id))
-                    .where(Submission.exam_id == exam.id)
-                    .group_by(Submission.state)
-                )
-            ).all()
-        )
-        items.append(
-            {"exam": exam, "klass": klass, "questions": question_count, "states": counts}
-        )
+        ).all()
+    )
+    submission_states_rows = (
+        (
+            await session.execute(
+                select(Submission.exam_id, Submission.state, func.count(Submission.id))
+                .where(Submission.exam_id.in_(exam_ids))
+                .group_by(Submission.exam_id, Submission.state)
+            )
+        ).all()
+    )
+    states_by_exam: dict[int, dict[str, int]] = {}
+    for exam_id, state, count in submission_states_rows:
+        states_by_exam.setdefault(exam_id, {})[state.value] = count
+
+    items = [
+        {
+            "exam": exam,
+            "klass": klass,
+            "questions": question_counts.get(exam.id, 0),
+            "states": states_by_exam.get(exam.id, {}),
+        }
+        for exam, klass in rows
+    ]
     return render(request, "exams.html", {"active": "exams", "items": items})
 
 

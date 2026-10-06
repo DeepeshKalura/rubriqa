@@ -97,6 +97,27 @@ class Storage:
             return path
         return self.root / path
 
+    def safe_resolve(self, requested: str) -> Path | None:
+        """Resolve a user-supplied path strictly inside the storage root.
+
+        Used by import endpoints so a request like "../../etc" cannot point
+        at arbitrary host directories. Absolute paths are accepted only if
+        they already live under the storage root; the result is symlink
+        resolved and containment-checked.
+        """
+        if not requested:
+            return None
+        candidate = Path(requested)
+        if not candidate.is_absolute():
+            candidate = self.root / candidate
+        resolved = candidate.resolve()
+        root = self.root.resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            return None
+        return resolved
+
     def relative(self, path: Path) -> str:
         """Store paths relative to the storage root so ./data stays portable."""
         try:

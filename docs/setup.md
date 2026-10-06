@@ -127,3 +127,17 @@ Outputs land in `reports/`.
 | Job stuck in `running` | Sweeper requeues it within `JOB_STUCK_MINUTES`; or open the job and press Retry |
 | Duplicate import check | Re-run import — the diff should show everything as already imported |
 | Port conflict on 8090/5435 | Change the host side of the port mappings in `docker-compose.yml` |
+
+## 10. Exposure and auth
+
+The web service binds to `127.0.0.1` only and assumes a single trusted operator.
+There is no login. Do not expose port 8090 to a network without putting
+something (reverse proxy with auth, Tailscale, VPN, …) in front of it. The
+import wizard also accepts a server-side path; combined with the path
+containment check in `Storage.safe_resolve`, that means a request can only
+scan directories that already live under `./data`.
+
+Google OAuth uses a signed CSRF state token (`app/services/oauth_state.py`)
+and stores refresh tokens Fernet-encrypted. Removing `APP_SECRET_KEY`
+from `.env` after connecting Google will permanently lock the existing
+credential out — generate a new one and reconnect.

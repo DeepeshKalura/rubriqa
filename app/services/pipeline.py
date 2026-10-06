@@ -202,7 +202,7 @@ class SubmissionPipeline:
             document = await self.session.get(Document, page.document_id)
             assert document is not None
             try:
-                reading = await self._read_page(document, page, semaphore=semaphore, force=force)
+                reading = await self._read_page(document, page, semaphore=semaphore)
             except ReaderError as exc:
                 if exc.retryable:
                     page.state = PageState.DEFERRED
@@ -249,7 +249,7 @@ class SubmissionPipeline:
         return deferred
 
     async def _read_page(
-        self, document: Document, page: Page, *, semaphore: asyncio.Semaphore, force: bool
+        self, document: Document, page: Page, *, semaphore: asyncio.Semaphore,
     ):
         # Text-based sources (txt/md/google forms) already have a text layer;
         # they bypass image readers entirely regardless of READER_MODE.
@@ -374,6 +374,11 @@ class SubmissionPipeline:
                     is_selected=True,
                 )
                 self.session.add(repair_run)
+                # Keep the cached page text in sync with the winning reading
+                # for non text-layer pages. For text / google_forms pages the
+                # original document text is authoritative.
+                if not page.has_text_layer:
+                    page.direct_text = sanitize_text(repaired.text)
                 await self.session.commit()
                 return repaired
         return reading
@@ -668,7 +673,7 @@ class SubmissionPipeline:
                 "max_score": question.max_score,
                 "answer_key": question.answer_key,
                 "answer_key_alternatives": question.answer_key_alternatives,
-                "strategy": question.strategy or exam.scoring_strategy if exam else question.strategy,
+                "strategy": question.strategy or (exam.scoring_strategy if exam else None),
             }
             strategy_name = question_payload["strategy"] or strategy_name
             if strategy_name not in strategy_cache:

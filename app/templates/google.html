@@ -46,6 +46,14 @@
         <span>Google Form ID</span>
         <input type="text" name="form_id" placeholder="1FAIpQLS…" required>
       </label>
+      <label class="field mb">
+        <span>Exam to attach responses to</span>
+        <select name="exam_id" required>
+          {% for exam in exams %}
+          <option value="{{ exam.id }}">{{ exam.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
       <button class="btn">Fetch responses</button>
     </form>
     <p class="small muted">Responses are matched to students by roll number and become documents like any other submission.</p>

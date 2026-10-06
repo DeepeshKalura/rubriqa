@@ -57,7 +57,10 @@ async def submission_detail(
         .scalars()
         .all()
     )
+    # One round-trip per page, and one for all repairs across the submission.
     document_rows = []
+    all_pages: list[Page] = []
+    pages_by_document: dict[int, list[Page]] = {}
     for document in documents:
         pages = (
             (
@@ -68,33 +71,50 @@ async def submission_detail(
             .scalars()
             .all()
         )
-        page_rows = []
-        for page in pages:
-            runs = (
+        pages_by_document[document.id] = pages
+        all_pages.extend(pages)
+
+    runs_by_page: dict[int, list] = {}
+    if all_pages:
+        reading_runs = (
+            (
+                await session.execute(
+                    select(ReadingRun)
+                    .where(ReadingRun.page_id.in_([p.id for p in all_pages]))
+                    .order_by(ReadingRun.id.desc())
+                )
+            )
+            .scalars()
+            .all()
+        )
+        for run in reading_runs:
+            runs_by_page.setdefault(run.page_id, []).append(run)
+    repairs_by_run: dict[int, list] = {}
+    if runs_by_page:
+        all_run_ids = [r.id for runs in runs_by_page.values() for r in runs]
+        if all_run_ids:
+            repairs = (
                 (
                     await session.execute(
-                        select(ReadingRun)
-                        .where(ReadingRun.page_id == page.id)
-                        .order_by(ReadingRun.id.desc())
+                        select(Repair)
+                        .where(Repair.reading_run_id.in_(all_run_ids))
+                        .order_by(Repair.id.desc())
                     )
                 )
                 .scalars()
                 .all()
             )
+            for repair in repairs:
+                repairs_by_run.setdefault(repair.reading_run_id, []).append(repair)
+
+    for document in documents:
+        page_rows = []
+        for page in pages_by_document.get(document.id, []):
+            runs = runs_by_page.get(page.id, [])
             selected = next((r for r in runs if r.is_selected), runs[0] if runs else None)
-            repairs = []
+            repairs: list = []
             for run in runs:
-                repairs.extend(
-                    (
-                        await session.execute(
-                            select(Repair)
-                            .where(Repair.reading_run_id == run.id)
-                            .order_by(Repair.id.desc())
-                        )
-                    )
-                    .scalars()
-                    .all()
-                )
+                repairs.extend(repairs_by_run.get(run.id, []))
             page_rows.append(
                 {"page": page, "runs": runs, "selected": selected, "repairs": repairs}
             )

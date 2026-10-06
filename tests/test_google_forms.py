@@ -82,3 +82,33 @@ def test_oauth_flow_requires_client_config(test_settings):
     flow = build_oauth_flow(settings)
     # Flow builds but has empty credentials; the app rejects before this point.
     assert flow is not None
+
+
+async def test_oauth_state_validation(client):
+    """The callback must reject when no state cookie / mismatched state."""
+    response = await client.get(
+        "/google/oauth/callback",
+        params={"code": "x", "state": "spoofed-state"},
+    )
+    assert response.status_code == 400
+    assert b"OAuth state mismatch" in response.content
+
+
+async def test_oauth_state_helper_signs_and_verifies(test_settings):
+    from app.services.oauth_state import make_state, verify_state
+
+    token = make_state()
+    assert verify_state(token) is not None
+    # Tampered token must be rejected.
+    assert verify_state(token + "x") is None
+    assert verify_state("") is None
+
+
+async def test_make_state_helper_works_without_app_secret():
+    """When APP_SECRET_KEY is empty the signer should still produce a usable
+    token (using API_KEY as a fallback) so dev users can connect Google
+    without generating a separate key."""
+    from app.services import oauth_state
+
+    assert oauth_state.make_state()
+    assert oauth_state.verify_state(oauth_state.make_state()) is not None

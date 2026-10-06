@@ -4,6 +4,7 @@ Idempotency is visible in the dry-run: discovered / already imported / new.
 """
 from __future__ import annotations
 
+import io
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
@@ -72,24 +73,28 @@ async def import_upload(
     storage.ensure_dirs()
     batch_dir = storage.uploads / f"batch_{exam_id}_{len(files)}"
     batch_dir.mkdir(parents=True, exist_ok=True)
+    max_bytes = settings.max_upload_mb * 1024 * 1024
 
     saved = 0
     for upload in files:
         filename = Path(upload.filename or "upload.bin").name
         target = batch_dir / filename
-        content = await upload.read()
-        if len(content) > settings.max_upload_mb * 1024 * 1024:
-            return render(
-                request,
-                "import_new.html",
-                {
-                    "active": "imports",
-                    "exams": [],
-                    "flash": f"{filename} exceeds MAX_UPLOAD_MB",
-                    "flash_kind": "error",
-                },
-            )
-        storage.atomic_write_bytes(target, content)
+        # Fail fast on Content-Length before buffering the body. Headers can
+        # be spoofed so we also re-check while streaming.
+        declared = upload.headers.get("content-length") if upload.headers else None
+        if declared and declared.isdigit() and int(declared) > max_bytes:
+            return _upload_error(request, exams, f"{filename} exceeds MAX_UPLOAD_MB")
+        sink = io.BytesIO()
+        written = 0
+        while True:
+            chunk = await upload.read(1 << 20)  # 1 MB
+            if not chunk:
+                break
+            written += len(chunk)
+            if written > max_bytes:
+                return _upload_error(request, exams, f"{filename} exceeds MAX_UPLOAD_MB")
+            sink.write(chunk)
+        storage.atomic_write_bytes(target, sink.getvalue())
         saved += 1
 
     # zip archives are expanded (zip-slip protected)
@@ -133,8 +138,8 @@ async def import_commit(
     exam = await session.get(Exam, exam_id)
     if exam is None:
         raise HTTPException(404, "Exam not found")
-    root_path = Path(root)
-    if not root_path.exists():
+    root_path = Storage().safe_resolve(root)
+    if root_path is None or not root_path.exists():
         return RedirectResponse("/imports/new", status_code=303)
 
     plan = scan_folder(root_path)
@@ -167,7 +172,10 @@ async def scan_path(
     exam = await session.get(Exam, exam_id)
     if exam is None:
         raise HTTPException(404, "Exam not found")
-    root = Storage().resolve(path)
+    # Containment check: refuse absolute paths outside the storage root and
+    # any traversal that escapes it. Without this, a request with
+    # path=../../etc would scan arbitrary host directories.
+    root = Storage().safe_resolve(path)
     if root is None or not root.exists():
         exams = (await session.execute(select(Exam).order_by(Exam.name))).scalars().all()
         return render(
