@@ -7,7 +7,7 @@ from typing import Any, Callable
 from app.config import Settings, get_settings
 from app.providers.llm.base import LLMError, LLMProvider
 from app.providers.llm.fake import FakeProvider
-from app.providers.llm.minimax import MiniMaxProvider
+from app.providers.llm.minimax import MiniMaxProvider, parse_json_lenient
 
 
 def build_provider(
@@ -31,4 +31,5 @@ __all__ = [
     "FakeProvider",
     "MiniMaxProvider",
     "build_provider",
+    "parse_json_lenient",
 ]

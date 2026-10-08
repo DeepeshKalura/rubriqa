@@ -21,6 +21,13 @@ OVERRIDABLE_KEYS = {
     "google_forms_provider": "google_forms_provider",
     "hybrid_accept_confidence": "hybrid_accept_confidence",
     "hybrid_escalate_below": "hybrid_escalate_below",
+    # entry-evaluation mode flags
+    "eval_mode": "eval_mode",
+    "eval_batch_size": "eval_batch_size",
+    "cleaning_mode": "cleaning_mode",
+    "google_drive_enabled": "google_drive_enabled",
+    "google_drive_provider": "google_drive_provider",
+    "sandbox_default_provider": "sandbox_default_provider",
 }
 
 

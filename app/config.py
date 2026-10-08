@@ -65,6 +65,37 @@ class Settings(BaseSettings):
     google_redirect_uri: str = "http://127.0.0.1:8090/google/oauth/callback"
     app_secret_key: str = ""
 
+    # --- google drive (image files linked from form responses)
+    # provider: "local" uses a mirror folder on disk; "google" uses the Drive API.
+    google_drive_enabled: bool = False
+    google_drive_provider: Literal["google", "local"] = "local"
+    # When provider=local, this folder is scanned as a Drive substitute (the
+    # importer treats each file inside as a downloadable Drive file, named by
+    # the file id). The default sits under ./data so it's local-only.
+    google_drive_local_root: Path = Path("./data/drive_mirror")
+
+    # --- entry evaluation mode (replaces exam-mode as the primary flow)
+    # EVAL_MODE: entry | exam  — entry is the default; exam kept for legacy
+    eval_mode: Literal["entry", "exam"] = "entry"
+    eval_batch_size: int = 250            # in the 200-300 range per spec
+    eval_batch_size_min: int = 200
+    eval_batch_size_max: int = 300
+    # sampling_fraction on top of AI-flagged entries for human review per batch
+    eval_review_sample_fraction: float = 0.10
+    # theme column is taken from the form response; these are the known options
+    # (the form parser also accepts free-text variants).
+    eval_known_themes: str = (
+        "ai_education,smart_agriculture,health_wellbeing,disaster_management,"
+        "environment_sustainability,rural_innovation,community_safety"
+    )
+    # cleaning: rule-only | llm (rule pass then optional LLM rewrite)
+    cleaning_mode: Literal["rules", "llm"] = "rules"
+    # drive download chunk size (bytes) — keep small, files are page-sized
+    drive_download_chunk_bytes: int = 65536
+
+    # --- sandbox (2-way OCR comparison)
+    sandbox_default_provider: Literal["vision", "ocr_llm"] = "vision"
+
     # --- jobs / worker
     worker_concurrency: int = 2
     ocr_threads: int = 2
