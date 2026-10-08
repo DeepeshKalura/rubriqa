@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Programs{% endblock %}
+{% block content %}
+<h1>Programs</h1>
+<p style="color: var(--muted); max-width: 60ch;">
+  A program is a single AI Innovation Project edition (e.g. <em>HP pilot 2026</em>).
+  Each program gets its own rubric, batch size (200-300), and entry pool.
+</p>
+
+<details style="margin-top: 1rem;">
+  <summary><strong>Create a new program</strong></summary>
+  <form method="post" action="/programs/new" style="margin-top: 0.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; max-width: 700px;">
+    <label>Name<input name="name" required style="width:100%; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px;"></label>
+    <label>Rubric name (empty = no rubric)<input name="rubric_name" style="width:100%; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px;"></label>
+    <label>Description<textarea name="description" rows="2" style="width:100%; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px;"></textarea></label>
+    <label>Batch size (200-300)<input name="batch_size" type="number" min="200" max="300" value="250" style="width:100%; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px;"></label>
+    <button type="submit" style="grid-column: 1 / -1; padding: 0.5rem 1rem; background: #4338ca; color: white; border: 0; border-radius: 4px; cursor: pointer; font-weight: 600;">Create program</button>
+  </form>
+</details>
+
+<table style="margin-top: 1.5rem; width: 100%; border-collapse: collapse;">
+  <thead><tr style="background: #f1f5f9;">
+    <th style="text-align:left; padding: 0.5rem;">ID</th>
+    <th style="text-align:left; padding: 0.5rem;">Name</th>
+    <th style="text-align:left; padding: 0.5rem;">State</th>
+    <th style="text-align:right; padding: 0.5rem;">Batch size</th>
+    <th style="text-align:left; padding: 0.5rem;">Created</th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+    {% for p in programs %}
+    <tr style="border-top: 1px solid var(--border, #e2e8f0);">
+      <td style="padding: 0.5rem;">{{ p.id }}</td>
+      <td style="padding: 0.5rem;"><a href="/programs/{{ p.id }}">{{ p.name }}</a></td>
+      <td style="padding: 0.5rem;"><span class="pill ok">{{ p.state.value }}</span></td>
+      <td style="padding: 0.5rem; text-align: right;">{{ p.batch_size }}</td>
+      <td style="padding: 0.5rem;">{{ p.created_at.strftime('%Y-%m-%d') if p.created_at }}</td>
+      <td style="padding: 0.5rem;"><a href="/sandbox">Sandbox</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" style="padding: 1rem; color: var(--muted);">No programs yet. Create one above.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

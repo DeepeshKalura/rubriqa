@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Entries{% endblock %}
+{% block content %}
+<h1>Entries</h1>
+<p style="color: var(--muted);">All entries across programs. Use the program filter to narrow down.</p>
+
+<form method="get" style="margin: 1rem 0; display: flex; gap: 0.5rem;">
+  <input name="q" placeholder="Filter by name" value="{{ q or '' }}" style="padding: 0.4rem; border: 1px solid var(--border, #cbd5e1); border-radius: 4px;">
+  <select name="state" style="padding: 0.4rem; border: 1px solid var(--border, #cbd5e1); border-radius: 4px;">
+    <option value="">All states</option>
+    <option value="pending" {{ 'selected' if state == 'pending' }}>Pending</option>
+    <option value="scoring" {{ 'selected' if state == 'scoring' }}>Scoring</option>
+    <option value="ready_for_review" {{ 'selected' if state == 'ready_for_review' }}>Awaiting review</option>
+    <option value="completed" {{ 'selected' if state == 'completed' }}>Completed</option>
+    <option value="needs_review" {{ 'selected' if state == 'needs_review' }}>Needs review</option>
+    <option value="failed" {{ 'selected' if state == 'failed' }}>Failed</option>
+  </select>
+  <button type="submit" style="padding: 0.4rem 1rem; background: #4338ca; color: white; border: 0; border-radius: 4px;">Filter</button>
+</form>
+
+<table style="width: 100%; border-collapse: collapse;">
+  <thead><tr style="background: #f1f5f9;">
+    <th style="text-align:left; padding: 0.5rem;">ID</th>
+    <th style="text-align:left; padding: 0.5rem;">Program</th>
+    <th style="text-align:left; padding: 0.5rem;">Name</th>
+    <th style="text-align:left; padding: 0.5rem;">Theme</th>
+    <th style="text-align:left; padding: 0.5rem;">State</th>
+    <th style="text-align:right; padding: 0.5rem;">Score</th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+    {% for e in entries %}
+    <tr style="border-top: 1px solid var(--border, #e2e8f0);">
+      <td style="padding: 0.5rem;">{{ e.id }}</td>
+      <td style="padding: 0.5rem;"><a href="/programs/{{ e.program_id }}">#{{ e.program_id }}</a></td>
+      <td style="padding: 0.5rem;">{{ e.full_name or '-' }}</td>
+      <td style="padding: 0.5rem;">{{ e.theme or '-' }}</td>
+      <td style="padding: 0.5rem;"><span class="pill">{{ e.state.value }}</span></td>
+      <td style="padding: 0.5rem; text-align: right;">{{ e.total_score or '-' }} / {{ e.max_score or '-' }}</td>
+      <td style="padding: 0.5rem;"><a href="/entries/{{ e.id }}">View</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" style="padding: 1rem; color: var(--muted);">No entries match.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

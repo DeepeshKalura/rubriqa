@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Program {{ program.name }}{% endblock %}
+{% block content %}
+<h1>{{ program.name }}</h1>
+<p style="color: var(--muted);">{{ program.description or '' }}</p>
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1rem;">
+  <div style="background: #f8fafc; padding: 0.75rem; border: 1px solid var(--border, #e2e8f0); border-radius: 6px;">
+    <strong>State</strong><br><span class="pill ok">{{ program.state.value }}</span>
+  </div>
+  <div style="background: #f8fafc; padding: 0.75rem; border: 1px solid var(--border, #e2e8f0); border-radius: 6px;">
+    <strong>Batch size</strong><br>{{ program.batch_size }} (200-300 range)
+  </div>
+  <div style="background: #f8fafc; padding: 0.75rem; border: 1px solid var(--border, #e2e8f0); border-radius: 6px;">
+    <strong>Entries</strong><br>{{ counts.values() | sum }} total
+    <small style="display:block;">
+        {% for state, n in counts.items() %}
+        <span class="pill">{{ state }}: {{ n }}</span>
+        {% endfor %}
+      </small>
+  </div>
+  <div style="background: #f8fafc; padding: 0.75rem; border: 1px solid var(--border, #e2e8f0); border-radius: 6px;">
+    <strong>Export</strong><br><a href="/programs/{{ program.id }}/export.csv">Download final dataset (CSV)</a>
+  </div>
+</div>
+
+<details style="margin-top: 1.5rem;">
+  <summary><strong>Import form CSV (Himachal or Ashramshala shape)</strong></summary>
+  <form method="post" action="/programs/{{ program.id }}/import-form" enctype="multipart/form-data" style="margin-top: 0.5rem;">
+    <input type="file" name="file" accept=".csv" required>
+    <button type="submit" style="margin-left: 0.5rem; padding: 0.4rem 1rem; background: #4338ca; color: white; border: 0; border-radius: 4px; cursor: pointer;">Upload &amp; register</button>
+  </form>
+</details>
+
+<details style="margin-top: 1rem;">
+  <summary><strong>Split pending entries into batches</strong></summary>
+  <form method="post" action="/programs/{{ program.id }}/batches/create" style="margin-top: 0.5rem;">
+    <input type="number" name="batch_size" min="200" max="300" value="{{ program.batch_size }}" style="padding:0.3rem; border: 1px solid var(--border); border-radius: 4px; width: 100px;">
+    <button type="submit" style="padding: 0.4rem 1rem; background: #4338ca; color: white; border: 0; border-radius: 4px; cursor: pointer;">Create batches</button>
+  </form>
+</details>
+
+<h2 style="margin-top: 2rem;">Batches</h2>
+<table style="width: 100%; border-collapse: collapse;">
+  <thead><tr style="background: #f1f5f9;">
+    <th style="text-align:left; padding: 0.5rem;">Name</th>
+    <th style="text-align:left; padding: 0.5rem;">State</th>
+    <th style="text-align:right; padding: 0.5rem;">Size</th>
+    <th style="text-align:right; padding: 0.5rem;">Completed</th>
+    <th style="text-align:right; padding: 0.5rem;">Failed</th>
+    <th style="text-align:right; padding: 0.5rem;">Flagged</th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+    {% for b in batches %}
+    <tr style="border-top: 1px solid var(--border, #e2e8f0);">
+      <td style="padding: 0.5rem;">{{ b.name }}</td>
+      <td style="padding: 0.5rem;"><span class="pill">{{ b.state.value }}</span></td>
+      <td style="padding: 0.5rem; text-align: right;">{{ b.size }}</td>
+      <td style="padding: 0.5rem; text-align: right;">{{ b.completed }}</td>
+      <td style="padding: 0.5rem; text-align: right;">{{ b.failed }}</td>
+      <td style="padding: 0.5rem; text-align: right;">{{ b.flagged }}</td>
+      <td style="padding: 0.5rem;"><a href="/programs/{{ program.id }}/batches/{{ b.id }}">Open</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" style="padding: 1rem; color: var(--muted);">No batches yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 style="margin-top: 2rem;">Recent entries</h2>
+<table style="width: 100%; border-collapse: collapse;">
+  <thead><tr style="background: #f1f5f9;">
+    <th style="text-align:left; padding: 0.5rem;">ID</th>
+    <th style="text-align:left; padding: 0.5rem;">Name</th>
+    <th style="text-align:left; padding: 0.5rem;">School</th>
+    <th style="text-align:left; padding: 0.5rem;">Class</th>
+    <th style="text-align:left; padding: 0.5rem;">Theme</th>
+    <th style="text-align:left; padding: 0.5rem;">State</th>
+    <th style="text-align:right; padding: 0.5rem;">Score</th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+    {% for e in recent_entries %}
+    <tr style="border-top: 1px solid var(--border, #e2e8f0);">
+      <td style="padding: 0.5rem;">{{ e.id }}</td>
+      <td style="padding: 0.5rem;">{{ e.full_name or '-' }}</td>
+      <td style="padding: 0.5rem;">{{ e.school_name or '-' }}</td>
+      <td style="padding: 0.5rem;">{{ e.class_name or '-' }}</td>
+      <td style="padding: 0.5rem;">{{ e.theme or '-' }}</td>
+      <td style="padding: 0.5rem;"><span class="pill">{{ e.state.value }}</span></td>
+      <td style="padding: 0.5rem; text-align: right;">{{ e.total_score or '-' }} / {{ e.max_score or '-' }}</td>
+      <td style="padding: 0.5rem;"><a href="/entries/{{ e.id }}">View</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="8" style="padding: 1rem; color: var(--muted);">No entries yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

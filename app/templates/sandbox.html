@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+{% block title %}Sandbox — 2-way OCR comparison{% endblock %}
+{% block head_extra %}
+<style>
+  /* Single-file local styles — no CDN */
+  .sandbox-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 900px) {
+    .sandbox-grid { grid-template-columns: 1fr; }
+  }
+  .drop {
+    border: 2px dashed var(--border, #cbd5e1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--muted, #64748b);
+    background: var(--surface-2, #f8fafc);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .drop.over, .drop:hover { background: #eef2ff; border-color: #6366f1; color: #1e1b4b; }
+  .drop input { display: none; }
+  .drop img.preview {
+    max-width: 100%;
+    max-height: 220px;
+    margin-top: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid var(--border, #e2e8f0);
+  }
+  .paths {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 900px) {
+    .paths { grid-template-columns: 1fr; }
+  }
+  .path-card {
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    padding: 1rem;
+    background: var(--surface, #fff);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .path-card h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+  .path-card .subtitle { color: var(--muted, #64748b); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .pill.ok { background: #d1fae5; color: #065f46; }
+  .pill.warn { background: #fef3c7; color: #92400e; }
+  .pill.err { background: #fee2e2; color: #991b1b; }
+  textarea.ocr {
+    width: 100%;
+    min-height: 140px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85rem;
+    background: #f8fafc;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 4px;
+    padding: 0.5rem;
+  }
+  ul.criteria { list-style: none; padding: 0; margin: 0; }
+  ul.criteria li {
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--border, #e2e8f0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  ul.criteria li:last-child { border-bottom: none; }
+  .criterion-name { flex: 1 1 auto; }
+  .criterion-score { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .bar {
+    flex: 0 0 100px;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    margin: 0 0.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar > span { position: absolute; left: 0; top: 0; bottom: 0; background: #6366f1; border-radius: 3px; }
+  details > summary { cursor: pointer; color: var(--muted, #475569); }
+  pre.raw { background: #f1f5f9; padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-size: 0.8rem; }
+  .samples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .samples button {
+    border: 1px solid var(--border, #e2e8f0);
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .samples button:hover { background: #eef2ff; }
+  button.run {
+    background: #4338ca;
+    color: white;
+    border: 0;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.run:disabled { opacity: 0.5; cursor: progress; }
+  .config {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .config label { font-size: 0.85rem; color: var(--muted, #475569); display: block; }
+  .config input, .config select {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid var(--border, #cbd5e1);
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+  }
+  .stat-grid > div {
+    background: #f8fafc;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 4px;
+    padding: 0.4rem;
+    text-align: center;
+  }
+  .stat-grid strong { font-size: 1.1rem; display: block; }
+  .diff-table { font-size: 0.85rem; border-collapse: collapse; width: 100%; }
+  .diff-table th, .diff-table td { padding: 4px 8px; border: 1px solid var(--border, #e2e8f0); text-align: left; }
+  .diff-table th { background: #f1f5f9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Sandbox — 2-way OCR comparison</h1>
+<p style="color: var(--muted, #64748b); max-width: 60ch;">
+  Drop a single-page student submission image (or pick a bundled sample) and run
+  both OCR paths side-by-side. Path A uses the vision-capable LLM for OCR + scoring
+  in one call. Path B uses Tesseract OCR locally and then asks the LLM to score the
+  cleaned text. Both paths hit the running app's configured MiniMax endpoint. All
+  data stays on this machine.
+</p>
+
+<div class="sandbox-grid">
+  <aside>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept="image/*">
+      <span id="drop-text">Drop a page image, or click to pick</span>
+      <img class="preview" id="preview" alt="">
+    </label>
+
+    <div>
+      <label style="font-size: 0.85rem; color: var(--muted); margin-top: 1rem; display: block;">
+        Bundled samples (handwritten Marathi, from Kagaaz.pdf)
+      </label>
+      <div class="samples" id="samples">
+        <em>Loading samples…</em>
+      </div>
+    </div>
+
+    <div class="config">
+      <div>
+        <label>Language</label>
+        <select id="language">
+          <option value="auto">Auto</option>
+          <option value="hin">Hindi</option>
+          <option value="eng">English</option>
+          <option value="mr">Marathi</option>
+        </select>
+      </div>
+      <div>
+        <label>Theme</label>
+        <select id="theme">
+          <option value="ai_education">AI in Education</option>
+          <option value="smart_agriculture">Smart Agriculture</option>
+          <option value="health_wellbeing">Health & Wellbeing</option>
+          <option value="disaster_management">Disaster Management</option>
+          <option value="environment_sustainability">Environment</option>
+          <option value="rural_innovation">Rural Innovation</option>
+          <option value="community_safety">Community Safety</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="font-size: 0.85rem; margin-top: 0.75rem; display: block;">
+      Optional: pre-fill student text (otherwise the OCR result is scored directly)
+    </label>
+    <textarea id="situation" placeholder="Situation (optional)" style="width:100%; font-size: 0.85rem; min-height: 60px;"></textarea>
+    <textarea id="proposed_solution" placeholder="Proposed AI solution (optional)" style="width:100%; font-size: 0.85rem; min-height: 60px; margin-top: 0.25rem;"></textarea>
+    <textarea id="ai_description" placeholder="What is AI? (optional, student description)" style="width:100%; font-size: 0.85rem; min-height: 40px; margin-top: 0.25rem;"></textarea>
+
+    <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <label style="font-size: 0.85rem;">
+        <input type="checkbox" id="run_vision" checked> Run Path A (Vision LLM)
+      </label>
+      <label style="font-size: 0.85rem;">
+        <input type="checkbox" id="run_tesseract" checked> Run Path B (Tesseract + LLM)
+      </label>
+    </div>
+
+    <button class="run" id="run-btn" style="margin-top: 1rem; width: 100%;">Compare both paths</button>
+    <button class="run" id="reset-btn" style="margin-top: 0.5rem; width: 100%; background: #b91c1c;">
+      Reset sandbox entries
+    </button>
+
+    <div id="status" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted);"></div>
+  </aside>
+
+  <main>
+    <div id="results">
+      <p style="color: var(--muted);">Pick an image and click <em>Compare</em> to see the two paths' results.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+/* Sandbox controller — vanilla JS, no CDN, no external deps. */
+(function () {
+  const drop = document.getElementById('drop');
+  const fileInput = document.getElementById('file');
+  const preview = document.getElementById('preview');
+  const dropText = document.getElementById('drop-text');
+  const samplesEl = document.getElementById('samples');
+  const runBtn = document.getElementById('run-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const statusEl = document.getElementById('status');
+  const resultsEl = document.getElementById('results');
+
+  let currentFile = null;
+
+  function setStatus(text) { statusEl.textContent = text || ''; }
+
+  function loadFile(file) {
+    currentFile = file;
+    dropText.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+    const reader = new FileReader();
+    reader.onload = (e) => { preview.src = e.target.result; };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) loadFile(e.target.files[0]);
+  });
+
+  ['dragover', 'dragenter'].forEach(ev =>
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); })
+  );
+  ['dragleave', 'drop'].forEach(ev =>
+    drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); })
+  );
+  drop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const f = e.dataTransfer.files[0];
+    if (f) loadFile(f);
+  });
+
+  // samples
+  fetch('/sandbox/samples').then(r => r.json()).then((data) => {
+    samplesEl.innerHTML = '';
+    if (!data.samples || !data.samples.length) {
+      samplesEl.innerHTML = '<em>No bundled samples. Drop an image above.</em>';
+      return;
+    }
+    data.samples.forEach((s) => {
+      const btn = document.createElement('button');
+      btn.textContent = s.name.replace('page-', 'p');
+      btn.title = s.path;
+      btn.onclick = async () => {
+        const r = await fetch(s.path);
+        const blob = await r.blob();
+        const file = new File([blob], s.name, { type: 'image/png' });
+        loadFile(file);
+      };
+      samplesEl.appendChild(btn);
+    });
+  });
+
+  function escapeHtml(s) {
+    return (s || '').replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+  }
+
+  function renderPath(label, data) {
+    const card = document.createElement('div');
+    card.className = 'path-card';
+    const ok = data.ok !== false;
+    const totalScore = (data.score && data.score.total_awarded) || 0;
+    const totalMax = (data.score && data.score.total_max) || 0;
+    const percentage = (data.score && data.score.percentage) || 0;
+    const confidence = (data.score && data.score.confidence) || data.confidence || 0;
+
+    let criteriaHtml = '';
+    if (data.score && data.score.criteria && data.score.criteria.length) {
+      criteriaHtml = '<ul class="criteria">' + data.score.criteria.map((c) => {
+        const pct = c.max_score ? Math.round(100 * c.awarded / c.max_score) : 0;
+        return `<li>
+          <span class="criterion-name">${escapeHtml(c.name)}</span>
+          <span class="bar"><span style="width: ${pct}%"></span></span>
+          <span class="criterion-score">${c.awarded.toFixed(1)} / ${c.max_score.toFixed(1)}</span>
+        </li>`;
+      }).join('') + '</ul>';
+    } else {
+      criteriaHtml = '<em>No criteria scored.</em>';
+    }
+
+    let observations = '';
+    if (data.score && data.score.observations) {
+      observations = `<details><summary>Observations</summary><p>${escapeHtml(data.score.observations)}</p></details>`;
+    }
+    let strengths = '';
+    if (data.score && data.score.strengths && data.score.strengths.length) {
+      strengths = `<details open><summary>Strengths</summary><ul>${data.score.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ul></details>`;
+    }
+    let gaps = '';
+    if (data.score && data.score.gaps && data.score.gaps.length) {
+      gaps = `<details><summary>Gaps</summary><ul>${data.score.gaps.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ul></details>`;
+    }
+    let rawJson = `<details><summary>Raw response JSON</summary><pre class="raw">${escapeHtml(JSON.stringify(data, null, 2))}</pre></details>`;
+
+    const total = (data.total_tokens || 0) + ((data.score && data.score) ? 0 : 0);
+    const tokens = (data.input_tokens != null)
+      ? `<div class="stat-grid">
+           <div><strong>${data.input_tokens || 0}</strong>Input tokens</div>
+           <div><strong>${data.output_tokens || 0}</strong>Output tokens</div>
+           <div><strong>${data.total_tokens || 0}</strong>Total tokens</div>
+         </div>`
+      : '<div></div>';
+
+    card.innerHTML = `
+      <h3>
+        ${escapeHtml(label === 'vision' ? 'Path A — Vision LLM (OCR + scoring)' : 'Path B — Tesseract OCR + LLM scoring')}
+      </h3>
+      <div class="subtitle">
+        <span class="pill ${ok ? 'ok' : 'err'}">${ok ? 'ok' : 'failed'}</span>
+        <span class="pill">${escapeHtml(data.method || label)}</span>
+        <span class="pill">${escapeHtml(data.language || '-')}</span>
+        <span class="pill">${escapeHtml(String((data.elapsed_ms || 0)))} ms</span>
+      </div>
+      ${!ok ? `<p style="color:#991b1b">${escapeHtml(data.error || 'unknown error')}</p>` : ''}
+      ${tokens}
+      <div class="stat-grid">
+        <div><strong>${totalScore.toFixed(1)} / ${totalMax.toFixed(1)}</strong>Score</div>
+        <div><strong>${percentage.toFixed(1)}%</strong>Percent</div>
+        <div><strong>${(confidence * 100).toFixed(0)}%</strong>Confidence</div>
+      </div>
+
+      <label style="font-size:0.8rem; color:var(--muted)">OCR transcript (cleaned)</label>
+      <textarea class="ocr" readonly>${escapeHtml(data.ocr_text || '')}</textarea>
+
+      <h4 style="margin-top:1rem; font-size:0.9rem;">Per-criterion scores</h4>
+      ${criteriaHtml}
+
+      <div style="margin-top:0.75rem;">
+        ${strengths}
+        ${gaps}
+        ${observations}
+        ${rawJson}
+      </div>
+    `;
+    return card;
+  }
+
+  function renderComparisonDiff(a, b) {
+    if (!a || !b || !a.score || !b.score) return '';
+    const rows = [];
+    rows.push(['Method', a.method || '-', b.method || '-']);
+    rows.push(['Language', a.language || '-', b.language || '-']);
+    rows.push(['Total score', a.score.total_awarded.toFixed(1), b.score.total_awarded.toFixed(1)]);
+    rows.push(['Percent', a.score.percentage.toFixed(1) + '%', b.score.percentage.toFixed(1) + '%']);
+    rows.push(['Confidence', (a.score.confidence * 100).toFixed(0) + '%', (b.score.confidence * 100).toFixed(0) + '%']);
+    rows.push(['Input tokens', a.input_tokens || 0, b.input_tokens || 0]);
+    rows.push(['Output tokens', a.output_tokens || 0, b.output_tokens || 0]);
+    rows.push(['Total tokens', a.total_tokens || 0, b.total_tokens || 0]);
+    rows.push(['Elapsed ms', a.elapsed_ms || 0, b.elapsed_ms || 0]);
+    if (a.score.criteria && b.score.criteria) {
+      a.score.criteria.forEach((ca, idx) => {
+        const cb = b.score.criteria[idx] || {};
+        rows.push([ca.name + ' (A vs B)',
+            ca.awarded.toFixed(1) + '/' + ca.max_score.toFixed(1),
+            (cb.awarded || 0).toFixed(1) + '/' + (cb.max_score || 0).toFixed(1)]);
+      });
+    }
+    return '<h3 style="margin-top:1rem">Side-by-side diff</h3>' +
+      '<table class="diff-table"><thead><tr><th>Field</th><th>Vision (Path A)</th><th>Tesseract+LLM (Path B)</th></tr></thead><tbody>' +
+      rows.map((r) => `<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(String(r[1]))}</td><td>${escapeHtml(String(r[2]))}</td></tr>`).join('') +
+      '</tbody></table>';
+  }
+
+  runBtn.addEventListener('click', async () => {
+    if (!currentFile) {
+      setStatus('Pick an image first.');
+      return;
+    }
+    runBtn.disabled = true;
+    setStatus('Running both paths…');
+    resultsEl.innerHTML = '';
+
+    const fd = new FormData();
+    fd.append('image', currentFile);
+    fd.append('language', document.getElementById('language').value);
+    fd.append('theme', document.getElementById('theme').value);
+    fd.append('situation', document.getElementById('situation').value);
+    fd.append('proposed_solution', document.getElementById('proposed_solution').value);
+    fd.append('ai_description', document.getElementById('ai_description').value);
+    fd.append('run_vision', document.getElementById('run_vision').checked ? 'true' : 'false');
+    fd.append('run_tesseract', document.getElementById('run_tesseract').checked ? 'true' : 'false');
+
+    try {
+      const res = await fetch('/sandbox/compare', { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!res.ok) {
+        setStatus('Error: ' + (json.detail || res.statusText));
+        resultsEl.innerHTML = '<pre class="raw">' + escapeHtml(JSON.stringify(json, null, 2)) + '</pre>';
+        return;
+      }
+      const a = json.results.find((r) => r.path === 'vision');
+      const b = json.results.find((r) => r.path === 'tesseract_llm');
+      const wrap = document.createElement('div');
+      wrap.className = 'paths';
+      if (a) wrap.appendChild(renderPath('vision', a));
+      if (b) wrap.appendChild(renderPath('tesseract_llm', b));
+      resultsEl.appendChild(wrap);
+      if (a && b) resultsEl.insertAdjacentHTML('beforeend', renderComparisonDiff(a, b));
+      setStatus('Done. Entry # ' + json.entry_id + ' (ref ' + json.external_ref + ')');
+    } catch (err) {
+      setStatus('Network error: ' + err.message);
+    } finally {
+      runBtn.disabled = false;
+    }
+  });
+
+  resetBtn.addEventListener('click', async () => {
+    if (!confirm('Delete all sandbox-created entries? Real program entries are safe.')) return;
+    const res = await fetch('/sandbox/reset', { method: 'POST' });
+    const json = await res.json();
+    setStatus('Deleted ' + json.deleted_entries + ' sandbox entries.');
+  });
+})();
+</script>
+{% endblock %}

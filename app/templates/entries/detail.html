@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Entry #{{ entry.id }}{% endblock %}
+{% block content %}
+<h1>Entry #{{ entry.id }} — {{ entry.full_name or '(no name)' }}</h1>
+<p style="color: var(--muted);">
+  Program #{{ entry.program_id }} · External ref <code>{{ entry.external_ref }}</code> · Form <em>{{ entry.form_kind }}</em> · Theme <em>{{ entry.theme or '-' }}</em>
+</p>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 1rem;">
+  <div>
+    <h3>Demographics</h3>
+    <table style="border-collapse: collapse;">
+      <tbody>
+        <tr><td style="padding: 4px; color: var(--muted);">School</td><td style="padding: 4px;">{{ entry.school_name or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Class</td><td style="padding: 4px;">{{ entry.class_name or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">State</td><td style="padding: 4px;">{{ entry.state_name or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">District</td><td style="padding: 4px;">{{ entry.district or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Block</td><td style="padding: 4px;">{{ entry.block_name or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Division</td><td style="padding: 4px;">{{ entry.division or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Project office</td><td style="padding: 4px;">{{ entry.project_office or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Ashramshala</td><td style="padding: 4px;">{{ entry.ashramshala or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Phone</td><td style="padding: 4px;">{{ entry.phone or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Language</td><td style="padding: 4px;">{{ entry.language or '-' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Declaration</td><td style="padding: 4px;">{{ 'Yes' if entry.declaration else 'No' }}</td></tr>
+        <tr><td style="padding: 4px; color: var(--muted);">Consent</td><td style="padding: 4px;">{{ 'Yes' if entry.consent else 'No' }}</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top: 1rem;">Submitted text (cleaned)</h3>
+    <pre style="background: #f8fafc; border: 1px solid var(--border, #e2e8f0); border-radius: 4px; padding: 0.5rem; white-space: pre-wrap;">{{ entry.submitted_text or '(not yet cleaned)' }}</pre>
+
+    <h3 style="margin-top: 1rem;">OCR runs</h3>
+    <table style="border-collapse: collapse; width: 100%;">
+      <thead><tr style="background: #f1f5f9;">
+        <th style="padding: 0.4rem; text-align:left;">Method</th>
+        <th style="padding: 0.4rem; text-align:left;">Status</th>
+        <th style="padding: 0.4rem; text-align:right;">Confidence</th>
+        <th style="padding: 0.4rem; text-align:right;">In/Out/Total tokens</th>
+        <th style="padding: 0.4rem; text-align:left;">Language</th>
+      </tr></thead>
+      <tbody>
+        {% for ocr in entry.ocr_runs | sort(attribute='id', reverse=true) %}
+        <tr style="border-top: 1px solid var(--border, #e2e8f0);">
+          <td style="padding: 0.4rem;">{{ ocr.method.value }} {{ '★' if ocr.is_selected }}</td>
+          <td style="padding: 0.4rem;"><span class="pill">{{ ocr.status.value }}</span></td>
+          <td style="padding: 0.4rem; text-align: right;">{{ '%.2f' % ocr.confidence if ocr.confidence is not none else '-' }}</td>
+          <td style="padding: 0.4rem; text-align: right;">{{ ocr.input_tokens or 0 }} / {{ ocr.output_tokens or 0 }} / {{ ocr.total_tokens or 0 }}</td>
+          <td style="padding: 0.4rem;">{{ ocr.language or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="padding: 0.5rem; color: var(--muted);">No OCR runs yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% set latest_score = entry.scores | sort(attribute='id', reverse=true) | first if entry.scores else none %}
+    {% if latest_score %}
+      <h3 style="margin-top: 1rem;">Latest scoring ({{ latest_score.strategy.value }} | {{ latest_score.provider }} / {{ latest_score.model }})</h3>
+      <p>
+        <strong>{{ latest_score.total_awarded }} / {{ latest_score.total_max }}</strong>
+        ({{ latest_score.percentage }}%)
+        — confidence {{ '%.2f' % latest_score.confidence if latest_score.confidence is not none else '-' }}
+        — tokens in/out/total:
+        {{ latest_score.input_tokens or 0 }} / {{ latest_score.output_tokens or 0 }} / {{ latest_score.total_tokens or 0 }}
+      </p>
+      <table style="border-collapse: collapse; width: 100%;">
+        <thead><tr style="background: #f1f5f9;">
+          <th style="padding: 0.4rem; text-align:left;">Criterion</th>
+          <th style="padding: 0.4rem; text-align:right;">Awarded</th>
+          <th style="padding: 0.4rem; text-align:right;">Max</th>
+          <th style="padding: 0.4rem; text-align:left;">Rationale</th>
+        </tr></thead>
+        <tbody>
+          {% for c in latest_score.criteria %}
+          <tr style="border-top: 1px solid var(--border, #e2e8f0);">
+            <td style="padding: 0.4rem;">{{ c.criterion }}</td>
+            <td style="padding: 0.4rem; text-align: right;">{{ c.awarded }}</td>
+            <td style="padding: 0.4rem; text-align: right;">{{ c.max_score }}</td>
+            <td style="padding: 0.4rem;">{{ c.rationale }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if latest_score.strengths %}<h4>Strengths</h4><pre style="white-space: pre-wrap;">{{ latest_score.strengths }}</pre>{% endif %}
+      {% if latest_score.gaps %}<h4>Gaps</h4><pre style="white-space: pre-wrap;">{{ latest_score.gaps }}</pre>{% endif %}
+      {% if latest_score.observations %}<h4>Observations</h4><pre style="white-space: pre-wrap;">{{ latest_score.observations }}</pre>{% endif %}
+    {% endif %}
+  </div>
+
+  <aside>
+    <h3>Human review</h3>
+    <form method="post" action="/entries/{{ entry.id }}/override" style="margin-bottom: 1rem;">
+      <label style="display:block; font-size: 0.85rem;">Human override score
+        <input type="number" step="0.1" name="human_score" value="{{ entry.human_score or '' }}" style="width: 100%; padding: 0.3rem; border: 1px solid var(--border, #cbd5e1); border-radius: 4px;">
+      </label>
+      <label style="display:block; font-size: 0.85rem; margin-top: 0.5rem;">Notes
+        <textarea name="human_notes" rows="3" style="width: 100%; padding: 0.3rem; border: 1px solid var(--border, #cbd5e1); border-radius: 4px;">{{ entry.human_score_notes or '' }}</textarea>
+      </label>
+      <button type="submit" style="margin-top: 0.5rem; padding: 0.4rem 1rem; background: #4338ca; color: white; border: 0; border-radius: 4px; cursor: pointer;">Save review</button>
+    </form>
+    <p style="font-size: 0.85rem; color: var(--muted);">
+      Current review status: <strong>{{ entry.review_status }}</strong>
+    </p>
+
+    {% if entry.local_file_path %}
+      <h3>Original image</h3>
+      <img src="/files/{{ entry.local_file_path }}" alt="entry image" style="max-width: 100%; border: 1px solid var(--border, #e2e8f0); border-radius: 4px;">
+    {% endif %}
+    {% if entry.drive_url %}
+      <p style="font-size: 0.85rem;"><a href="{{ entry.drive_url }}" target="_blank" rel="noopener">Source link (Drive)</a></p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
