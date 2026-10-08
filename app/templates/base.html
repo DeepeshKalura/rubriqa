@@ -20,6 +20,10 @@
     </div>
     <nav class="nav">
       <a href="/" class="{{ 'active' if active == 'dashboard' }}"><span class="icon">▦</span> Dashboard</a>
+      <div class="nav-group">Entry evaluation</div>
+      <a href="/programs" class="{{ 'active' if active == 'entries' }}"><span class="icon">◈</span> Programs</a>
+      <a href="/entries" class="{{ 'active' if active == 'entries-list' }}"><span class="icon">☷</span> Entries</a>
+      <a href="/sandbox" class="{{ 'active' if active == 'sandbox' }}"><span class="icon">↔</span> Sandbox</a>
       <div class="nav-group">Hierarchy</div>
       <a href="/classes" class="{{ 'active' if active == 'classes' }}"><span class="icon">▤</span> Classes</a>
       <a href="/students" class="{{ 'active' if active == 'students' }}"><span class="icon">☺</span> Students</a>
