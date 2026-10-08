@@ -8,6 +8,7 @@ def register_routers(app: FastAPI) -> None:
     from app.routers import (
         classes,
         dashboard,
+        entries,
         exams,
         files,
         google,
@@ -15,13 +16,18 @@ def register_routers(app: FastAPI) -> None:
         jobs,
         results,
         review,
+        sandbox,
         settings,
         students,
         submissions,
     )
 
+    # Phase 1: entry-evaluation mode is the primary flow now.
+    # Exam-mode routers remain so the demo data + existing tests still work.
     for module in (
         dashboard,
+        entries,      # /programs, /entries, /programs/{id}/export.csv
+        sandbox,      # /sandbox  (2-way OCR comparison tool)
         classes,
         students,
         exams,

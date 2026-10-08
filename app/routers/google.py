@@ -15,6 +15,7 @@ from app.models import (
     Submission,
     SubmissionState,
 )
+from app.services import jobs as jobs_service
 from app.services.importer import register_documents, scan_folder
 from app.services.storage import Storage
 from app.pipeline.ingestion.google_forms import (
