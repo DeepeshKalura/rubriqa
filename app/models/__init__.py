@@ -1,5 +1,23 @@
 """Import all models so Alembic/Base.metadata sees them."""
 from app.models.base import Base, TimestampMixin, enum_column
+from app.models.entry import (
+    BatchState,
+    CleaningRun,
+    DriveFile,
+    Entry,
+    EntryOCR,
+    EntryScore,
+    EntryScoreCriterion,
+    EntryState,
+    EvaluationBatch,
+    OcrMethod,
+    OcrStatus,
+    Program,
+    ProgramState,
+    ReviewSample,
+    ReviewStatus,
+    SampleKind,
+)
 from app.models.exam import Exam, Question, Rubric, RubricCriterion
 from app.models.google import GoogleCredential
 from app.models.job import (
@@ -64,4 +82,20 @@ __all__ = [
     "LlmCall",
     "Setting",
     "GoogleCredential",
+    "Program",
+    "ProgramState",
+    "Entry",
+    "EntryState",
+    "EntryOCR",
+    "EntryScore",
+    "EntryScoreCriterion",
+    "EvaluationBatch",
+    "CleaningRun",
+    "BatchState",
+    "OcrMethod",
+    "OcrStatus",
+    "SampleKind",
+    "ReviewStatus",
+    "ReviewSample",
+    "DriveFile",
 ]
