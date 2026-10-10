@@ -11,3 +11,4 @@ htmlcov/
 *.egg-info/
 .venv/
 node_modules/
+.wt/
