@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Exam Eval{% endblock %} · Exam Eval</title>
+  <title>{% block title %}Entry Eval{% endblock %} · Entry Eval</title>
   <link rel="stylesheet" href="/static/app.css">
   <script src="/static/htmx.min.js" defer></script>
   <script src="/static/app.js" defer></script>
@@ -14,8 +14,8 @@
     <div class="brand">
       <div class="logo">EE</div>
       <div>
-        <div class="name">Exam Eval</div>
-        <div class="sub">local · Hindi + English</div>
+        <div class="name">Entry Eval</div>
+        <div class="sub">local · Hindi + English + Marathi</div>
       </div>
     </div>
     <nav class="nav">
@@ -24,16 +24,7 @@
       <a href="/programs" class="{{ 'active' if active == 'entries' }}"><span class="icon">◈</span> Programs</a>
       <a href="/entries" class="{{ 'active' if active == 'entries-list' }}"><span class="icon">☷</span> Entries</a>
       <a href="/sandbox" class="{{ 'active' if active == 'sandbox' }}"><span class="icon">↔</span> Sandbox</a>
-      <div class="nav-group">Hierarchy</div>
-      <a href="/classes" class="{{ 'active' if active == 'classes' }}"><span class="icon">▤</span> Classes</a>
-      <a href="/students" class="{{ 'active' if active == 'students' }}"><span class="icon">☺</span> Students</a>
-      <div class="nav-group">Assessment</div>
-      <a href="/exams" class="{{ 'active' if active == 'exams' }}"><span class="icon">✎</span> Exams</a>
-      <a href="/imports" class="{{ 'active' if active == 'imports' }}"><span class="icon">⇧</span> Import</a>
-      <a href="/results" class="{{ 'active' if active == 'results' }}"><span class="icon">≡</span> Results</a>
-      <div class="nav-group">Operations</div>
-      <a href="/jobs" class="{{ 'active' if active == 'jobs' }}"><span class="icon">⚙</span> Jobs</a>
-      <a href="/review" class="{{ 'active' if active == 'review' }}"><span class="icon">⚑</span> Review</a>
+      <div class="nav-group">System</div>
       <a href="/settings" class="{{ 'active' if active == 'settings' }}"><span class="icon">⚗</span> Settings</a>
     </nav>
   </aside>

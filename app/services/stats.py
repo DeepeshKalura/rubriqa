@@ -1,165 +1,96 @@
-"""Aggregate queries for the dashboard and list pages.
+"""Aggregations for the dashboard.
 
-Every query here is bounded: counts use indexes, list queries take explicit
-limits and are never asked to load a whole table.
+Counts programs, entries, batches, review samples, and surfaces the most
+recently updated entries. Kept as plain SQL so the dashboard is fast at the
+configured batch size (200-300 entries per program).
 """
 from __future__ import annotations
+
+from collections import Counter
+from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import (
-    ACTIVE_STATES,
-    Answer,
-    Batch,
-    Document,
-    Exam,
-    Job,
-    JobState,
-    Klass,
-    LlmCall,
-    Organization,
-    Page,
-    Score,
-    Student,
-    Submission,
-    SubmissionState,
-    ValidationIssue,
+    BatchState,
+    Entry,
+    EntryScore,
+    EvaluationBatch,
+    Program,
+    ReviewSample,
+    ReviewStatus,
 )
 
 
-async def dashboard_stats(session: AsyncSession) -> dict:
-    classes = (await session.execute(select(func.count(Klass.id)))).scalar_one()
-    students = (await session.execute(select(func.count(Student.id)))).scalar_one()
-    exams = (await session.execute(select(func.count(Exam.id)))).scalar_one()
-    submissions = (await session.execute(select(func.count(Submission.id)))).scalar_one()
-    documents = (await session.execute(select(func.count(Document.id)))).scalar_one()
-    pages = (await session.execute(select(func.count(Page.id)))).scalar_one()
-    answers = (await session.execute(select(func.count(Answer.id)))).scalar_one()
-
-    job_counts = {
-        state.value: count
-        for state, count in (
-            await session.execute(select(Job.state, func.count(Job.id)).group_by(Job.state))
-        ).all()
-    }
-    submission_states = {
-        state.value: count
-        for state, count in (
-            await session.execute(
-                select(Submission.state, func.count(Submission.id)).group_by(Submission.state)
-            )
-        ).all()
-    }
-    open_issues = (
+async def dashboard_stats(session: AsyncSession) -> dict[str, Any]:
+    programs = (await session.execute(select(func.count(Program.id)))).scalar_one()
+    entries = (await session.execute(select(func.count(Entry.id)))).scalar_one()
+    scored = (
         await session.execute(
-            select(func.count(ValidationIssue.id)).where(
-                ValidationIssue.resolved.is_(False),
-                ValidationIssue.severity == "error",
+            select(func.count(EntryScore.id)).where(EntryScore.error.is_(None))
+        )
+    ).scalar_one()
+    batches = (await session.execute(select(func.count(EvaluationBatch.id)))).scalar_one()
+    awaiting = (
+        await session.execute(
+            select(func.count(EvaluationBatch.id)).where(
+                EvaluationBatch.state == BatchState.AWAITING_REVIEW
             )
         )
     ).scalar_one()
-    llm_tokens = (
+    samples = (await session.execute(select(func.count(ReviewSample.id)))).scalar_one()
+    samples_done = (
         await session.execute(
-            select(
-                func.coalesce(func.sum(LlmCall.total_tokens), 0),
-                func.count(LlmCall.id),
+            select(func.count(ReviewSample.id)).where(
+                ReviewSample.status.in_(
+                    [ReviewStatus.APPROVED, ReviewStatus.CORRECTED]
+                )
             )
         )
-    ).one()
-    active_jobs = sum(job_counts.get(state.value, 0) for state in ACTIVE_STATES)
+    ).scalar_one()
+
+    state_rows = (
+        await session.execute(select(Entry.state, func.count(Entry.id)).group_by(Entry.state))
+    ).all()
+    entry_states = {row[0].value if hasattr(row[0], "value") else str(row[0]): row[1] for row in state_rows}
+
     return {
-        "classes": classes,
-        "students": students,
-        "exams": exams,
-        "submissions": submissions,
-        "documents": documents,
-        "pages": pages,
-        "answers": answers,
-        "job_counts": job_counts,
-        "active_jobs": active_jobs,
-        "submission_states": submission_states,
-        "open_errors": open_issues,
-        "llm_tokens": llm_tokens[0],
-        "llm_calls": llm_tokens[1],
+        "programs": programs,
+        "entries": entries,
+        "scored": scored,
+        "batches": batches,
+        "batches_awaiting": awaiting,
+        "review_samples": samples,
+        "review_samples_done": samples_done,
+        "entry_states": entry_states,
     }
 
 
-async def recent_jobs(session: AsyncSession, limit: int = 10) -> list[dict]:
-    jobs = (
+async def recent_entries(session: AsyncSession, limit: int = 8) -> list[dict[str, Any]]:
+    rows = (
         (
             await session.execute(
-                select(Job).order_by(Job.id.desc()).limit(min(limit, 50))
+                select(Entry, EntryScore.percentage)
+                .outerjoin(EntryScore, EntryScore.entry_id == Entry.id)
+                .order_by(Entry.id.desc())
+                .limit(limit)
             )
         )
-        .scalars()
         .all()
     )
-    rows = []
-    for job in jobs:
-        student_name = None
-        if job.submission_id:
-            submission = await session.get(Submission, job.submission_id)
-            if submission:
-                student = await session.get(Student, submission.student_id)
-                student_name = student.name if student else None
-        rows.append({"job": job, "student_name": student_name})
-    return rows
+    return [
+        {
+            "id": entry.id,
+            "full_name": entry.full_name,
+            "external_ref": entry.external_ref,
+            "theme": entry.theme,
+            "state": entry.state.value if hasattr(entry.state, "value") else str(entry.state),
+            "percentage": percentage,
+        }
+        for entry, percentage in rows
+    ]
 
 
-async def score_distribution(session: AsyncSession, exam_id: int) -> dict:
-    rows = (
-        await session.execute(
-            select(Submission.percentage).where(
-                Submission.exam_id == exam_id, Submission.percentage.isnot(None)
-            )
-        )
-    ).scalars().all()
-    buckets = {"0-20": 0, "20-40": 0, "40-60": 0, "60-80": 0, "80-100": 0}
-    for value in rows:
-        if value < 20:
-            buckets["0-20"] += 1
-        elif value < 40:
-            buckets["20-40"] += 1
-        elif value < 60:
-            buckets["40-60"] += 1
-        elif value < 80:
-            buckets["60-80"] += 1
-        else:
-            buckets["80-100"] += 1
-    return buckets
-
-
-async def org_tree(session: AsyncSession) -> list[dict]:
-    """Class -> batch summary for the classes page (bounded by class count)."""
-    classes = (await session.execute(select(Klass).order_by(Klass.name))).scalars().all()
-    result = []
-    for klass in classes:
-        batch_count = (
-            await session.execute(
-                select(func.count(Batch.id)).where(Batch.class_id == klass.id)
-            )
-        ).scalar_one()
-        from app.models import Enrollment
-
-        student_count = (
-            await session.execute(
-                select(func.count(func.distinct(Enrollment.student_id)))
-                .join(Batch, Batch.id == Enrollment.batch_id)
-                .where(Batch.class_id == klass.id)
-            )
-        ).scalar_one()
-        exam_count = (
-            await session.execute(
-                select(func.count(Exam.id)).where(Exam.class_id == klass.id)
-            )
-        ).scalar_one()
-        result.append(
-            {
-                "klass": klass,
-                "batches": batch_count,
-                "students": student_count,
-                "exams": exam_count,
-            }
-        )
-    return result
+def _entry_state_counts(states: list[str]) -> dict[str, int]:
+    return dict(Counter(states))

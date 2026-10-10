@@ -13,7 +13,7 @@ from app.providers.llm import LLMError
 from app.providers.llm.minimax import parse_json_lenient
 from app.schemas import CanonicalPage, LLMMessage, ReadingResult, ReadingStatus
 
-logger = get_logger("exam_eval.reader.minimax")
+logger = get_logger("entry_eval.reader.minimax")
 
 READ_SYSTEM_PROMPT = """You transcribe student exam pages (handwritten or printed) in Hindi, English, or mixed.
 Rules:

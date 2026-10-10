@@ -9,7 +9,7 @@ import asyncpg
 
 
 def _admin_url() -> str:
-    url = os.environ.get("DATABASE_URL", "postgresql+asyncpg://exameval:exameval@db:5432/exam_eval")
+    url = os.environ.get("DATABASE_URL", "postgresql+asyncpg://entryeval:entryeval@db:5432/entry_eval")
     url = url.replace("postgresql+asyncpg://", "postgresql://")
     return re.sub(r"/[^/]+$", "/postgres", url)
 
@@ -17,7 +17,7 @@ def _admin_url() -> str:
 def _test_db() -> str:
     url = os.environ.get("DATABASE_URL", "")
     match = re.search(r"/([^/]+)$", url)
-    name = match.group(1) if match else "exam_eval"
+    name = match.group(1) if match else "entry_eval"
     return name if name.endswith("_test") else f"{name}_test"
 
 

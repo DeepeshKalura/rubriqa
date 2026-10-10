@@ -9,7 +9,7 @@ from alembic.config import Config
 from app.config import Settings
 from app.logging import get_logger
 
-logger = get_logger("exam_eval.migrations")
+logger = get_logger("entry_eval.migrations")
 
 
 def run_migrations(settings: Settings) -> None:

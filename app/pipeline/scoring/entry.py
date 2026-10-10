@@ -25,7 +25,7 @@ from app.pipeline.cleaning import rule_clean
 from app.providers.llm import LLMProvider, parse_json_lenient
 from app.schemas import LLMMessage
 
-logger = get_logger("exam_eval.entry_score")
+logger = get_logger("entry_eval.entry_score")
 
 
 SYSTEM_PROMPT = """You are an expert, fair evaluator of student project idea submissions.

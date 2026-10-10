@@ -16,7 +16,7 @@ from app.pipeline.preprocessing import load_image, preprocess_for_ocr
 from app.pipeline.readers.base import ReaderContext, ReaderError
 from app.schemas import CanonicalPage, ReadingResult, ReadingStatus
 
-logger = get_logger("exam_eval.reader.tesseract")
+logger = get_logger("entry_eval.reader.tesseract")
 
 
 class TesseractReader:

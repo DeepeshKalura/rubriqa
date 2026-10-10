@@ -54,126 +54,50 @@ def main() -> int:
         print("== Dashboard ==")
         visit(page, base, "/")
         check(page.locator("h1").inner_text() == "Dashboard", "dashboard title")
-        student_cards = page.locator(".stat").count()
-        check(student_cards >= 4, "stat cards rendered")
+        check(page.locator(".stat").count() >= 4, "stat cards rendered (>=4)")
         shot(page, out, "dashboard")
 
-        print("== Classes ==")
-        visit(page, base, "/classes")
-        check(page.locator(".card").count() >= 1, "class cards rendered")
-        class_link = page.locator("a[href^='/classes/']").first
-        check(class_link.count() > 0, "class link present")
-        shot(page, out, "classes")
+        print("== Programs ==")
+        visit(page, base, "/programs")
+        check(page.locator("h1").inner_text() == "Programs", "programs title")
+        check(page.locator("table tbody tr").count() >= 1, "at least one program row")
+        shot(page, out, "programs")
 
-        if class_link.count() > 0:
-            class_href = class_link.get_attribute("href")
-            print(f"== Class detail {class_href} ==")
-            visit(page, base, class_href)
-            check(page.locator("table").count() >= 1, "batch table rendered")
-            shot(page, out, "class_detail")
-            batch_link = page.locator("a[href^='/batches/']").first
-            if batch_link.count() > 0:
-                batch_href = batch_link.get_attribute("href")
-                print(f"== Batch {batch_href} ==")
-                visit(page, base, batch_href)
-                check(page.locator("table tbody tr").count() >= 1, "students listed")
-                shot(page, out, "batch_detail")
+        program_link = page.locator("a[href^='/programs/']").first
+        if program_link.count() > 0:
+            program_href = program_link.get_attribute("href")
+            print(f"== Program detail {program_href} ==")
+            visit(page, base, program_href)
+            check(page.locator("h1").count() == 1, "program detail header")
+            shot(page, out, "program_detail")
 
-        print("== Students ==")
-        visit(page, base, "/students")
-        check(page.locator("table tbody tr").count() >= 1, "student rows")
-        shot(page, out, "students")
-        # pagination and search
-        search = page.locator("input[name=q]")
-        if search.count() > 0:
-            search.fill("STU00")
-            page.wait_for_timeout(700)
-            check(page.locator("table tbody tr").count() >= 1, "search returned rows")
-            search.fill("")
-            page.wait_for_timeout(500)
-        student_link = page.locator("a[href^='/students/']").first
-        student_href = student_link.get_attribute("href") if student_link.count() else None
-        if student_href:
-            print(f"== Student {student_href} ==")
-            visit(page, base, student_href)
-            check(page.locator("h1").count() == 1, "student header")
-            shot(page, out, "student_detail")
+        print("== Entries ==")
+        visit(page, base, "/entries")
+        check(page.locator("h1").inner_text() == "Entries", "entries title")
+        shot(page, out, "entries")
 
-        print("== Exams ==")
-        visit(page, base, "/exams")
-        check(page.locator("table tbody tr").count() >= 1, "exam rows")
-        shot(page, out, "exams")
-        exam_link = page.locator("a[href^='/exams/']").first
-        exam_href = exam_link.get_attribute("href") if exam_link.count() else None
-        if exam_href:
-            visit(page, base, exam_href)
-            check(page.locator("table tbody tr").count() >= 1, "question rows")
-            shot(page, out, "exam_detail")
-            results_href = f"{exam_href}/results"
-            print(f"== Results {results_href} ==")
-            visit(page, base, results_href)
-            check(page.locator("table tbody tr").count() >= 1, "result rows")
-            shot(page, out, "exam_results")
-
-        print("== Submission detail ==")
-        submission_link = page.locator("a[href^='/submissions/']").first
-        if submission_link.count() == 0:
-            visit(page, base, "/results")
-            submission_link = page.locator("a[href^='/submissions/']").first
-        if submission_link.count() > 0:
-            sub_href = submission_link.get_attribute("href")
-            visit(page, base, sub_href)
-            check(page.locator("h1").count() == 1, "submission header")
-            shot(page, out, "submission_detail")
-
-        print("== Jobs ==")
-        visit(page, base, "/jobs")
-        check(page.locator("#jobs-table").count() == 1, "jobs table present")
-        shot(page, out, "jobs")
-        job_link = page.locator("a[href^='/jobs/']").first
-        if job_link.count() > 0:
-            job_href = job_link.get_attribute("href")
-            visit(page, base, job_href)
-            check(page.locator("h1").count() == 1, "job detail header")
-            check(page.locator("#job-body").count() == 1, "job body (live polling)")
-            shot(page, out, "job_detail")
-
-        print("== Review ==")
-        visit(page, base, "/review")
-        check(page.locator("h1").inner_text() == "Review", "review page")
-        shot(page, out, "review")
+        print("== Sandbox ==")
+        visit(page, base, "/sandbox")
+        check(page.locator("h1").inner_text().startswith("Sandbox"), "sandbox title")
+        check(page.locator("input[type=file]").count() == 1, "file picker present")
+        shot(page, out, "sandbox")
 
         print("== Settings ==")
         visit(page, base, "/settings")
-        check(page.locator("form").count() >= 1, "settings form")
+        check(page.locator("h1").inner_text() == "Settings", "settings title")
+        check(page.locator("input[name=reader_mode]").count() == 1, "reader_mode field")
+        check(page.locator("input[name=cleaning_mode]").count() == 1, "cleaning_mode field")
         shot(page, out, "settings")
-
-        print("== Import ==")
-        visit(page, base, "/imports")
-        check(page.locator("h1").inner_text() == "Import", "imports page")
-        shot(page, out, "imports")
-        visit(page, base, "/imports/new")
-        check(page.locator("form").count() >= 2, "import forms")
-        shot(page, out, "import_new")
-
-        print("== Google Forms ==")
-        visit(page, base, "/google")
-        check(page.locator("h1").inner_text() == "Google Forms", "google page")
-        shot(page, out, "google_forms")
-
-        print("== Health ==")
-        visit(page, base, "/healthz")
-        check("ok" in page.content(), "healthz ok")
 
         browser.close()
 
     print()
     if FAILURES:
-        print(f"{len(FAILURES)} check(s) FAILED:")
-        for failure in FAILURES:
-            print(f"  - {failure}")
+        print(f"FAILED: {len(FAILURES)} checks")
+        for f in FAILURES:
+            print(f"  - {f}")
         return 1
-    print("All UI checks passed. Screenshots in", out)
+    print("All checks passed.")
     return 0
 
 

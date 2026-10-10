@@ -57,7 +57,7 @@ def configure_logging(level: str = "INFO", json_logs: bool = False) -> None:
     )
 
 
-def get_logger(name: str = "exam_eval"):
+def get_logger(name: str = "entry_eval"):
     return structlog.get_logger(name)
 
 

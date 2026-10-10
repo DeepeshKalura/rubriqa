@@ -22,7 +22,7 @@ from app.config import Settings
 from app.logging import get_logger
 from app.schemas import LLMMessage
 
-logger = get_logger("exam_eval.cleaning")
+logger = get_logger("entry_eval.cleaning")
 
 
 @dataclass

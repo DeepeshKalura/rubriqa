@@ -41,13 +41,13 @@ from app.pipeline.ingestion.google_drive import (
     sha256_of,
 )
 from app.pipeline.preprocessing import load_image, save_page_image
-from app.pipeline.readers import build_reader, build_repairer
+from app.pipeline.readers import build_reader
 from app.pipeline.scoring.entry import score_entry
 from app.providers.llm import LLMProvider
 from app.schemas import CanonicalDocument, CanonicalPage, LLMMessage, SourceType
 from app.services.storage import Storage
 
-logger = get_logger("exam_eval.entries")
+logger = get_logger("entry_eval.entries")
 
 
 # ---------------------------------------------------------------------------

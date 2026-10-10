@@ -1,9 +1,9 @@
 """Hybrid reader: an ordered chain of readers with confidence thresholds.
 
-All three spec modes are expressible:
-  Mode A  chain = pdf_text,tesseract            (accept first success)
-  Mode B  chain = pdf_text,tesseract,minimax_vision  + repair_enabled
-  Mode C  chain = pdf_text,minimax_vision
+The chain is configured by `HYBRID_READER_CHAIN`. Each reader is tried in
+order; a reading that clears `HYBRID_ACCEPT_CONFIDENCE` short-circuits the
+chain. A reading below `HYBRID_ESCALATE_BELOW` is flagged
+`low_confidence` so downstream code can surface it for review.
 
 The mode names are feature flags; nothing here hardcodes a provider.
 """
@@ -14,7 +14,7 @@ from app.logging import get_logger
 from app.pipeline.readers.base import DocumentReader, ReaderContext, ReaderError
 from app.schemas import CanonicalPage, ReadingResult, ReadingStatus
 
-logger = get_logger("exam_eval.reader.hybrid")
+logger = get_logger("entry_eval.reader.hybrid")
 
 
 class HybridReader:

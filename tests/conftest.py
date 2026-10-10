@@ -1,12 +1,11 @@
 """Shared test fixtures.
 
-Tests run inside Docker against the scratch database `exam_eval_test`
+Tests run inside Docker against the scratch database `entry_eval_test`
 (created by scripts/ensure_test_db.py). No network calls: the fake LLM
-provider is used everywhere unless a test is marked `live`.
+provider is used everywhere.
 """
 from __future__ import annotations
 
-import asyncio
 import os
 import re
 from pathlib import Path
@@ -18,8 +17,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 os.environ.setdefault("LLM_PROVIDER", "fake")
 os.environ.setdefault("READER_MODE", "hybrid")
-os.environ.setdefault("REPAIR_ENABLED", "false")
-os.environ.setdefault("STORAGE_ROOT", "/tmp/exam-eval-tests")
+os.environ.setdefault("STORAGE_ROOT", "/tmp/entry-eval-tests")
 
 from app.config import Settings, get_settings  # noqa: E402
 from app.db import reset_engine  # noqa: E402
@@ -31,7 +29,7 @@ def _test_url() -> str:
     if explicit:
         return explicit
     base = os.environ.get(
-        "DATABASE_URL", "postgresql+asyncpg://exameval:exameval@localhost:5435/exam_eval"
+        "DATABASE_URL", "postgresql+asyncpg://entryeval:entryeval@localhost:5435/entry_eval"
     )
     if base.rstrip("/").endswith("_test"):
         return base
@@ -100,8 +98,6 @@ def test_settings(tmp_path) -> Settings:
             "storage_root": tmp_path / "data",
             "llm_provider": "fake",
             "reader_mode": "hybrid",
-            "repair_enabled": False,
-            "scoring_strategy": "hybrid",
         }
     )
     return settings
@@ -124,29 +120,6 @@ async def client(engine, clean_db):
 
 
 @pytest.fixture
-def pdf_factory(tmp_path):
-    """Build small PDFs: text-layer, scanned, mixed."""
-    import pymupdf
-
-    def make(name: str, pages: list[dict]) -> Path:
-        path = tmp_path / name
-        doc = pymupdf.open()
-        for spec in pages:
-            page = doc.new_page()
-            if spec.get("text"):
-                page.insert_textbox(
-                    pymupdf.Rect(50, 50, 545, 790), spec["text"], fontsize=12
-                )
-            if spec.get("image"):
-                page.insert_image(pymupdf.Rect(0, 0, 595, 842), stream=spec["image"])
-        doc.save(path)
-        doc.close()
-        return path
-
-    return make
-
-
-@pytest.fixture
 def image_factory(tmp_path):
     from PIL import Image, ImageDraw
 
@@ -162,3 +135,4 @@ def image_factory(tmp_path):
         return path
 
     return make
+

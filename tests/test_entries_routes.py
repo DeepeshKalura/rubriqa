@@ -1,6 +1,6 @@
 """HTTP route tests for entry-evaluation mode: /programs, /entries, /sandbox.
 
-The HTTP test client is wired to the real app with the scratch `exam_eval_test`
+The HTTP test client is wired to the real app with the scratch `entry_eval_test`
 database. Sandbox compare runs with the fake provider because the API key is
 not available in CI; the path-A/path-B branching is exercised explicitly.
 """
@@ -268,12 +268,7 @@ async def test_sandbox_reset(client: AsyncClient) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Latent google router bug fix
+# Google router removed in ADR-0001; the legacy bug-fix regression test no
+# longer applies. (The legacy router called `jobs_service.enqueue` without
+# importing it; both the router and the service are gone now.)
 # ---------------------------------------------------------------------------
-def test_google_router_does_not_reference_undefined_jobs_service() -> None:
-    """Regression: app/routers/google.py used to call `jobs_service.enqueue`
-    without importing it. The import must be present."""
-    import pathlib
-    src = pathlib.Path("app/routers/google.py").read_text()
-    assert "from app.services import jobs as jobs_service" in src
-    assert "jobs_service.enqueue" in src

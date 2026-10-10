@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # --- database
-    database_url: str = "postgresql+asyncpg://exameval:exameval@localhost:5435/exam_eval"
+    database_url: str = "postgresql+asyncpg://entryeval:entryeval@localhost:5435/entry_eval"
     run_migrations: bool = True
     db_pool_size: int = 5
     db_max_overflow: int = 5
@@ -31,8 +31,6 @@ class Settings(BaseSettings):
     minimax_timeout_seconds: int = 120
     minimax_max_retries: int = 3
     minimax_max_output_tokens: int = 4096
-    # MiniMax M-series: disable chain-of-thought for transcription/JSON tasks
-    # (faster, cheaper, and prevents  thinking blocks eating the token budget)
     minimax_disable_thinking: bool = True
     llm_provider: Literal["minimax", "fake"] = "minimax"
 
@@ -44,74 +42,35 @@ class Settings(BaseSettings):
     tesseract_langs: str = "eng+hin"
     tesseract_min_word_confidence: int = 45
     vision_max_image_side: int = 2200
-    # Confidence threshold below which a page reading is marked low-confidence
-    # (and which may trigger a vision repair pass).
     low_confidence_threshold: float = 0.55
-    # Vision legibility threshold for the same purpose.
-    low_legibility_threshold: float = 0.6
-    repair_enabled: bool = True
-    repair_auto_accept_min_legibility: float = 0.72
     reading_version: str = "v1"
 
-    # --- scoring
-    scoring_strategy: Literal["hybrid", "rubric_llm", "exact", "numeric"] = "hybrid"
-    scoring_enable_feedback: bool = False
-
-    # --- google forms
-    google_forms_enabled: bool = False
-    google_forms_provider: Literal["google", "mock"] = "mock"
-    google_client_id: str = ""
-    google_client_secret: str = ""
-    google_redirect_uri: str = "http://127.0.0.1:8090/google/oauth/callback"
-    app_secret_key: str = ""
-
-    # --- google drive (image files linked from form responses)
-    # provider: "local" uses a mirror folder on disk; "google" uses the Drive API.
-    google_drive_enabled: bool = False
-    google_drive_provider: Literal["google", "local"] = "local"
-    # When provider=local, this folder is scanned as a Drive substitute (the
-    # importer treats each file inside as a downloadable Drive file, named by
-    # the file id). The default sits under ./data so it's local-only.
-    google_drive_local_root: Path = Path("./data/drive_mirror")
-
-    # --- entry evaluation mode (replaces exam-mode as the primary flow)
-    # EVAL_MODE: entry | exam  — entry is the default; exam kept for legacy
-    eval_mode: Literal["entry", "exam"] = "entry"
-    eval_batch_size: int = 250            # in the 200-300 range per spec
+    # --- entry evaluation (the only flow)
+    eval_batch_size: int = 250
     eval_batch_size_min: int = 200
     eval_batch_size_max: int = 300
-    # sampling_fraction on top of AI-flagged entries for human review per batch
     eval_review_sample_fraction: float = 0.10
-    # theme column is taken from the form response; these are the known options
-    # (the form parser also accepts free-text variants).
     eval_known_themes: str = (
         "ai_education,smart_agriculture,health_wellbeing,disaster_management,"
         "environment_sustainability,rural_innovation,community_safety"
     )
-    # cleaning: rule-only | llm (rule pass then optional LLM rewrite)
     cleaning_mode: Literal["rules", "llm"] = "rules"
-    # drive download chunk size (bytes) — keep small, files are page-sized
     drive_download_chunk_bytes: int = 65536
+    llm_concurrency: int = 3
+
+    # --- google drive (local mirror; the only supported provider in dev phase)
+    google_drive_enabled: bool = False
+    google_drive_provider: Literal["local"] = "local"
+    google_drive_local_root: Path = Path("./data/drive_mirror")
 
     # --- sandbox (2-way OCR comparison)
     sandbox_default_provider: Literal["vision", "ocr_llm"] = "vision"
-
-    # --- jobs / worker
-    worker_concurrency: int = 2
-    ocr_threads: int = 2
-    llm_concurrency: int = 3
-    job_heartbeat_seconds: int = 15
-    job_stuck_minutes: int = 10
-    job_max_attempts: int = 3
-    job_timeout_seconds: int = 900
-    sweeper_interval_seconds: int = 60
-    retry_backoff_base_seconds: float = 2.0
 
     # --- app
     app_host: str = "127.0.0.1"
     log_level: str = "INFO"
     log_json: bool = False
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
 
     @property
     def api_key(self) -> str:

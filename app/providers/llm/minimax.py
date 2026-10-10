@@ -22,7 +22,7 @@ from app.logging import get_logger, redact
 from app.providers.llm.base import LLMError, strip_reasoning
 from app.schemas import LLMMessage, LLMResult
 
-logger = get_logger("exam_eval.llm.minimax")
+logger = get_logger("entry_eval.llm.minimax")
 
 RETRYABLE_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
 
@@ -168,7 +168,7 @@ class MiniMaxProvider:
 
             if attempt > self.settings.minimax_max_retries:
                 break
-            delay = self.settings.retry_backoff_base_seconds * (2 ** (attempt - 1))
+            delay = 1.0 * (2 ** (attempt - 1))
             delay += random.uniform(0, delay / 2)
             logger.warning(
                 "llm_retry",

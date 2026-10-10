@@ -1,10 +1,11 @@
 """Entry-evaluation models (Program, Entry, OCR runs, cleaning, batches, samples).
 
-The exam pipeline (`submission.py`) is kept for backwards compatibility; new flows
-use these models. Each `Entry` represents one student's project idea submission
-with full demographics, theme, situation text and proposed AI solution text.
-The OCR runs keep both the original (audit) and cleaned text (for review),
-along with token / confidence / status columns matching the client's sheet.
+Each `Entry` represents one student's project idea submission with full
+demographics, theme, situation text and proposed AI solution text. The OCR
+runs keep both the original (audit) and cleaned text (for review), along
+with token / confidence / status columns matching the client's sheet.
+
+This is the only data model in the project. See ADR-0001.
 """
 from __future__ import annotations
 

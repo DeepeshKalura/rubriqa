@@ -14,7 +14,7 @@ from app.db import dispose_engine, get_engine
 from app.logging import configure_logging, get_logger
 from app.services.migrations import run_migrations
 
-logger = get_logger("exam_eval.web")
+logger = get_logger("entry_eval.web")
 
 
 @asynccontextmanager
@@ -30,7 +30,7 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
-    app = FastAPI(title="Exam Eval", version=settings.app_version, lifespan=lifespan)
+    app = FastAPI(title="Entry Eval", version=settings.app_version, lifespan=lifespan)
     app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
     # Routers are wired in app/routers/__init__.py as phases land.

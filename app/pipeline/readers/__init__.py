@@ -1,7 +1,8 @@
 """Reader factory: builds the reader selected by READER_MODE.
 
-Every mode composes the same three primitive readers plus hybrids; adding a
-new provider means adding one class and one branch here (or registering it).
+The hybrid chain escalates whole pages to the next reader when confidence is
+low. There is no separate repair pass (the chain itself handles low-confidence
+pages).
 """
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ from app.pipeline.readers.minimax_vision import MiniMaxVisionReader
 from app.pipeline.readers.pdf_text import PdfTextReader
 from app.pipeline.readers.tesseract import TesseractReader
 
-logger = get_logger("exam_eval.readers")
+logger = get_logger("entry_eval.readers")
 
 
 def build_reader(
@@ -42,11 +43,3 @@ def build_reader(
     if mode == "hybrid":
         return HybridReader(primitives, settings)
     raise ReaderError(f"Unknown READER_MODE '{mode}'", code="bad_reader_mode")
-
-
-def build_repairer(llm, settings: Settings | None = None) -> MiniMaxVisionReader | None:
-    """Repair is its own concept: it is enabled by a flag, not implied by mode."""
-    settings = settings or get_settings()
-    if not settings.repair_enabled or llm is None:
-        return None
-    return MiniMaxVisionReader(llm, settings)

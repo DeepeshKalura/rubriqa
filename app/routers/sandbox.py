@@ -50,7 +50,7 @@ from app.services.entries import (
 )
 
 router = APIRouter(tags=["sandbox"])
-logger = get_logger("exam_eval.sandbox")
+logger = get_logger("entry_eval.sandbox")
 
 
 @router.get("/sandbox")

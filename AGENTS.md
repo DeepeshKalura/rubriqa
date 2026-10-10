@@ -7,19 +7,29 @@ evidence, append to TASTE.md.
 
 ## Non-negotiables
 
-1. **Docker-first.** Every app command runs through `docker compose` / the
-   `Makefile`. There is no "install Python locally and run it" path in the docs.
+1. **Docker-first. Every Python command runs inside Docker.** No `pip install`,
+   `pip3 install`, `python3 -m`, or any host-level Python execution against
+   this repo. Use `make <target>` or `docker compose run --rm web <cmd>`.
+   If a new Python dependency is needed, add it to `requirements.txt` and
+   rebuild the image. **Never pass `--break-system-packages`** to pip — it
+   pollutes the host. If the agent believes a quick local check is needed,
+   it must use a `uv` venv (e.g. `uv venv .venv && uv pip install -r
+   requirements.txt`), not the system interpreter. If neither Docker nor a
+   venv is available, ask before touching pip.
 2. **No hardcoded secrets.** Keys come from `.env` (git-ignored). Never print,
    log, or commit them. `app/logging.py` redacts known secret keys.
-3. **Feature flags over hardcoding.** Reader mode, LLM provider, scoring
-   strategy and the Google Forms connector are runtime flags
+3. **Feature flags over hardcoding.** Reader mode, LLM provider, the entry
+   flow's batch size / cleaning mode / drive provider are runtime flags
    (`.env` and/or the `settings` table, editable from the Settings page).
 4. **Provider boundaries are sacred.** Ingestion adapters, document readers,
-   scoring strategies, and LLM providers are all behind small interfaces.
-   Replacing one must not touch the others.
+   and the LLM provider are all behind small interfaces. Replacing one must
+   not touch the others.
 5. **Evidence over claims.** A feature is done when a test passes *and* the UI
    shows it (screenshot in `docs/screenshots/`).
 6. **Honest limitations.** Never claim accuracy or scale that was not measured.
+7. **No-legacy principle (ADR-0001).** The dev phase can break and recreate
+   data. We do not keep "fallback" code paths for the old exam pipeline. If
+   a feature is not on the entry-evaluation critical path, it does not ship.
 
 ## The flow followed for every change
 
@@ -40,15 +50,11 @@ evidence, append to TASTE.md.
 
 | Command | Purpose |
 |---|---|
-| `make up` / `make down` | start/stop web + worker + postgres |
+| `make up` / `make down` | start/stop web + postgres |
+| `make reset` | stop + delete the Postgres volume (full reset; dev phase) |
 | `make logs` / `make ps` | observe |
-| `make test` | full test suite against scratch DB `exam_eval_test` |
-| `make test-live` | tests hitting the real MiniMax API (costs tokens) |
-| `make seed` | create org/class/batches/students/exam/rubric |
-| `make demo` | generate synthetic dataset + seed + import |
-| `make e2e` | run full pipeline over demo data, verify in DB |
-| `make scale-test` | 20k synthetic submissions + API query benchmark |
-| `make bench-readers` | reader-mode accuracy comparison on labeled data |
+| `make test` | full test suite against scratch DB `entry_eval_test` |
+| `make seed` / `make demo` | seed a demo program + sample entries |
 | `make screenshots` | Playwright UI verification + screenshots |
 | `make migrate` | apply Alembic migrations |
 | `make shell` | python REPL in the app image |
@@ -62,63 +68,59 @@ app/
   config.py            env-driven settings (single source of truth)
   db.py                async SQLAlchemy engine/session
   logging.py           structlog + secret redaction + stage timing
-  models/              SQLAlchemy schema (hierarchy -> pages -> scores)
+  models/              entry mode (program, entry, ocr, cleaning, scores, batches, samples, drive, rubric, settings)
   schemas/             pydantic contract objects (CanonicalDocument, ReadingResult, ...)
   pipeline/
-    ingestion/         text, pdf, image, google_forms adapters
+    ingestion/         text, pdf, image, forms (CSV), drive (local mirror) adapters
     preprocessing/     render/deskew/denoise/upscale
     readers/           pdf_text, tesseract, minimax_vision, hybrid
-    validation/        structural checks (extensible to content)
-    extraction/        student matching + question/answer extraction
-    scoring/           exact, numeric, rubric_llm, hybrid strategies
+    cleaning/          deterministic rules + optional LLM rewrite
+    scoring/entry.py   rubric LLM scoring (the only scoring path)
   providers/llm/       minimax + fake providers behind one interface
-  services/            storage, idempotency, jobs, sweeper, stats, export
+  services/            storage, app_settings, batching, entries, stats
   routers/             HTTP endpoints (Jinja2 + HTMX, small JSON API)
-worker/main.py         job claim -> pipeline stages -> heartbeat
-scripts/               synthetic data, seeds, e2e, benchmarks, screenshots
+scripts/               seed_demo, screenshot, screenshot_sandbox, ensure_test_db
 alembic/               migrations
-tests/                 unit/integration/API/E2E
-docs/                  architecture, setup, screenshots
+tests/                 unit/integration/API
+docs/                  architecture, setup, limitations, adr, screenshots
 ```
 
-## Job state contract
+## Pipeline shape (the only flow)
 
 ```
-QUEUED -> RUNNING -> READING -> VALIDATING -> EXTRACTING -> SCORING -> COMPLETED
-                                        \-> NEEDS_REVIEW (blocking validation issue)
-any -> FAILED (error_code + message) -> retry (attempts preserved, resume from checkpoint)
+Program ─┬─ Entry ── EntryOCR (original + reconstructed) ── EntryScore (per criterion)
+         │                                            └── EntryScoreCriterion
+         ├─ EvaluationBatch (200–300 entries) ── ReviewSample
+         └─ DriveFile
 ```
 
-Rules:
-- The browser never runs the pipeline; jobs are claimed by the worker with
-  `FOR UPDATE SKIP LOCKED`.
-- Every stage commits its own transaction and appends a `job_events` row.
-- Retries resume from the last completed stage (`jobs.checkpoint`), and page
-  reading is idempotent per `(page, reading_version, provider)`.
-- Stale heartbeats are requeued by the sweeper; after `JOB_MAX_ATTEMPTS` the
-  job is `FAILED` and shows an actionable error in the UI.
+The pipeline runs synchronously inside a request handler. For the configured
+batch size (200–300 per program) this is fast enough; if it ever stops being
+fast enough, the first move is `asyncio.gather` inside the request, the
+second move is FastAPI `BackgroundTasks`, and only then a separate worker.
+There is intentionally no `jobs` table, no `worker/`, no `job_events`.
 
 ## Testing rules
 
 - No network in the default suite: `LLM_PROVIDER=fake`, `READER_MODE` exercised
-  with a local fake reader. Live-MiniMax tests are marked `@pytest.mark.live`.
-- Constraint tests must prove uniqueness/idempotency (duplicate import, double
-  answer, double active job).
-- Crash/retry paths are tested by simulating a stale heartbeat, not by killing
-  containers.
+  with the hybrid reader + a local fake provider.
+- Constraint tests must prove uniqueness/idempotency (duplicate entry import,
+  double active batch, double review sample).
 - Every list endpoint test asserts pagination bounds (no unbounded queries).
+- Sandbox tests cover both Path A (vision-LLM) and Path B (tesseract + LLM).
 
 ## Documentation rules
 
 - `README.md` — setup + tour.
 - `docs/architecture.md` — decisions and rejected alternatives, data model,
   failure-mode analysis (the answer to "what if X happens").
+- `docs/adr/0001-no-legacy-dev-phase.md` — the no-legacy principle.
 - `docs/setup.md` — install, config, Google console steps.
 - `docs/screenshots/` — real screenshots, named `<page>_<state>.png`.
-- `reports/` — generated benchmark outputs (reader accuracy, scale test).
 
 ## Taste log
 
 `TASTE.md` records each milestone with a score. It exists so the project keeps
 reflecting the owner's stated preferences: Docker-first, feature flags,
-evidence, honest numbers, bilingual (Hindi+English) reality, no over-engineering.
+evidence, honest numbers, trilingual (Hindi+English+Marathi) reality, no
+over-engineering, no legacy.

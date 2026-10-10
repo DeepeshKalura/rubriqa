@@ -6,7 +6,7 @@ Google Drive — OCRs them, cleans them, and scores them against a configurable
 rubric in controlled batches (200-300 per batch). All data stays local.
 
 Built to run on an ordinary office laptop (Intel i5 / 16 GB RAM, no GPU) with
-two commands:
+one command:
 
 ```bash
 cp .env.example .env        # put your MiniMax key in MINIMAX_API_KEY or LLM_API_KEY
@@ -30,13 +30,13 @@ at the bottom highlights where the two paths agree and disagree.
 
 ## What works today
 
-- **Entry-evaluation mode (primary)** — Program → Entry → OCR runs → cleaning
+- **Entry-evaluation mode** — Program → Entry → OCR runs → cleaning
   pass → rubric scoring → batch orchestration (200-300 configurable) → review
   samples → final dataset CSV.
 - **Both form shapes** — Himachal typed-name form and Marathi Ashramshala
   selected-name form are auto-detected and parsed into the same `Entry` model.
-- **Google Drive ingestion** — local mirror provider (default) or real Drive
-  API (`GOOGLE_DRIVE_PROVIDER=google`).
+- **Local Drive mirror** — drop handwritten images into `./data/drive_mirror/`
+  and the entry importer treats them as Drive files.
 - **Cleaning** — deterministic rules pass + optional LLM rewrite; original
   text is always kept in `entry_ocr.original_text` for audit.
 - **Batches + review** — `EvaluationBatch` rows in the configurable 200-300
@@ -45,24 +45,19 @@ at the bottom highlights where the two paths agree and disagree.
 - **Real MiniMax keys wired** — `.env` already configured with
   `LLM_PROVIDER=minimax`, vision model `MiniMax-M3`. Tests still use the
   offline `fake` provider.
-- **Exam mode (kept, legacy)** — the original Q&A pipeline still works for
-  the synthetic dataset and existing tests. Set `EVAL_MODE=exam` to use it.
 
 ## Command surface
 
 All commands run through Docker.
 
 ```bash
-make up            # start db + web + worker
+make up            # start db + web
 make down          # stop (keeps volumes and ./data)
+make reset         # stop + delete the Postgres volume (full reset; dev phase)
 
 make test          # test suite against scratch DB (fake provider, no network)
-make test-live     # live MiniMax tests (costs tokens)
+make seed          # seed a demo program + sample entries
 
-make demo          # generate the synthetic dataset and seed it (exam mode)
-make e2e           # full exam-mode pipeline over demo data
-make scale-test    # 20k synthetic submissions + API latency benchmark
-make bench-readers # reader-mode accuracy comparison -> reports/
 make screenshots   # Playwright UI checks + docs/screenshots/*.png
 
 make logs / make ps / make shell / make migrate
@@ -75,17 +70,15 @@ make logs / make ps / make shell / make migrate
 | `LLM_PROVIDER` | `minimax`, `fake` | `minimax` | Swap the LLM backend |
 | `READER_MODE` | `pdf_text`, `tesseract`, `minimax_vision`, `hybrid` | `hybrid` | Document reader |
 | `HYBRID_READER_CHAIN` | e.g. `pdf_text,tesseract,minimax_vision` | — | Reader composition |
-| `REPAIR_ENABLED` | `true`/`false` | `true` | Vision repair of low-confidence OCR |
-| `SCORING_STRATEGY` | `hybrid`, `rubric_llm`, `exact`, `numeric` | `hybrid` | Scoring engine |
-| `SCORING_ENABLE_FEEDBACK` | `true`/`false` | `false` | Generate student feedback text |
-| `GOOGLE_FORMS_ENABLED` / `GOOGLE_FORMS_PROVIDER` | `google`/`mock` | off / mock | Forms connector |
-| `GOOGLE_DRIVE_ENABLED` / `GOOGLE_DRIVE_PROVIDER` | `google`/`local` | off / local | Drive file source |
-| `EVAL_MODE` | `entry`, `exam` | `entry` | Primary evaluation flow |
+| `HYBRID_ACCEPT_CONFIDENCE` | 0.0-1.0 | 0.75 | Stop the chain above this |
+| `HYBRID_ESCALATE_BELOW` | 0.0-1.0 | 0.60 | Flag low_confidence below this |
 | `EVAL_BATCH_SIZE` | 200-300 | `250` | Entries per batch |
 | `CLEANING_MODE` | `rules`, `llm` | `rules` | OCR cleaning strategy |
+| `GOOGLE_DRIVE_ENABLED` | true/false | false | Use the local Drive mirror |
+| `SANDBOX_DEFAULT_PROVIDER` | `vision`, `ocr_llm` | `vision` | Initial sandbox provider |
 
 Flags can also be changed at runtime on the Settings page (stored in the
-`settings` table, overriding `.env` for the next job).
+`settings` table, overriding `.env` for the next request).
 
 ## Architecture in one picture
 
@@ -108,15 +101,15 @@ Google Drive images ────┼─► ingestion (forms / drive) ─► Entry
 ```
 
 Provider boundaries are small protocols: `DocumentReader`, `LLMProvider`,
-`ScoringStrategy`, `IngestionAdapter`, `DriveClient`, `FormParser`. Replacing
-one never touches another.
+`DriveClient`, `FormParser`. Replacing one never touches another.
 
 ## Documentation
 
 - `docs/architecture.md` — decisions, rejected alternatives, failure-mode analysis
+- `docs/adr/0001-no-legacy-dev-phase.md` — the no-legacy principle
 - `docs/setup.md` — install, configuration, Google console steps
 - `docs/limitations.md` — the honest list of what is not proven yet
-- `reports/` — E2E results, reader benchmark, scale benchmark (generated)
+- `reports/` — historical reader benchmark (synthetic data, not re-run)
 - `docs/screenshots/` — verified UI screenshots
 - `TASTE.md` — project preference log with milestone scores
 - `AGENTS.md` — working agreement and command surface
@@ -125,12 +118,21 @@ one never touches another.
 
 | Measurement | Result |
 |---|---|
-| Test suite (default, no network) | passes (fake provider) |
-| Live sandbox (same handwritten page, both paths) | vision 24/50 (48%, 7670 tok, 46 s) — tesseract+llm 27/50 (54%, 2288 tok, 18 s) |
-| Reader comparison (15 synthetic pages) | pdf_text 0.23, tesseract 0.72, vision 0.92, hybrid 0.83 |
-| Scale (20,005 exam submissions, 200k answers) | API p50 10–126 ms, payloads 12–16 KB |
-| Memory (idle, 3 containers) | web 83 MB, worker 83 MB, db 182 MB |
+| Test suite (default, no network) | 54 passed, 4 deselected |
+| Live sandbox (handwritten Marathi sample) | vision 24/50 (48%, 7670 tok, 46 s) — tesseract+llm 27/50 (54%, 2288 tok, 18 s) |
+| Reader comparison (15 synthetic pages, historical) | pdf_text 0.23, tesseract 0.72, vision 0.92, hybrid 0.83 |
+| Memory (idle, 1 web + 1 db) | web ~80 MB, db ~180 MB |
 
 **Honest limitations:** the live sandbox numbers above are one sample each
 (handwritten Marathi). No broad batch accuracy claim yet — the 200-300 batch
 gates are designed for that, not the sandbox. Full list: `docs/limitations.md`.
+
+## ADR-0001: no-legacy principle
+
+The dev phase can break and recreate data. The legacy Q&A exam pipeline,
+the worker, the job state machine, the 4 scoring strategies, the
+`Repairs`/`LlmCall` tables, the validation stage, and every router, template,
+test and script that only served that pipeline were deleted in
+`docs/adr/0001-no-legacy-dev-phase.md`. The repository is half the size
+and the migration drops 17 tables on upgrade. We do not keep "fallback" code
+paths for the old exam pipeline. `make reset` deletes the Postgres volume.
