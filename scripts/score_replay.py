@@ -133,6 +133,30 @@ async def replay(*, program_id: int | None, theme: str | None, tag: str) -> dict
             )
             new_scores = await _capture_new_scores(session, g.entry.id)
 
+            # If score_entry failed or produced no fresh is_current row, the
+            # `new_scores` capture would return the previous run's criteria
+            # and silently record new == old. Skip the entry's records so the
+            # bench doesn't see phantom stability.
+            errored = bool(getattr(result, "error", None))
+            if not new_scores or errored:
+                summary["by_theme"].setdefault(theme_name or "(none)", 0)
+                summary["by_theme"][theme_name or "(none)"] += 1
+                summary["entries_replayed"] += 1
+                summary["entries_errored"] = summary.get("entries_errored", 0) + (
+                    1 if errored else 0
+                )
+                logger.warning(
+                    "score_replay_skip_entry",
+                    entry_id=g.entry.id,
+                    reason="errored" if errored else "no_new_scores",
+                    error=getattr(result, "error", None),
+                )
+                await session.commit()
+                continue
+
+            rubric_max = (
+                float(g.entry.max_score) if getattr(g.entry, "max_score", None) else None
+            )
             for criterion, new_val in new_scores.items():
                 old_val = old_scores.get(criterion)
                 rows.append(
@@ -144,6 +168,7 @@ async def replay(*, program_id: int | None, theme: str | None, tag: str) -> dict
                         "old_score": old_val,
                         "new_score": float(new_val),
                         "human_total": human_total,
+                        "rubric_max": rubric_max,
                         "error": result.error,
                     }
                 )

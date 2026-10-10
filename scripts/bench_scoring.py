@@ -33,14 +33,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 REPORTS_DIR = Path("reports")
 
-# 4 buckets that roughly span a 0-10 per-criterion (or 0-40 total) rubric.
-# Bucket boundaries are inclusive on the left.
-_BIN_BOUNDARIES = (0, 3, 6, 9)
+# 4 buckets covering a 0-10 per-criterion (or 0-40 entry-total) rubric.
+# Boundaries are the upper bounds of buckets 0..N-1; the final bucket is the
+# "clamp" bucket for any value above the last boundary (including exactly 10).
+_BIN_BOUNDARIES = (3.0, 6.0, 9.0, 10.0)
 _BIN_LABELS = ("0-2", "3-5", "6-8", "9-10")
 
 
 def _bin(value: float) -> int:
-    """Bucket index (0..3) for a 0-10 score; clamps at 9."""
+    """Bucket index (0..3) for a 0-10 score; clamps at the last bucket."""
     for idx, upper in enumerate(_BIN_BOUNDARIES):
         if value < upper:
             return idx
@@ -132,9 +133,12 @@ def _summarise(replay: dict) -> dict:
                 "llm_total_old": 0.0,
                 "has_old": False,
                 "human_total": rec.get("human_total"),
+                "rubric_max": rec.get("rubric_max"),
                 "theme": theme,
             },
         )
+        if slot["rubric_max"] is None and rec.get("rubric_max") is not None:
+            slot["rubric_max"] = rec.get("rubric_max")
         slot["llm_total_new"] += float(new_val)
         if old_val is not None:
             slot["llm_total_old"] += float(old_val)
@@ -154,19 +158,28 @@ def _summarise(replay: dict) -> dict:
     criteria_table = _table(by_crit)
     themes_table = _table(by_crit_theme)
 
-    # entry-level MAE / kappa (new LLM total vs human total, binned)
+    # entry-level MAE / kappa (new LLM total vs human total, normalized to
+    # the rubric's actual max so the bucket boundaries are meaningful).
     entry_pairs = []
     entry_bins_llm: list[int] = []
     entry_bins_human: list[int] = []
+    kappa_skipped_no_max = 0
     for eid, slot in per_entry.items():
         if slot.get("human_total") is None:
             continue
         llm_total = slot["llm_total_new"]
         hum_total = float(slot["human_total"])
-        # bin on the same 0-9-ish scale; cap human_total to last bucket.
         entry_pairs.append((llm_total, hum_total))
-        entry_bins_llm.append(_bin(min(llm_total, 9.0)))
-        entry_bins_human.append(_bin(min(hum_total, 9.0)))
+        rubric_max = slot.get("rubric_max")
+        if not rubric_max or rubric_max <= 0:
+            # Without the rubric's max, binning totals to a 0-9 scale would
+            # collapse every non-zero score into one bucket — meaningless κ.
+            kappa_skipped_no_max += 1
+            continue
+        llm_norm = max(0.0, min(llm_total / rubric_max, 1.0))
+        hum_norm = max(0.0, min(hum_total / rubric_max, 1.0))
+        entry_bins_llm.append(_bin(llm_norm * 9.0))
+        entry_bins_human.append(_bin(hum_norm * 9.0))
 
     mae_entry = _mae([a for a, _ in entry_pairs], [b for _, b in entry_pairs])
     kappa_entry = _cohen_kappa(entry_bins_llm, entry_bins_human)
@@ -182,13 +195,17 @@ def _summarise(replay: dict) -> dict:
             "n": len(entry_pairs),
             "mae_new_vs_human": round(mae_entry, 4) if mae_entry is not None else None,
             "kappa_new_vs_human_binned": round(kappa_entry, 4) if kappa_entry is not None else None,
+            "kappa_skipped_no_rubric_max": kappa_skipped_no_max,
             "bin_definitions": list(_BIN_LABELS),
         },
         "notes": [
             "criteria-level MAE measures old-vs-new prompt stability, not human "
             "agreement (we only have entry-level human_score).",
-            "kappa is computed on binned (0-2/3-5/6-8/9-10) totals; small samples "
-            "will produce unstable estimates.",
+            "entry-level κ is normalized on the entry's rubric_max before binning; "
+            "entries without a rubric_max are counted in kappa_skipped_no_rubric_max "
+            "and excluded from κ (without a max, every non-zero total collapses to "
+            "one bucket, producing κ≈1 by construction).",
+            "small samples will produce unstable κ estimates.",
         ],
     }
 
