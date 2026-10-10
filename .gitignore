@@ -12,3 +12,4 @@ htmlcov/
 .venv/
 node_modules/
 .wt/
+docker-compose.override.yml

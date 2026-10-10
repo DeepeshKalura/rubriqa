@@ -72,6 +72,12 @@ class Settings(BaseSettings):
     log_json: bool = False
     app_version: str = "0.2.0"
 
+    # --- auth (feature flag, default off; see roadmap item 2)
+    auth_enabled: bool = False
+    auth_admin_user: str = "admin"
+    auth_admin_password_hash: str = ""
+    session_secret: str = ""
+
     @property
     def api_key(self) -> str:
         """Accept either MINIMAX_API_KEY or LLM_API_KEY."""
