@@ -101,6 +101,12 @@
     <p style="font-size: 0.85rem; color: var(--muted);">
       Current review status: <strong>{{ entry.review_status }}</strong>
     </p>
+    {% if entry.review_status == 'approved' %}
+    <form method="post" action="/entries/{{ entry.id }}/promote" style="margin-top: 0.5rem;">
+      <button type="submit" style="padding: 0.4rem 1rem; background: #16a34a; color: white; border: 0; border-radius: 4px; cursor: pointer;">Promote</button>
+      <span style="font-size: 0.8rem; color: var(--muted); margin-left: 0.4rem;">Applies the approved sample to the entry.</span>
+    </form>
+    {% endif %}
 
     {% if entry.local_file_path %}
       <h3>Original image</h3>
