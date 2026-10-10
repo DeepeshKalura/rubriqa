@@ -52,6 +52,7 @@ from app.services.entries import (
     register_parsed_responses,
     write_entries_csv,
 )
+from app.services.promotion import promote_entry
 
 router = APIRouter(tags=["entries"])
 
@@ -366,6 +367,27 @@ async def override_score(
     entry.review_status = "corrected" if entry.human_score is not None else "approved"
     await session.commit()
     return RedirectResponse(f"/entries/{entry_id}", status_code=303)
+
+
+# ---------------------------------------------------------------------------
+# promote (roadmap item 3): turn a resolved review sample into a verdict on the entry
+# ---------------------------------------------------------------------------
+@router.post("/entries/{entry_id}/promote")
+async def promote_entry_route(
+    entry_id: int,
+    session: AsyncSession = Depends(get_session),
+):
+    result = await promote_entry(session, entry_id)
+    if not result.ok and result.reason == "not_found":
+        raise HTTPException(404, "Entry not found")
+    if not result.ok and result.reason in ("review_pending", "no_review_sample"):
+        raise HTTPException(409, result.reason)
+    return {
+        "ok": result.ok,
+        "reason": result.reason,
+        "new_state": result.new_state,
+        "promoted_score": result.promoted_score,
+    }
 
 
 # ---------------------------------------------------------------------------

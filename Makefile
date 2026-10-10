@@ -33,7 +33,11 @@ shell:         ## python shell inside the app image
 	$(COMPOSE) run --rm web python
 
 test:          ## unit + integration + api tests against a scratch database
-	$(COMPOSE) run --rm -e DATABASE_URL=postgresql+asyncpg://entryeval:entryeval@db:5432/entry_eval_test web bash -c "python -m scripts.ensure_test_db && pytest -x -q"
+	$(COMPOSE) run --rm \
+		-e DATABASE_URL=postgresql+asyncpg://entryeval:entryeval@db:5432/entry_eval_test \
+		-e STORAGE_ROOT=/tmp/entry-eval-tests \
+		-e GOOGLE_DRIVE_LOCAL_ROOT=/tmp/entry-eval-tests/drive_mirror \
+		web bash -c "python -m scripts.ensure_test_db && pytest -q"
 
 seed:          ## seed a demo program + a few entries
 	$(COMPOSE) run --rm web python -m scripts.seed_demo
