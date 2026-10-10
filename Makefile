@@ -3,7 +3,7 @@
 
 COMPOSE = docker compose
 
-.PHONY: up down logs ps build migrate shell test seed demo screenshots fmt reset
+.PHONY: up down logs ps build migrate shell test seed demo screenshots fmt reset score-replay bench-scoring
 
 up:            ## start db + web
 	$(COMPOSE) up --build -d
@@ -47,3 +47,9 @@ screenshots:   ## Playwright UI verification + screenshots (host browsers)
 
 fmt:
 	$(COMPOSE) run --rm web python -m compileall -q app scripts
+
+score-replay:  ## re-run rubric scoring on entries that have a human_score
+	$(COMPOSE) run --rm web python -m scripts.score_replay
+
+bench-scoring: ## read reports/replay_<date>.json -> reports/scoring_bench_<date>.json
+	$(COMPOSE) run --rm web python -m scripts.bench_scoring
