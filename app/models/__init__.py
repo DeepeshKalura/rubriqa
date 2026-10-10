@@ -20,6 +20,7 @@ from app.models.entry import (
 )
 from app.models.exam import Rubric, RubricCriterion
 from app.models.job import Setting
+from app.models.auth import User
 
 __all__ = [
     "Base",
@@ -44,4 +45,5 @@ __all__ = [
     "ReviewStatus",
     "ReviewSample",
     "DriveFile",
+    "User",
 ]

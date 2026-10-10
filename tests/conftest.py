@@ -120,6 +120,78 @@ async def client(engine, clean_db):
 
 
 @pytest.fixture
+def admin_password() -> str:
+    """Plaintext admin password used by the `client_on` fixture and tests."""
+    return "test-admin-password-123!"
+
+
+@pytest_asyncio.fixture
+async def client_off(engine, clean_db):
+    """Same as `client` (auth_enabled defaults to False). Renamed for clarity
+    in the auth-flag tests."""
+    from app.db import init_engine
+    from app.main import create_app
+
+    reset_engine()
+    init_engine(get_settings().model_copy(update={"database_url": TEST_DATABASE_URL}))
+    app = create_app()
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as http:
+        yield http
+    reset_engine()
+
+
+@pytest_asyncio.fixture
+async def client_on(engine, clean_db, admin_password):
+    """HTTP client with AUTH_ENABLED=true and the admin user seeded.
+
+    Sets env vars so pydantic-settings sees them, busts the lru_cache,
+    creates a fresh app (which now registers SessionMiddleware + the
+    require_user dependency on every router), seeds the admin row, and
+    restores everything on teardown.
+    """
+    from app.auth import hash_password, seed_admin_if_configured
+    from app.db import get_sessionmaker, init_engine
+    from app.main import create_app
+
+    admin_hash = hash_password(admin_password)
+    reset_engine()
+    init_engine(get_settings().model_copy(update={"database_url": TEST_DATABASE_URL}))
+
+    saved = {k: os.environ.get(k) for k in (
+        "AUTH_ENABLED",
+        "AUTH_ADMIN_USER",
+        "AUTH_ADMIN_PASSWORD_HASH",
+        "SESSION_SECRET",
+    )}
+    os.environ["AUTH_ENABLED"] = "true"
+    os.environ["AUTH_ADMIN_USER"] = "admin"
+    os.environ["AUTH_ADMIN_PASSWORD_HASH"] = admin_hash
+    os.environ["SESSION_SECRET"] = "test-session-secret-not-for-prod"
+    get_settings.cache_clear()
+
+    try:
+        app = create_app()
+        # Pre-seed so /auth/me-after-login can be tested without going
+        # through the login route's seeding path.
+        sm = get_sessionmaker()
+        async with sm() as session:
+            await seed_admin_if_configured(session)
+            await session.commit()
+        transport = ASGITransport(app=app)
+        async with AsyncClient(transport=transport, base_url="http://test") as http:
+            yield http
+    finally:
+        get_settings.cache_clear()
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        reset_engine()
+
+
+@pytest.fixture
 def image_factory(tmp_path):
     from PIL import Image, ImageDraw
 
