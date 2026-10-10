@@ -54,6 +54,16 @@ async def login(
 
 @router.post("/logout")
 async def logout(request: Request, session: AsyncSession = Depends(get_session)):
+    settings = get_settings()
+    if not settings.auth_enabled:
+        raise HTTPException(
+            status_code=403,
+            detail="AUTH_ENABLED is false; set AUTH_ENABLED=true in .env",
+        )
+    if "session" not in request.scope:
+        # Defensive: SessionMiddleware should be installed when auth is on,
+        # but never assume session storage exists on this request.
+        raise HTTPException(status_code=403, detail="no session available")
     request.session.clear()
     await session.commit()
     return {"ok": True}

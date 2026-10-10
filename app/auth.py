@@ -56,10 +56,18 @@ def warn_if_dev_secret(settings: Settings) -> None:
 
 
 def hash_password(plain: str) -> str:
-    """bcrypt hash, stored as a UTF-8 string (the framework's default prefix)."""
+    """bcrypt hash, stored as a UTF-8 string (the framework's default prefix).
+
+    bcrypt silently truncates inputs above 72 bytes; we surface that as a
+    ValueError so the caller knows to shorten the password rather than
+    shipping a stored hash that can never be verified against the original.
+    """
     if not plain:
         raise ValueError("password must not be empty")
-    return bcrypt.hashpw(plain.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    encoded = plain.encode("utf-8")
+    if len(encoded) > 72:
+        raise ValueError("password exceeds bcrypt's 72-byte input limit")
+    return bcrypt.hashpw(encoded, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:

@@ -31,6 +31,8 @@ async def test_auth_off_login_me_returns_disabled(client_off: AsyncClient) -> No
         follow_redirects=False,
     )
     assert r2.status_code == 403
+    r3 = await client_off.post("/auth/logout", follow_redirects=False)
+    assert r3.status_code == 403
 
 
 @pytest.mark.asyncio
