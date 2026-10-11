@@ -141,3 +141,54 @@ async def test_score_entry_handles_llm_error_gracefully(session) -> None:
     assert result.error is not None
     assert result.score_id is None
     assert result.total_awarded == 0
+
+
+@pytest.mark.asyncio
+async def test_score_entry_handles_bad_json_gracefully(session) -> None:
+    """If the LLM call returns successfully but the response is not parseable
+    JSON (even after the lenient parser tries), score_entry must persist an
+    error run and return a result with error set — not raise into the caller
+    (regression: a bare parse_json_lenient outside the try used to bubble up
+    as an opaque exception in Path C on page-05)."""
+    entry = await _make_entry(session)
+    settings = Settings(llm_provider="fake", minimax_text_model="MiniMax-M3")
+    llm = FakeProvider()
+    # text that even the lenient parser cannot recover from
+    llm.queue(stage="entry_rubric_llm", text="not json at all, just prose with no braces")
+    result = await score_entry(session, entry, llm=llm, settings=settings)
+    assert result.error is not None
+    assert "bad_json" in result.error or "valid JSON" in result.error
+    assert result.score_id is None
+    assert result.total_awarded == 0
+    from sqlalchemy import select
+    from app.models import EntryScore
+    run = (
+        await session.execute(select(EntryScore).where(EntryScore.entry_id == entry.id))
+    ).scalar_one()
+    assert run.error
+    assert run.is_current is False
+
+
+@pytest.mark.asyncio
+async def test_score_entry_refuses_empty_submission(session) -> None:
+    """No text anywhere (empty OCR + blank form fields) must not be 'graded':
+    the model is never called and no confident zero is produced."""
+    entry = await _make_entry(session)
+    entry.situation = ""
+    entry.proposed_solution = ""
+    entry.ai_description = ""
+    await session.commit()
+    settings = Settings(llm_provider="fake", minimax_text_model="MiniMax-M3")
+    llm = FakeProvider()
+    result = await score_entry(session, entry, llm=llm, settings=settings)
+    assert result.error == "nothing_to_score"
+    assert result.confidence == 0
+    assert result.score_id is None
+    assert llm.calls == []  # scorer LLM never invoked
+    from sqlalchemy import select
+    from app.models import EntryScore
+    run = (
+        await session.execute(select(EntryScore).where(EntryScore.entry_id == entry.id))
+    ).scalar_one()
+    assert run.error == "nothing_to_score"
+    assert run.is_current is False

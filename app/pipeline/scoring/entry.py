@@ -154,6 +154,33 @@ async def score_entry(
     solution = entry.proposed_solution or ""
     cleaned_sit = rule_clean(situation).cleaned_text
     cleaned_sol = rule_clean(solution).cleaned_text
+    if not (cleaned_sit.strip() or cleaned_sol.strip() or (entry.ai_description or "").strip()):
+        # Nothing to evaluate (e.g. OCR came back empty and the form fields
+        # are blank). Grading silence and reporting a confident zero would be
+        # dishonest — record an error run instead of calling the model.
+        run = EntryScore(
+            entry_id=entry.id,
+            batch_id=batch_id,
+            strategy="entry_rubric_llm",
+            provider=settings.llm_provider,
+            model=settings.minimax_text_model,
+            rubric_id=rubric_id,
+            is_current=False,
+            error="nothing_to_score",
+        )
+        session.add(run)
+        await session.commit()
+        return EntryScoreResult(
+            score_id=None,
+            total_awarded=0,
+            total_max=sum(float(c.get("max_score") or 0) for c in rubric),
+            percentage=0,
+            confidence=0,
+            strengths=[], gaps=[], observations="",
+            criteria=[], input_tokens=0, output_tokens=0, total_tokens=0,
+            latency_ms=0,
+            error="nothing_to_score",
+        )
     prompt = (
         f"Theme: {entry.theme or '(unspecified)'}\n"
         f"Language: {entry.language or 'unknown'}\n"
@@ -176,8 +203,14 @@ async def score_entry(
             temperature=0.0,
             context={"entry_id": entry.id, "batch_id": batch_id},
         )
+        # parse the response — a bad / truncated JSON must be classified the
+        # same way as an LLM call failure (persisted as an error run, not
+        # silently re-raised into the router as an opaque exception).
+        data = parse_json_lenient(result.text)
     except Exception as exc:  # noqa: BLE001
-        logger.warning("entry_score_llm_failed", entry_id=entry.id, error=str(exc)[:300])
+        logger.warning(
+            "entry_score_llm_failed", entry_id=entry.id, error=str(exc)[:300]
+        )
         # persist an empty error run
         run = EntryScore(
             entry_id=entry.id,
@@ -203,7 +236,6 @@ async def score_entry(
             error=str(exc)[:500],
         )
 
-    data = parse_json_lenient(result.text)
     criteria = data.get("criteria") or []
     total_awarded = 0.0
     # total_max always reflects the rubric's max regardless of whether the

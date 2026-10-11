@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Sandbox — 2-way OCR comparison{% endblock %}
+{% block title %}Sandbox — 3-way OCR comparison{% endblock %}
 {% block head_extra %}
 <style>
   /* Single-file local styles — no CDN */
@@ -33,7 +33,7 @@
   }
   .paths {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1rem;
   }
   @media (max-width: 900px) {
@@ -155,13 +155,15 @@
 {% endblock %}
 
 {% block content %}
-<h1>Sandbox — 2-way OCR comparison</h1>
+<h1>Sandbox — 3-way OCR comparison</h1>
 <p style="color: var(--muted, #64748b); max-width: 60ch;">
   Drop a single-page student submission image (or pick a bundled sample) and run
-  both OCR paths side-by-side. Path A uses the vision-capable LLM for OCR + scoring
-  in one call. Path B uses Tesseract OCR locally and then asks the LLM to score the
-  cleaned text. Both paths hit the running app's configured MiniMax endpoint. All
-  data stays on this machine.
+  three OCR paths side-by-side. Path A: strict zero-hallucination vision-LLM OCR +
+  scoring. Path B: Tesseract OCR locally, then LLM scoring. Path C: Tesseract +
+  vision transcripts merged by a vision LLM (the page image arbitrates) into one
+  human-like transcript, then scored. When a human-verified golden transcript
+  exists for a bundled page, each path's character error rate (CER, lower is
+  better) is shown against it. All data stays on this machine.
 </p>
 
 <div class="sandbox-grid">
@@ -214,14 +216,17 @@
 
     <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
       <label style="font-size: 0.85rem;">
-        <input type="checkbox" id="run_vision" checked> Run Path A (Vision LLM)
+        <input type="checkbox" id="run_vision" checked> Run Path A (Vision LLM, strict)
       </label>
       <label style="font-size: 0.85rem;">
         <input type="checkbox" id="run_tesseract" checked> Run Path B (Tesseract + LLM)
       </label>
+      <label style="font-size: 0.85rem;">
+        <input type="checkbox" id="run_fusion" checked> Run Path C (Vision + OCR fusion)
+      </label>
     </div>
 
-    <button class="run" id="run-btn" style="margin-top: 1rem; width: 100%;">Compare both paths</button>
+    <button class="run" id="run-btn" style="margin-top: 1rem; width: 100%;">Compare paths</button>
     <button class="run" id="reset-btn" style="margin-top: 0.5rem; width: 100%; background: #b91c1c;">
       Reset sandbox entries
     </button>
@@ -231,7 +236,7 @@
 
   <main>
     <div id="results">
-      <p style="color: var(--muted);">Pick an image and click <em>Compare</em> to see the two paths' results.</p>
+      <p style="color: var(--muted);">Pick an image and click <em>Compare</em> to see the paths' results.</p>
     </div>
   </main>
 </div>
@@ -286,8 +291,8 @@
     }
     data.samples.forEach((s) => {
       const btn = document.createElement('button');
-      btn.textContent = s.name.replace('page-', 'p');
-      btn.title = s.path;
+      btn.textContent = s.name.replace('page-', 'p') + (s.golden_text ? ' ✓' : '');
+      btn.title = s.golden_text ? (s.path + ' — golden transcript available') : s.path;
       btn.onclick = async () => {
         const r = await fetch(s.path);
         const blob = await r.blob();
@@ -304,6 +309,12 @@
     })[c]);
   }
 
+  const PATH_TITLES = {
+    vision: 'Path A — Vision LLM (strict OCR + scoring)',
+    tesseract_llm: 'Path B — Tesseract OCR + LLM scoring',
+    vision_ocr_fusion: 'Path C — Vision + OCR fusion (human-like transcript)',
+  };
+
   function renderPath(label, data) {
     const card = document.createElement('div');
     card.className = 'path-card';
@@ -312,6 +323,20 @@
     const totalMax = (data.score && data.score.total_max) || 0;
     const percentage = (data.score && data.score.percentage) || 0;
     const confidence = (data.score && data.score.confidence) || data.confidence || 0;
+    const cerPill = (data.cer != null)
+      ? `<span class="pill ${data.cer < 15 ? 'ok' : (data.cer < 40 ? 'warn' : 'err')}">CER vs golden ${data.cer}%</span>`
+      : '';
+    const components = (label === 'vision_ocr_fusion')
+      ? `<details><summary>Engine transcripts (inputs to fusion)</summary>
+           <label style="font-size:0.8rem; color:var(--muted)">Vision-LLM OCR</label>
+           <textarea class="ocr" readonly style="min-height:80px">${escapeHtml(data.vision_text || '')}</textarea>
+           <label style="font-size:0.8rem; color:var(--muted)">Tesseract OCR</label>
+           <textarea class="ocr" readonly style="min-height:60px">${escapeHtml(data.tesseract_text || '')}</textarea>
+         </details>`
+      : '';
+    const gateBadge = (data.fusion_skipped === true)
+      ? `<span class="pill warn" title="tess_len / vision_len > ${(data.fusion_ratio_threshold || 1.5)}; tesseract output was longer than vision, treated as noise. See docs/sandbox/fusion_gate.md">Gate: tesseract too long, used vision</span>`
+      : '';
 
     let criteriaHtml = '';
     if (data.score && data.score.criteria && data.score.criteria.length) {
@@ -352,13 +377,15 @@
 
     card.innerHTML = `
       <h3>
-        ${escapeHtml(label === 'vision' ? 'Path A — Vision LLM (OCR + scoring)' : 'Path B — Tesseract OCR + LLM scoring')}
+        ${escapeHtml(PATH_TITLES[label] || label)}
       </h3>
       <div class="subtitle">
         <span class="pill ${ok ? 'ok' : 'err'}">${ok ? 'ok' : 'failed'}</span>
         <span class="pill">${escapeHtml(data.method || label)}</span>
         <span class="pill">${escapeHtml(data.language || '-')}</span>
         <span class="pill">${escapeHtml(String((data.elapsed_ms || 0)))} ms</span>
+        ${cerPill}
+        ${gateBadge}
       </div>
       ${!ok ? `<p style="color:#991b1b">${escapeHtml(data.error || 'unknown error')}</p>` : ''}
       ${tokens}
@@ -375,6 +402,7 @@
       ${criteriaHtml}
 
       <div style="margin-top:0.75rem;">
+        ${components}
         ${strengths}
         ${gaps}
         ${observations}
@@ -384,30 +412,54 @@
     return card;
   }
 
-  function renderComparisonDiff(a, b) {
-    if (!a || !b || !a.score || !b.score) return '';
+  function renderComparisonDiff(results) {
+    const scored = results.filter((r) => r && r.score);
+    if (scored.length < 2) return '';
+    const headers = scored.map((r) => (PATH_TITLES[r.path] || r.path).split('—')[0].trim());
     const rows = [];
-    rows.push(['Method', a.method || '-', b.method || '-']);
-    rows.push(['Language', a.language || '-', b.language || '-']);
-    rows.push(['Total score', a.score.total_awarded.toFixed(1), b.score.total_awarded.toFixed(1)]);
-    rows.push(['Percent', a.score.percentage.toFixed(1) + '%', b.score.percentage.toFixed(1) + '%']);
-    rows.push(['Confidence', (a.score.confidence * 100).toFixed(0) + '%', (b.score.confidence * 100).toFixed(0) + '%']);
-    rows.push(['Input tokens', a.input_tokens || 0, b.input_tokens || 0]);
-    rows.push(['Output tokens', a.output_tokens || 0, b.output_tokens || 0]);
-    rows.push(['Total tokens', a.total_tokens || 0, b.total_tokens || 0]);
-    rows.push(['Elapsed ms', a.elapsed_ms || 0, b.elapsed_ms || 0]);
-    if (a.score.criteria && b.score.criteria) {
-      a.score.criteria.forEach((ca, idx) => {
-        const cb = b.score.criteria[idx] || {};
-        rows.push([ca.name + ' (A vs B)',
-            ca.awarded.toFixed(1) + '/' + ca.max_score.toFixed(1),
-            (cb.awarded || 0).toFixed(1) + '/' + (cb.max_score || 0).toFixed(1)]);
+    const pushRow = (label, fn) => {
+      rows.push([label, ...scored.map(fn)]);
+    };
+    pushRow('Method', (r) => r.method || '-');
+    pushRow('Language', (r) => r.language || '-');
+    pushRow('Total score', (r) => r.score.total_awarded.toFixed(1));
+    pushRow('Percent', (r) => r.score.percentage.toFixed(1) + '%');
+    pushRow('Confidence', (r) => (r.score.confidence * 100).toFixed(0) + '%');
+    pushRow('CER vs golden (lower is better)', (r) => (r.cer != null ? r.cer + '%' : '-'));
+    pushRow('Input tokens', (r) => r.input_tokens || 0);
+    pushRow('Output tokens', (r) => r.output_tokens || 0);
+    pushRow('Total tokens', (r) => r.total_tokens || 0);
+    pushRow('Elapsed ms', (r) => r.elapsed_ms || 0);
+    // per-criterion, aligned by criterion name across paths
+    const criterionNames = [];
+    scored.forEach((r) => (r.score.criteria || []).forEach((c) => {
+      if (!criterionNames.includes(c.name)) criterionNames.push(c.name);
+    }));
+    criterionNames.forEach((name) => {
+      pushRow(name, (r) => {
+        const c = (r.score.criteria || []).find((x) => x.name === name);
+        return c ? c.awarded.toFixed(1) + '/' + c.max_score.toFixed(1) : '-';
       });
-    }
+    });
     return '<h3 style="margin-top:1rem">Side-by-side diff</h3>' +
-      '<table class="diff-table"><thead><tr><th>Field</th><th>Vision (Path A)</th><th>Tesseract+LLM (Path B)</th></tr></thead><tbody>' +
-      rows.map((r) => `<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(String(r[1]))}</td><td>${escapeHtml(String(r[2]))}</td></tr>`).join('') +
+      '<table class="diff-table"><thead><tr><th>Field</th>' +
+      headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('') +
+      '</tr></thead><tbody>' +
+      rows.map((r) => `<tr><td>${escapeHtml(r[0])}</td>${r.slice(1).map((v) => `<td>${escapeHtml(String(v))}</td>`).join('')}</tr>`).join('') +
       '</tbody></table>';
+  }
+
+  function renderGolden(goldenText) {
+    if (!goldenText) return null;
+    const card = document.createElement('div');
+    card.className = 'path-card';
+    card.style.marginTop = '1rem';
+    card.innerHTML = `
+      <h3>Golden transcript (human-verified)</h3>
+      <div class="subtitle"><span class="pill ok">reference</span> used for the CER pills above</div>
+      <textarea class="ocr" readonly style="min-height:180px">${escapeHtml(goldenText)}</textarea>
+    `;
+    return card;
   }
 
   runBtn.addEventListener('click', async () => {
@@ -416,7 +468,7 @@
       return;
     }
     runBtn.disabled = true;
-    setStatus('Running both paths…');
+    setStatus('Running paths…');
     resultsEl.innerHTML = '';
 
     const fd = new FormData();
@@ -428,6 +480,7 @@
     fd.append('ai_description', document.getElementById('ai_description').value);
     fd.append('run_vision', document.getElementById('run_vision').checked ? 'true' : 'false');
     fd.append('run_tesseract', document.getElementById('run_tesseract').checked ? 'true' : 'false');
+    fd.append('run_fusion', document.getElementById('run_fusion').checked ? 'true' : 'false');
 
     try {
       const res = await fetch('/sandbox/compare', { method: 'POST', body: fd });
@@ -437,14 +490,13 @@
         resultsEl.innerHTML = '<pre class="raw">' + escapeHtml(JSON.stringify(json, null, 2)) + '</pre>';
         return;
       }
-      const a = json.results.find((r) => r.path === 'vision');
-      const b = json.results.find((r) => r.path === 'tesseract_llm');
       const wrap = document.createElement('div');
       wrap.className = 'paths';
-      if (a) wrap.appendChild(renderPath('vision', a));
-      if (b) wrap.appendChild(renderPath('tesseract_llm', b));
+      json.results.forEach((r) => wrap.appendChild(renderPath(r.path, r)));
       resultsEl.appendChild(wrap);
-      if (a && b) resultsEl.insertAdjacentHTML('beforeend', renderComparisonDiff(a, b));
+      resultsEl.insertAdjacentHTML('beforeend', renderComparisonDiff(json.results));
+      const goldenCard = renderGolden(json.golden);
+      if (goldenCard) resultsEl.appendChild(goldenCard);
       setStatus('Done. Entry # ' + json.entry_id + ' (ref ' + json.external_ref + ')');
     } catch (err) {
       setStatus('Network error: ' + err.message);

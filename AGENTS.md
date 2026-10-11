@@ -107,7 +107,7 @@ There is intentionally no `jobs` table, no `worker/`, no `job_events`.
 - Constraint tests must prove uniqueness/idempotency (duplicate entry import,
   double active batch, double review sample).
 - Every list endpoint test asserts pagination bounds (no unbounded queries).
-- Sandbox tests cover both Path A (vision-LLM) and Path B (tesseract + LLM).
+- Sandbox tests cover Path A (vision-LLM), Path B (tesseract + LLM), and Path C (vision+OCR fusion with image-arbitrated merge), plus the CER metric against golden transcripts in `data/samples/golden/`. Path C has a **fusion gate** (`FUSION_MAX_TESS_TO_VISION_RATIO`, default 1.5): when tesseract's text is much longer than vision's, tesseract is treated as noise and the fusion LLM call is skipped. Decision record: `docs/sandbox/fusion_gate.md`. Held-out test set: `data/samples/holdout.json` (page-03, page-11).
 
 ## Documentation rules
 

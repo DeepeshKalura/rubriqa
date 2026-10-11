@@ -218,24 +218,103 @@ class _Retryable(Exception):
     pass
 
 
+def _balance_close(text: str) -> str | None:
+    """If `text` ends with unbalanced open braces/brackets (ignoring those
+    inside strings — tracked with escape state), return `text` with the
+    matching closers appended. Returns None if no `{` was ever seen.
+
+    This recovers from truncated model output where the JSON never closed.
+    """
+    stack: list[str] = []
+    in_string = False
+    escape = False
+    seen_open = False
+    for ch in text:
+        if escape:
+            escape = False
+            continue
+        if in_string:
+            if ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            stack.append("}")
+            seen_open = True
+        elif ch == "[":
+            stack.append("]")
+        elif ch == "}" or ch == "]":
+            if stack and stack[-1] == ch:
+                stack.pop()
+    if not seen_open:
+        return None
+    suffix = '"' if in_string else ""
+    return text + suffix + "".join(reversed(stack))
+
+
 def parse_json_lenient(text: str) -> dict[str, Any]:
-    """Parse model JSON output, tolerating code fences and surrounding prose."""
+    """Parse model JSON output, tolerating code fences, surrounding prose,
+    and *truncated* output (model ran out of tokens before closing braces)."""
     text = strip_reasoning(text)
     if not text:
         raise LLMError("Empty response from model", code="empty_response")
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        # strip code fences
-        cleaned = text.strip()
-        if cleaned.startswith("```"):
-            cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned
-            cleaned = cleaned.rsplit("```", 1)[0]
-        start, end = cleaned.find("{"), cleaned.rfind("}")
-        if start != -1 and end > start:
-            candidate = cleaned[start : end + 1]
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                pass
-        raise LLMError(f"Model did not return valid JSON: {text[:200]}", code="bad_json")
+
+    def _attempt(candidate: str) -> dict[str, Any] | None:
+        try:
+            return json.loads(candidate)
+        except (json.JSONDecodeError, ValueError):
+            return None
+
+    # 1) the raw response (after reasoning strip)
+    parsed = _attempt(text)
+    if parsed is not None:
+        return parsed
+
+    # 2) strip code fences, then parse
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = cleaned.split("\n", 1)[1] if "\n" in cleaned else cleaned
+        cleaned = cleaned.rsplit("```", 1)[0]
+    parsed = _attempt(cleaned)
+    if parsed is not None:
+        return parsed
+
+    # 3) find the first balanced { ... } block in the cleaned text
+    depth = 0
+    in_string = False
+    escape = False
+    start_idx = -1
+    for i, ch in enumerate(cleaned):
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_string = False
+            continue
+        if ch == '"':
+            in_string = True
+        elif ch == "{":
+            if start_idx == -1:
+                start_idx = i
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0 and start_idx != -1:
+                parsed = _attempt(cleaned[start_idx : i + 1])
+                if parsed is not None:
+                    return parsed
+                start_idx = -1  # keep trying subsequent top-level objects
+
+    # 4) truncated: synthesize the missing closers and re-parse
+    repaired = _balance_close(cleaned)
+    if repaired is not None:
+        parsed = _attempt(repaired)
+        if parsed is not None:
+            return parsed
+
+    raise LLMError(f"Model did not return valid JSON: {text[:200]}", code="bad_json")
