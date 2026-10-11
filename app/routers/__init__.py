@@ -43,7 +43,7 @@ def register_routers(app: FastAPI) -> None:
     for module in (
         dashboard,        # /dashboard
         entries,          # /programs, /entries, /programs/{id}/export.csv
-        sandbox,          # /sandbox  (2-way OCR comparison tool)
+        sandbox,          # /sandbox  (3-way OCR comparison tool)
         settings_router,  # /settings (runtime feature flags)
         files,            # /files/*   (image serving for the sandbox)
     ):

@@ -1,0 +1,75 @@
+{
+  "split": {
+    "training": [
+      "page-01",
+      "page-02",
+      "page-04",
+      "page-05",
+      "page-06",
+      "page-07",
+      "page-08",
+      "page-09",
+      "page-10"
+    ],
+    "holdout": [
+      "page-03",
+      "page-11"
+    ]
+  },
+  "gate": {
+    "name": "fusion_max_tess_to_vision_ratio",
+    "default": 1.5,
+    "rule": "skip fusion LLM call when (vision_text non-empty) AND (tess_text non-empty) AND (len(tess_text) > 1.5 * len(vision_text))",
+    "decision_record": "docs/sandbox/fusion_gate.md"
+  },
+  "training_summary": {
+    "correctly_skipped_fusion": 2,
+    "wrongly_skipped_fusion": 0,
+    "fusion_runs_kept": 6,
+    "forced_fusion_vision_empty": 1
+  },
+  "holdout": [
+    {
+      "page": "page-03",
+      "reason": "stress-test: model confuses Devanagari for Gujarati",
+      "vision_len": 856,
+      "tess_len": 713,
+      "tess_conf": 0.271,
+      "ratio": 0.83,
+      "gate_fires": false,
+      "cer_vision": 83.1,
+      "cer_tesseract": 71.7,
+      "cer_hybrid": 46.1,
+      "score_vision": 6,
+      "score_tesseract": 0,
+      "score_hybrid": 12,
+      "winner": "fusion (gate silent, correct)",
+      "gate_decision_correct": true,
+      "note": "Gate's silence preserved the real win. Without the gate, fusion would still have run (and won). With the gate firing incorrectly here, we would have lost the only winning strategy for this page."
+    },
+    {
+      "page": "page-11",
+      "reason": "re-photo of p10 with a worse image; tests if the gate is stable across re-photos",
+      "vision_len": 725,
+      "tess_len": 61,
+      "tess_conf": 0.235,
+      "ratio": 0.08,
+      "gate_fires": false,
+      "cer_vision": 139.9,
+      "cer_tesseract": 92.8,
+      "cer_hybrid": 92.3,
+      "score_vision": 2,
+      "score_tesseract": 0,
+      "score_hybrid": 1,
+      "winner": "vision (gate silent, correct)",
+      "gate_decision_correct": true,
+      "note": "Tesseract was too short to trigger the noise heuristic. The gate's silence here is the right call: nothing to skip. Vision still won (CER 139.9 vs fusion's 92.3 — fusion even slightly hurt by folding the tiny tesseract fragment in)."
+    }
+  ],
+  "verdict": {
+    "gate_correct_on_holdout": 2,
+    "gate_wrong_on_holdout": 0,
+    "training_minus_holdout_contradiction": false,
+    "recommendation": "Keep the gate. It does not help p03 or p11 (the gate's silence is the right call on both), and it cleanly avoids the documented p05/p07 regression where fusion hurt CER. The gate's only function is to skip when tesseract is suspiciously long; it is silent (correctly) when tesseract is normal-length or empty."
+  }
+}

@@ -63,8 +63,14 @@ class Settings(BaseSettings):
     google_drive_provider: Literal["local"] = "local"
     google_drive_local_root: Path = Path("./data/drive_mirror")
 
-    # --- sandbox (2-way OCR comparison)
+    # --- sandbox (3-way OCR comparison: vision / tesseract / fusion)
     sandbox_default_provider: Literal["vision", "ocr_llm"] = "vision"
+    # When the tesseract transcript is suspiciously long compared to the
+    # vision transcript, tesseract is hallucinating noise (English script on
+    # Devanagari pages, double-length, etc.). Skip the fusion LLM call and use
+    # the vision text as the hybrid output. See docs/sandbox/fusion_gate.md
+    # for the data this number came from.
+    fusion_max_tess_to_vision_ratio: float = 1.5
 
     # --- app
     app_host: str = "127.0.0.1"

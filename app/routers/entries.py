@@ -24,6 +24,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, Uplo
 from fastapi.responses import RedirectResponse, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.db import get_session
 from app.models import (
@@ -338,7 +339,15 @@ async def list_entries(
 async def entry_detail(
     request: Request, entry_id: int, session: AsyncSession = Depends(get_session)
 ):
-    entry = await session.get(Entry, entry_id)
+    stmt = (
+        select(Entry)
+        .where(Entry.id == entry_id)
+        .options(
+            selectinload(Entry.ocr_runs),
+            selectinload(Entry.scores).selectinload(EntryScore.criteria),
+        )
+    )
+    entry = (await session.execute(stmt)).scalar_one_or_none()
     if entry is None:
         raise HTTPException(404, "Entry not found")
     return render(

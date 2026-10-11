@@ -43,8 +43,8 @@ from app.pipeline.ingestion.google_drive import (
 from app.pipeline.preprocessing import load_image, save_page_image
 from app.pipeline.readers import build_reader
 from app.pipeline.scoring.entry import score_entry
-from app.providers.llm import LLMProvider
-from app.schemas import CanonicalDocument, CanonicalPage, LLMMessage, SourceType
+from app.providers.llm import LLMProvider, parse_json_lenient
+from app.schemas import CanonicalDocument, CanonicalPage, LLMMessage, LLMResult, SourceType
 from app.services.storage import Storage
 
 logger = get_logger("entry_eval.entries")
@@ -145,6 +145,94 @@ def write_entries_csv(entries: Iterable[Entry]) -> str:
 # ---------------------------------------------------------------------------
 # per-entry processing (used by the sandbox and the worker)
 # ---------------------------------------------------------------------------
+VISION_OCR_PROMPT = (
+    "Transcribe the handwritten content of this student's project submission. "
+    "Transcribe EXACTLY what is written: do not correct spelling or grammar, "
+    "do not invent, complete, or add words, and never output text that is not "
+    "visible on the page. Preserve line breaks and the student's own spelling, "
+    "even if it is wrong. Use [illegible] for anything you can't read. "
+    "Return JSON: {\"text\": \"<transcription>\", \"language\": \"<hin|eng|mr|mixed>\"}"
+)
+
+FUSION_OCR_PROMPT = (
+    "Two OCR engines transcribed the same handwritten student project page.\n\n"
+    "Vision-LLM OCR:\n{vision_text}\n\n"
+    "Tesseract OCR:\n{tesseract_text}\n\n"
+    "Using the page image as the final authority, produce the definitive "
+    "transcription a careful human would write: fix OCR misreads and fill gaps "
+    "from either transcript. Keep the student's own spelling exactly as written — "
+    "do NOT correct the student's spelling or grammar. Never invent content that "
+    "is not on the page. Use [illegible] for anything truly unreadable. "
+    "Return JSON: {{\"text\": \"<transcription>\", \"language\": \"<hin|eng|mr|mixed>\"}}"
+)
+
+
+async def _run_vision_ocr(
+    llm: LLMProvider,
+    settings: Settings,
+    image_bytes: bytes,
+    *,
+    entry_id: int,
+) -> tuple[str, str | None, LLMResult | None]:
+    """Zero-hallucination vision OCR pass (separate small call to keep tokens
+    bounded). Returns (text, language, raw LLMResult-or-None)."""
+    ocr_result: LLMResult | None = None
+    ocr_text = ""
+    language: str | None = None
+    try:
+        ocr_result = await llm.complete(
+            messages=[
+                LLMMessage(role="system", content="You are a meticulous OCR transcriber."),
+                LLMMessage(role="user", content=VISION_OCR_PROMPT),
+            ],
+            images=[image_bytes],
+            json_mode=True,
+            # Use the full configured budget. The hard 2048 cap was too
+            # tight for Marathi/Hindi-dense pages and silently truncated
+            # the JSON mid-character. The .env flag remains the dial.
+            max_tokens=settings.minimax_max_output_tokens,
+            stage="entry_vision_ocr",
+            temperature=0.0,
+            context={"entry_id": entry_id},
+        )
+        # MiniMax-M3 answers json_mode with markdown-fenced JSON; strict
+        # json.loads would silently discard a perfectly good transcription.
+        data = parse_json_lenient(ocr_result.text)
+        ocr_text = (data.get("text") or "").strip()
+        language = data.get("language") or None
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "entry_vision_ocr_failed",
+            entry_id=entry_id,
+            error=str(exc)[:200],
+            raw=(ocr_result.text[:300] if ocr_result else None),
+        )
+    return ocr_text, language, ocr_result
+
+
+def _render_for_tesseract(local_path: Path, settings: Settings) -> Path | None:
+    """Render the raw upload to a tmp PNG the tesseract reader accepts.
+    The real entry-evaluation pipeline renders pages via the preprocessing
+    step before tesseract; the sandbox uploads skip that step, so we do it
+    inline here. Returns the tmp file path or None on failure (caller logs)."""
+    import io as _io
+    import tempfile
+    from app.pipeline.preprocessing import load_image, preprocess_for_ocr
+
+    try:
+        image = load_image(local_path)
+        processed = preprocess_for_ocr(image, max_side=settings.vision_max_image_side)
+        fd, name = tempfile.mkstemp(prefix="sandbox-tess-", suffix=".png")
+        import os as _os
+
+        _os.close(fd)
+        processed.save(name, format="PNG")
+        return Path(name)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("sandbox_tesseract_render_failed", path=str(local_path), error=str(exc)[:200])
+        return None
+
+
 async def _ensure_drive_file_local(
     settings: Settings, drive_client: DriveClient, drive_file_id: str, drive_url: str | None, name_hint: str | None,
     local_file_path: str | None = None,
@@ -217,34 +305,10 @@ async def process_entry_via_vision(
 
     image_bytes = local_path.read_bytes()
 
-    # vision OCR pass — separate small call to keep tokens bounded
-    ocr_prompt = (
-        "Transcribe the handwritten content of this student's project submission. "
-        "Preserve line breaks. Use [illegible] for anything you can't read. "
-        "Return JSON: {\"text\": \"<transcription>\", \"language\": \"<hin|eng|mr|mixed>\"}"
+    ocr_text, ocr_language, ocr_result = await _run_vision_ocr(
+        llm, settings, image_bytes, entry_id=entry.id
     )
-    ocr_result = None
-    ocr_text = ""
-    language = entry.language
-    try:
-        ocr_result = await llm.complete(
-            messages=[
-                LLMMessage(role="system", content="You are a meticulous OCR transcriber."),
-                LLMMessage(role="user", content=ocr_prompt),
-            ],
-            images=[image_bytes],
-            json_mode=True,
-            max_tokens=min(settings.minimax_max_output_tokens, 2048),
-            stage="entry_vision_ocr",
-            temperature=0.0,
-            context={"entry_id": entry.id},
-        )
-        import json as _json
-        data = _json.loads(ocr_result.text)
-        ocr_text = (data.get("text") or "").strip()
-        language = data.get("language") or entry.language
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("entry_vision_ocr_failed", entry_id=entry.id, error=str(exc)[:200])
+    language = ocr_language or entry.language
 
     entry_ocr = EntryOCR(
         entry_id=entry.id,
@@ -280,6 +344,23 @@ async def process_entry_via_vision(
 
     # scoring
     score = await score_entry(session, entry, llm=llm, settings=settings, rubric_id=rubric_id)
+    if score.error:
+        # e.g. "nothing_to_score" (OCR empty + blank form fields). Report the
+        # path as failed so the UI never shows a confident 0/50 for a
+        # submission we could not actually read.
+        entry.state = EntryState.FAILED
+        entry.status = score.error
+        await session.commit()
+        return {
+            "ok": False,
+            "error": (
+                "OCR produced no text and the form fields are empty — nothing to score."
+                if score.error == "nothing_to_score" else score.error
+            ),
+            "method": "vision",
+            "ocr_text": ocr_text,
+            "language": language,
+        }
     entry.state = EntryState.COMPLETED
     entry.status = "completed"
     await session.commit()
@@ -347,14 +428,24 @@ async def process_entry_via_tesseract_then_llm(
         original_filename=entry.drive_file_id or entry.full_name or "entry",
         sha256=sha or "",
     )
-    # placeholder: we need a path on disk; the reader loads from ctx.original_path
     from app.pipeline.readers.base import ReaderContext
-    ctx = ReaderContext(document=canonical_doc, original_path=local_path)
+    # The tesseract reader requires a *rendered* page image (the real
+    # pipeline renders via the preprocessing step; the sandbox does it
+    # inline here so path B can score sandbox uploads).
+    rendered_path = _render_for_tesseract(local_path, settings)
+    ctx = ReaderContext(
+        document=canonical_doc,
+        original_path=local_path,
+        page_image_path=rendered_path,
+    )
     try:
         result = await reader.read(canonical_page, ctx)
     except Exception as exc:  # noqa: BLE001
         result = None
         logger.warning("tesseract_failed", entry_id=entry.id, error=str(exc)[:200])
+    finally:
+        if rendered_path is not None:
+            rendered_path.unlink(missing_ok=True)
     ocr_text = (result.text if result else "") or ""
     confidence = float(result.confidence) if result and result.confidence is not None else 0.0
     language = (result.language if result else None) or entry.language
@@ -388,6 +479,20 @@ async def process_entry_via_tesseract_then_llm(
     entry.submitted_text = cleaned.cleaned_text
 
     score = await score_entry(session, entry, llm=llm, settings=settings, rubric_id=rubric_id)
+    if score.error:
+        entry.state = EntryState.FAILED
+        entry.status = score.error
+        await session.commit()
+        return {
+            "ok": False,
+            "error": (
+                "OCR produced no text and the form fields are empty — nothing to score."
+                if score.error == "nothing_to_score" else score.error
+            ),
+            "method": "tesseract_llm",
+            "ocr_text": ocr_text,
+            "language": language,
+        }
     entry.state = EntryState.COMPLETED
     entry.status = "completed"
     await session.commit()
@@ -410,6 +515,256 @@ async def process_entry_via_tesseract_then_llm(
         "input_tokens": score.input_tokens,
         "output_tokens": score.output_tokens,
         "total_tokens": score.total_tokens,
+        "latency_ms": int((time.perf_counter() - started) * 1000),
+    }
+
+
+async def process_entry_via_fusion(
+    session: AsyncSession,
+    entry: Entry,
+    *,
+    settings: Settings,
+    llm: LLMProvider,
+    drive_client: DriveClient | None = None,
+    rubric_id: int | None = None,
+) -> dict:
+    """Path C: Tesseract + strict vision-LLM OCR merged by a vision LLM (the
+    page image arbitrates disagreements) into one human-like transcript, then
+    scored. OCR misreads get fixed; the student's own spelling is preserved."""
+    started = time.perf_counter()
+    if drive_client is None:
+        drive_client = build_drive_client(settings)
+
+    local_path: Path | None = None
+    sha: str | None = None
+    if entry.drive_file_id:
+        local_path, sha = await _ensure_drive_file_local(
+            settings,
+            drive_client,
+            entry.drive_file_id,
+            entry.drive_url,
+            entry.full_name,
+            local_file_path=entry.local_file_path,
+        )
+        entry.local_file_path = str(local_path) if local_path else None
+        entry.drive_sha256 = sha
+    if local_path is None or not local_path.exists():
+        entry.state = EntryState.FAILED
+        entry.status = "no_image"
+        await session.commit()
+        return {"ok": False, "error": "no image available"}
+
+    image_bytes = local_path.read_bytes()
+
+    # 1) Tesseract pass
+    from app.pipeline.readers.tesseract import TesseractReader
+
+    reader = TesseractReader(settings=settings)
+    canonical_page = CanonicalPage(index=0, has_text_layer=False)
+    canonical_doc = CanonicalDocument(
+        source_type=SourceType.IMAGE,
+        original_filename=entry.drive_file_id or entry.full_name or "entry",
+        sha256=sha or "",
+    )
+    from app.pipeline.readers.base import ReaderContext
+
+    rendered_path = _render_for_tesseract(local_path, settings)
+    ctx = ReaderContext(
+        document=canonical_doc,
+        original_path=local_path,
+        page_image_path=rendered_path,
+    )
+    try:
+        result = await reader.read(canonical_page, ctx)
+    except Exception as exc:  # noqa: BLE001
+        result = None
+        logger.warning("tesseract_failed", entry_id=entry.id, error=str(exc)[:200])
+    finally:
+        if rendered_path is not None:
+            rendered_path.unlink(missing_ok=True)
+    tess_text = (result.text if result else "") or ""
+    tess_confidence = float(result.confidence) if result and result.confidence is not None else 0.0
+
+    # 2) strict vision pass
+    vision_text, vision_language, vision_result = await _run_vision_ocr(
+        llm, settings, image_bytes, entry_id=entry.id
+    )
+
+    # 3) fusion — only worth an LLM call if at least one engine saw something
+    fused_text = ""
+    fused_language = vision_language
+    fusion_result: LLMResult | None = None
+    fusion_was_skipped = False
+    # Gate: when tesseract's text is much longer than vision's, tesseract is
+    # hallucinating noise (English script on Devanagari pages, double-length
+    # outputs). The fusion LLM call would fold that noise into the hybrid
+    # output. Use the vision text as the hybrid instead and skip the call.
+    # See docs/sandbox/fusion_gate.md for the data this gate was picked from.
+    tess_too_long = (
+        vision_text.strip()
+        and tess_text.strip()
+        and len(tess_text) > settings.fusion_max_tess_to_vision_ratio * len(vision_text)
+    )
+    if tess_too_long:
+        fused_text = vision_text
+        fused_language = vision_language
+        fusion_was_skipped = True
+        logger.info(
+            "fusion_skipped_tess_too_long",
+            entry_id=entry.id,
+            tess_len=len(tess_text),
+            vision_len=len(vision_text),
+            ratio=round(len(tess_text) / max(1, len(vision_text)), 2),
+            threshold=settings.fusion_max_tess_to_vision_ratio,
+        )
+    elif tess_text.strip() or vision_text.strip():
+        prompt = FUSION_OCR_PROMPT.format(
+            vision_text=vision_text or "(empty)",
+            tesseract_text=tess_text or "(empty)",
+        )
+        try:
+            fusion_result = await llm.complete(
+                messages=[
+                    LLMMessage(
+                        role="system",
+                        content="You are a meticulous human transcriber arbitrating two OCR outputs against the original page image.",
+                    ),
+                    LLMMessage(role="user", content=prompt),
+                ],
+                images=[image_bytes],
+                json_mode=True,
+                max_tokens=settings.minimax_max_output_tokens,
+                stage="entry_fusion_ocr",
+                temperature=0.0,
+                context={"entry_id": entry.id},
+            )
+            data = parse_json_lenient(fusion_result.text)
+            fused_text = (data.get("text") or "").strip()
+            fused_language = data.get("language") or vision_language
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "entry_fusion_ocr_failed",
+                entry_id=entry.id,
+                error=str(exc)[:200],
+                raw=(fusion_result.text[:300] if fusion_result else None),
+            )
+            fused_text = vision_text or tess_text
+
+    language = fused_language or entry.language
+
+    # persist all three runs; the fused transcript is the selected one
+    session.add(
+        EntryOCR(
+            entry_id=entry.id,
+            method=OcrMethod.TESSERACT,
+            status=OcrStatus.OK if tess_text else OcrStatus.EMPTY,
+            language=language,
+            original_text=tess_text,
+            reconstructed_text=tess_text,
+            confidence=tess_confidence,
+            provider=reader.name,
+            latency_ms=result.latency_ms if result else None,
+            is_selected=False,
+        )
+    )
+    session.add(
+        EntryOCR(
+            entry_id=entry.id,
+            method=OcrMethod.VISION_LLM,
+            status=OcrStatus.OK if vision_text else OcrStatus.EMPTY,
+            language=vision_language,
+            original_text=vision_text,
+            reconstructed_text=vision_text,
+            confidence=0.92 if vision_text else 0.0,
+            input_tokens=(vision_result.prompt_tokens if vision_result else None),
+            output_tokens=(vision_result.completion_tokens if vision_result else None),
+            total_tokens=(vision_result.total_tokens if vision_result else None),
+            provider=settings.llm_provider,
+            model=(vision_result.model if vision_result else None),
+            latency_ms=(vision_result.latency_ms if vision_result else None),
+            is_selected=False,
+        )
+    )
+    session.add(
+        EntryOCR(
+            entry_id=entry.id,
+            method=OcrMethod.HYBRID,
+            status=OcrStatus.OK if fused_text else OcrStatus.EMPTY,
+            language=language,
+            original_text=fused_text,
+            reconstructed_text=fused_text,
+            confidence=0.95 if fused_text else 0.0,
+            input_tokens=(fusion_result.prompt_tokens if fusion_result else None),
+            output_tokens=(fusion_result.completion_tokens if fusion_result else None),
+            total_tokens=(fusion_result.total_tokens if fusion_result else None),
+            provider=settings.llm_provider,
+            model=(fusion_result.model if fusion_result else None),
+            latency_ms=(fusion_result.latency_ms if fusion_result else None),
+            is_selected=True,
+        )
+    )
+    entry.state = EntryState.SCORING
+    await session.commit()
+
+    cleaned = await clean_entry_text(
+        fused_text,
+        settings=settings,
+        llm=llm,
+        language_hint=language,
+        section="full",
+        mode=settings.cleaning_mode,
+    )
+    entry.situation = cleaned.cleaned_text or entry.situation
+    entry.submitted_text = cleaned.cleaned_text
+
+    score = await score_entry(session, entry, llm=llm, settings=settings, rubric_id=rubric_id)
+    if score.error:
+        entry.state = EntryState.FAILED
+        entry.status = score.error
+        await session.commit()
+        return {
+            "ok": False,
+            "error": (
+                "OCR produced no text and the form fields are empty — nothing to score."
+                if score.error == "nothing_to_score" else score.error
+            ),
+            "method": "vision_ocr_fusion",
+            "ocr_text": fused_text,
+            "vision_text": vision_text,
+            "tesseract_text": tess_text,
+            "language": language,
+            "fusion_skipped": fusion_was_skipped,
+        }
+    entry.state = EntryState.COMPLETED
+    entry.status = "completed"
+    await session.commit()
+    return {
+        "ok": True,
+        "method": "vision_ocr_fusion",
+        "ocr_text": fused_text,
+        "vision_text": vision_text,
+        "tesseract_text": tess_text,
+        "language": language,
+        "fusion_skipped": fusion_was_skipped,
+        "score": {
+            "total_awarded": score.total_awarded,
+            "total_max": score.total_max,
+            "percentage": score.percentage,
+            "confidence": score.confidence,
+            "strengths": score.strengths,
+            "gaps": score.gaps,
+            "observations": score.observations,
+            "criteria": score.criteria,
+        },
+        "input_tokens": score.input_tokens
+        + (vision_result.prompt_tokens if vision_result else 0)
+        + (fusion_result.prompt_tokens if fusion_result else 0),
+        "output_tokens": score.output_tokens
+        + (vision_result.completion_tokens if vision_result else 0)
+        + (fusion_result.completion_tokens if fusion_result else 0),
+        "total_tokens": score.total_tokens
+        + (vision_result.total_tokens if vision_result else 0)
+        + (fusion_result.total_tokens if fusion_result else 0),
         "latency_ms": int((time.perf_counter() - started) * 1000),
     }
 
