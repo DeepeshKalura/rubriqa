@@ -97,7 +97,7 @@ async def _ensure_sandbox_program(session: AsyncSession) -> Program:
         await session.flush()
     program = Program(
         name="Sandbox",
-        description="Auto-created for 2-way sandbox comparison.",
+        description="Auto-created for 3-way sandbox OCR comparison (vision / tesseract+LLM / vision+OCR fusion).",
         state=ProgramState.ACTIVE,
         rubric_id=rubric.id,
         batch_size=250,

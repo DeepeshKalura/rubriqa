@@ -61,15 +61,15 @@
       "score_vision": 2,
       "score_tesseract": 0,
       "score_hybrid": 1,
-      "winner": "vision (gate silent, correct)",
+      "winner": "fusion on CER (92.3 < 139.9), vision on score (2 > 1); both are near the floor, gate silent, correct",
       "gate_decision_correct": true,
-      "note": "Tesseract was too short to trigger the noise heuristic. The gate's silence here is the right call: nothing to skip. Vision still won (CER 139.9 vs fusion's 92.3 — fusion even slightly hurt by folding the tiny tesseract fragment in)."
+      "note": "Tesseract was too short to trigger the noise heuristic (ratio 0.08 << 1.5), so the gate's silence is the right call: nothing to skip. Reading the metrics honestly: fusion did marginally better on CER (92.3 vs vision's 139.9, lower is better), but vision's score was 1 point higher (2 vs 1). CER and score can disagree (model variance is real); the gate's correctness here is on the *ratio condition*, not on which path 'won' overall. p-11 is a hard page — both pages in the holdout are near-floor cases."
     }
   ],
   "verdict": {
     "gate_correct_on_holdout": 2,
     "gate_wrong_on_holdout": 0,
     "training_minus_holdout_contradiction": false,
-    "recommendation": "Keep the gate. It does not help p03 or p11 (the gate's silence is the right call on both), and it cleanly avoids the documented p05/p07 regression where fusion hurt CER. The gate's only function is to skip when tesseract is suspiciously long; it is silent (correctly) when tesseract is normal-length or empty."
+    "recommendation": "Keep the gate. It does not help p03 or p11 (the gate's silence is the right call on both — tesseract is normal-length on p03, essentially empty on p11), and it cleanly avoids the documented p05/p07 regression where fusion hurt CER. The gate's only function is to skip when tesseract is suspiciously long; it is silent (correctly) when tesseract is normal-length or empty. CER and score can disagree, and reading either metric backwards is a real risk — this file was originally written that way on p-11 and has been corrected."
   }
 }

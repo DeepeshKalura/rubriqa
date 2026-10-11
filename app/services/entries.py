@@ -215,7 +215,7 @@ def _render_for_tesseract(local_path: Path, settings: Settings) -> Path | None:
     The real entry-evaluation pipeline renders pages via the preprocessing
     step before tesseract; the sandbox uploads skip that step, so we do it
     inline here. Returns the tmp file path or None on failure (caller logs)."""
-    import io as _io
+    import os as _os
     import tempfile
     from app.pipeline.preprocessing import load_image, preprocess_for_ocr
 
@@ -223,8 +223,6 @@ def _render_for_tesseract(local_path: Path, settings: Settings) -> Path | None:
         image = load_image(local_path)
         processed = preprocess_for_ocr(image, max_side=settings.vision_max_image_side)
         fd, name = tempfile.mkstemp(prefix="sandbox-tess-", suffix=".png")
-        import os as _os
-
         _os.close(fd)
         processed.save(name, format="PNG")
         return Path(name)
@@ -734,6 +732,7 @@ async def process_entry_via_fusion(
             "tesseract_text": tess_text,
             "language": language,
             "fusion_skipped": fusion_was_skipped,
+            "fusion_ratio_threshold": settings.fusion_max_tess_to_vision_ratio,
         }
     entry.state = EntryState.COMPLETED
     entry.status = "completed"
@@ -746,6 +745,7 @@ async def process_entry_via_fusion(
         "tesseract_text": tess_text,
         "language": language,
         "fusion_skipped": fusion_was_skipped,
+        "fusion_ratio_threshold": settings.fusion_max_tess_to_vision_ratio,
         "score": {
             "total_awarded": score.total_awarded,
             "total_max": score.total_max,
