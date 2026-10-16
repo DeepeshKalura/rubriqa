@@ -2,248 +2,565 @@
 {% block title %}Sandbox — 3-way OCR comparison{% endblock %}
 {% block head_extra %}
 <style>
-  /* Single-file local styles — no CDN */
-  .sandbox-grid {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 1.5rem;
-    margin-top: 1rem;
+  /* Sandbox — presentation-mode styles. All local, no CDN.
+     Design goals: (1) the page reads like a slide deck, (2) the most
+     important numbers (score, CER, verdict) are visually loud, (3) every
+     important sentence can be downloaded as a self-contained report. */
+
+  :root {
+    --path-a: #2457d6;
+    --path-b: #b45309;
+    --path-c: #6d28d9;
+    --good: #15803d;
+    --good-soft: #e6f6ec;
+    --good-deep: #0e6b34;
+    --warn: #b45309;
+    --warn-soft: #fdf3e3;
+    --bad: #b91c1c;
+    --bad-soft: #fdecec;
+    --bad-deep: #8a1313;
+    --info: #0369a1;
+    --info-soft: #e6f4fd;
   }
-  @media (max-width: 900px) {
-    .sandbox-grid { grid-template-columns: 1fr; }
+
+  /* ---------- page header ---------- */
+  .page-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
   }
+  .page-head h1 { margin: 0; }
+  .page-head .sub { color: var(--muted); font-size: 13.5px; }
+
+  /* ---------- blog explainer ---------- */
+  .explainer {
+    background: linear-gradient(180deg, #eef4ff 0%, #f8fafc 100%);
+    border: 1px solid #c7d8f4; border-radius: 12px; padding: 4px 18px 14px;
+    margin-bottom: 18px;
+  }
+  .explainer > summary {
+    list-style: none; cursor: pointer; padding: 12px 0;
+    font-weight: 650; font-size: 15px; color: #1d3a78;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .explainer > summary::-webkit-details-marker { display: none; }
+  .explainer > summary::after { content: "▾"; margin-left: auto; color: var(--muted); transition: transform 0.15s; }
+  .explainer:not([open]) > summary::after { transform: rotate(-90deg); }
+  .explainer[open] > summary { border-bottom: 1px dashed #c7d8f4; }
+  .explainer-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; padding-top: 10px;
+  }
+  .explainer-grid section h3 {
+    font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #1d3a78; margin: 0 0 6px;
+  }
+  .explainer-grid section p { margin: 0 0 6px; font-size: 13.5px; line-height: 1.55; color: #1f2a44; }
+  .explainer-grid ul { margin: 4px 0 0; padding-left: 20px; font-size: 13.5px; }
+  .explainer-grid ul li { margin: 2px 0; }
+  .explainer-grid .crit b { color: #1d3a78; }
+  @media (max-width: 900px) { .explainer-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- setup card ---------- */
+  .setup {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 18px; margin-bottom: 16px; box-shadow: var(--shadow);
+  }
+  .setup.collapsed .setup-body { display: none; }
+  .setup-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .setup-head h2 { margin: 0; font-size: 15px; }
+  .setup-head .toggle {
+    background: none; border: 1px solid var(--border); border-radius: 6px;
+    padding: 3px 10px; font-size: 12px; cursor: pointer; color: var(--muted);
+  }
+  .setup-head .toggle:hover { background: var(--panel-2); }
+  .setup-body { display: grid; grid-template-columns: 280px 1fr; gap: 18px; margin-top: 12px; }
+  @media (max-width: 900px) { .setup-body { grid-template-columns: 1fr; } }
   .drop {
-    border: 2px dashed var(--border, #cbd5e1);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    color: var(--muted, #64748b);
-    background: var(--surface-2, #f8fafc);
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    border: 2px dashed var(--border); border-radius: 10px; padding: 14px;
+    text-align: center; color: var(--muted); background: var(--panel-2); cursor: pointer;
+    transition: background 0.15s, border-color 0.15s; min-height: 130px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
-  .drop.over, .drop:hover { background: #eef2ff; border-color: #6366f1; color: #1e1b4b; }
+  .drop.over, .drop:hover { background: #eef2ff; border-color: var(--accent); color: #1e1b4b; }
   .drop input { display: none; }
   .drop img.preview {
-    max-width: 100%;
-    max-height: 220px;
-    margin-top: 0.75rem;
-    border-radius: 4px;
-    border: 1px solid var(--border, #e2e8f0);
+    max-width: 100%; max-height: 130px; margin-top: 8px; border-radius: 6px;
+    border: 1px solid var(--border);
   }
-  .paths {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1rem;
+  .config-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 12px;
   }
-  @media (max-width: 900px) {
-    .paths { grid-template-columns: 1fr; }
+  .config-grid label { font-size: 12.5px; color: var(--muted); display: block; font-weight: 600; }
+  .config-grid input, .config-grid select, .config-grid textarea {
+    width: 100%; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; font-family: inherit;
   }
-  .path-card {
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: 8px;
-    padding: 1rem;
-    background: var(--surface, #fff);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  .config-grid textarea { min-height: 50px; resize: vertical; }
+  .config-actions { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .config-actions .spacer { flex: 1; }
+  .config-actions .paths-toggle { display: flex; gap: 12px; flex-wrap: wrap; }
+  .config-actions .paths-toggle label { font-size: 12.5px; color: var(--text); display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border);
+    background: var(--panel); color: var(--text); padding: 7px 14px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 600; cursor: pointer; text-decoration: none;
   }
-  .path-card h3 { margin: 0 0 0.25rem; font-size: 1rem; }
-  .path-card .subtitle { color: var(--muted, #64748b); font-size: 0.85rem; margin-bottom: 0.5rem; }
-  .pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: #e0e7ff;
-    color: #3730a3;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-right: 4px;
-  }
-  .pill.ok { background: #d1fae5; color: #065f46; }
-  .pill.warn { background: #fef3c7; color: #92400e; }
-  .pill.err { background: #fee2e2; color: #991b1b; }
-  textarea.ocr {
-    width: 100%;
-    min-height: 140px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.85rem;
-    background: #f8fafc;
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: 4px;
-    padding: 0.5rem;
-  }
-  ul.criteria { list-style: none; padding: 0; margin: 0; }
-  ul.criteria li {
-    padding: 0.4rem 0;
-    border-bottom: 1px dashed var(--border, #e2e8f0);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  ul.criteria li:last-child { border-bottom: none; }
-  .criterion-name { flex: 1 1 auto; }
-  .criterion-score { font-variant-numeric: tabular-nums; font-weight: 600; }
-  .bar {
-    flex: 0 0 100px;
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
-    margin: 0 0.75rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .bar > span { position: absolute; left: 0; top: 0; bottom: 0; background: #6366f1; border-radius: 3px; }
-  details > summary { cursor: pointer; color: var(--muted, #475569); }
-  pre.raw { background: #f1f5f9; padding: 0.5rem; border-radius: 4px; overflow-x: auto; font-size: 0.8rem; }
-  .samples {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.5rem;
-  }
+  .btn:hover { background: var(--panel-2); text-decoration: none; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #1d49b8; }
+  .btn.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn.ghost { background: transparent; }
+  .status { font-size: 12.5px; color: var(--muted); }
+  .samples { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
   .samples button {
-    border: 1px solid var(--border, #e2e8f0);
-    background: #fff;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
+    border: 1px solid var(--border); background: var(--panel); padding: 3px 9px;
+    border-radius: 5px; font-size: 12px; cursor: pointer; color: var(--text);
   }
   .samples button:hover { background: #eef2ff; }
-  button.run {
-    background: #4338ca;
-    color: white;
-    border: 0;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
+  .samples .has-golden { border-color: #16a34a; color: #15803d; }
+  .samples em { color: var(--muted); font-size: 12.5px; }
+
+  /* ---------- jump nav ---------- */
+  .jump-nav {
+    display: none; position: sticky; top: 0; z-index: 20;
+    background: rgba(244, 246, 249, 0.96);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px 10px; margin: 0 0 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    flex-wrap: wrap; gap: 6px; align-items: center;
   }
-  button.run:disabled { opacity: 0.5; cursor: progress; }
-  .config {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-top: 1rem;
+  .jump-nav.visible { display: flex; }
+  .jump-nav .jump-label { font-size: 12px; color: var(--muted); font-weight: 600; padding: 0 6px; }
+  .jump-nav a {
+    font-size: 12.5px; padding: 4px 10px; border-radius: 6px;
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    text-decoration: none; font-weight: 600;
   }
-  .config label { font-size: 0.85rem; color: var(--muted, #475569); display: block; }
-  .config input, .config select {
-    width: 100%;
-    padding: 0.4rem;
-    border: 1px solid var(--border, #cbd5e1);
-    border-radius: 4px;
-    font-size: 0.85rem;
+  .jump-nav a:hover { background: #eef2ff; text-decoration: none; }
+  .jump-nav a.path-a { color: var(--path-a); }
+  .jump-nav a.path-b { color: var(--path-b); }
+  .jump-nav a.path-c { color: var(--path-c); }
+  .jump-nav .spacer { flex: 1; }
+
+  /* ---------- results sections ---------- */
+  .section { scroll-margin-top: 70px; margin-bottom: 22px; }
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0 0 10px;
   }
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin: 0.5rem 0;
-    font-size: 0.85rem;
+  .section-head h2 { margin: 0; font-size: 16px; font-weight: 650; }
+  .section-head .hint { color: var(--muted); font-size: 12.5px; }
+  .section-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 18px;
   }
-  .stat-grid > div {
-    background: #f8fafc;
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: 4px;
-    padding: 0.4rem;
-    text-align: center;
+
+  /* ---------- the page section ---------- */
+  .the-page {
+    display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px;
   }
-  .stat-grid strong { font-size: 1.1rem; display: block; }
-  .diff-table { font-size: 0.85rem; border-collapse: collapse; width: 100%; }
-  .diff-table th, .diff-table td { padding: 4px 8px; border: 1px solid var(--border, #e2e8f0); text-align: left; }
-  .diff-table th { background: #f1f5f9; }
+  @media (max-width: 900px) { .the-page { grid-template-columns: 1fr; } }
+  .the-page .image-frame {
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    background: #0f172a; display: flex; align-items: center; justify-content: center;
+    max-height: 60vh; cursor: zoom-in; min-height: 280px;
+  }
+  .the-page .image-frame img { max-width: 100%; max-height: 60vh; object-fit: contain; }
+  .the-page .meta { font-size: 13.5px; }
+  .the-page .meta .row { padding: 5px 0; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; }
+  .the-page .meta .row:last-child { border: none; }
+  .the-page .meta .row b { color: var(--text); }
+  .the-page .meta .row span { color: var(--muted); }
+
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(8, 12, 24, 0.92);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+    cursor: zoom-out; padding: 20px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+
+  /* ---------- verdict banner (THE most important thing) ---------- */
+  .verdict {
+    background: linear-gradient(135deg, #fff8e1 0%, #fde68a 100%);
+    border: 2px solid #f59e0b; border-radius: 12px; padding: 16px 20px;
+    display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18);
+  }
+  .verdict.no-winner {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-color: var(--bad);
+  }
+  .verdict.no-golden {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    border-color: #6366f1;
+  }
+  .verdict .trophy { font-size: 40px; line-height: 1; flex-shrink: 0; }
+  .verdict .body { flex: 1; min-width: 0; }
+  .verdict .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: #92400e; font-weight: 700; margin-bottom: 4px; }
+  .verdict.no-winner .label { color: var(--bad-deep); }
+  .verdict.no-golden .label { color: #4338ca; }
+  .verdict .headline { font-size: 20px; font-weight: 700; line-height: 1.3; color: #1a1207; margin-bottom: 6px; }
+  .verdict.no-winner .headline { color: var(--bad-deep); }
+  .verdict.no-golden .headline { color: #312e81; }
+  .verdict .detail { font-size: 14px; color: #4b3414; line-height: 1.55; }
+  .verdict.no-winner .detail { color: #5b1818; }
+  .verdict.no-golden .detail { color: #3730a3; }
+
+  /* ---------- scoreboard table ---------- */
+  .scoreboard { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; }
+  .scoreboard th, .scoreboard td { padding: 9px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: middle; }
+  .scoreboard th {
+    background: var(--panel-2); color: var(--muted); font-weight: 600; font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .scoreboard tbody tr:hover { background: #f7f9fc; }
+  .scoreboard td.path-head {
+    font-weight: 700; font-size: 14px;
+  }
+  .scoreboard td.path-head .a { color: var(--path-a); }
+  .scoreboard td.path-head .b { color: var(--path-b); }
+  .scoreboard td.path-head .c { color: var(--path-c); }
+  .scoreboard .score-cell { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .scoreboard .best { background: var(--good-soft); }
+  .scoreboard .worst { background: var(--bad-soft); }
+  .scoreboard .cer-good { color: var(--good); font-weight: 700; }
+  .scoreboard .cer-warn { color: var(--warn); font-weight: 600; }
+  .scoreboard .cer-bad { color: var(--bad); font-weight: 700; }
+
+  /* ---------- per-path slide ---------- */
+  .path-slide { display: grid; grid-template-columns: 220px 1fr; gap: 18px; }
+  @media (max-width: 900px) { .path-slide { grid-template-columns: 1fr; } }
+  .path-slide.path-a { border-top: 4px solid var(--path-a); }
+  .path-slide.path-b { border-top: 4px solid var(--path-b); }
+  .path-slide.path-c { border-top: 4px solid var(--path-c); }
+
+  .path-head-col .name {
+    font-size: 17px; font-weight: 700; margin-bottom: 2px;
+  }
+  .path-slide.path-a .path-head-col .name { color: var(--path-a); }
+  .path-slide.path-b .path-head-col .name { color: var(--path-b); }
+  .path-slide.path-c .path-head-col .name { color: var(--path-c); }
+  .path-head-col .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+
+  /* score ring (SVG) */
+  .ring-wrap { display: flex; align-items: center; gap: 14px; margin: 8px 0 12px; }
+  .ring-wrap svg { flex-shrink: 0; }
+  .ring-wrap .score-num { font-size: 30px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .ring-wrap .score-num .of { font-size: 14px; font-weight: 600; color: var(--muted); }
+  .ring-wrap .score-meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  .pill {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    background: #e0e7ff; color: #3730a3; font-size: 11.5px; font-weight: 600;
+    margin-right: 4px; margin-bottom: 3px;
+  }
+  .pill.ok { background: var(--good-soft); color: var(--good-deep); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.err { background: var(--bad-soft); color: var(--bad-deep); }
+  .pill.info { background: var(--info-soft); color: var(--info); }
+  .pill.muted { background: #eef2f7; color: #475569; }
+  .pill.big { padding: 4px 12px; font-size: 13px; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+  .stat-row > div { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; text-align: center; }
+  .stat-row strong { display: block; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-row .lbl { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1px; }
+  .cost-line {
+    font-size: 12.5px; color: #0e5260; background: #ecfeff; border: 1px solid #a5f3fc;
+    border-radius: 7px; padding: 5px 9px; margin: 6px 0;
+  }
+
+  /* transcript viewer */
+  .transcript {
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; font-size: 14.5px; line-height: 1.65;
+    color: #1e293b; white-space: pre-wrap; word-break: break-word;
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", sans-serif;
+  }
+  .transcript.diff-mode { font-size: 15px; line-height: 1.75; }
+  .transcript .match { color: #1e293b; }
+  .transcript .miss { background: #fee2e2; color: #991b1b; padding: 1px 3px; border-radius: 3px; text-decoration: line-through; }
+  .transcript .extra { background: #fef3c7; color: #92400e; padding: 1px 3px; border-radius: 3px; }
+  .transcript .skip {
+    display: inline-block; margin: 6px 0; color: var(--muted); font-size: 12px;
+    font-style: italic;
+  }
+  .transcript-empty { color: var(--muted); font-style: italic; }
+
+  .view-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
+  .view-toggle button {
+    background: var(--panel); border: 0; padding: 4px 12px; font-size: 12.5px;
+    cursor: pointer; color: var(--muted); font-weight: 600;
+  }
+  .view-toggle button:not(:last-child) { border-right: 1px solid var(--border); }
+  .view-toggle button.active { background: var(--accent); color: #fff; }
+
+  /* per-criterion bars */
+  .criteria { list-style: none; padding: 0; margin: 8px 0 0; }
+  .criteria li {
+    display: grid; grid-template-columns: 140px 1fr 70px; gap: 10px;
+    align-items: center; padding: 4px 0; font-size: 13px;
+  }
+  .criteria .name { color: var(--text); font-weight: 500; }
+  .criteria .bar { height: 8px; background: #e2e8f0; border-radius: 4px; position: relative; overflow: hidden; }
+  .criteria .bar > span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; transition: width 0.3s; }
+  .path-a .criteria .bar > span { background: var(--path-a); }
+  .path-b .criteria .bar > span { background: var(--path-b); }
+  .path-c .criteria .bar > span { background: var(--path-c); }
+  .criteria .v { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .criteria .v.full { color: var(--good); }
+  .criteria .v.zero { color: var(--bad); }
+  .criteria .v.partial { color: var(--warn); }
+
+  /* strengths / gaps */
+  .sg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 700px) { .sg-grid { grid-template-columns: 1fr; } }
+  .sg-box { border-radius: 8px; padding: 12px 14px; }
+  .sg-box.strengths { background: var(--good-soft); border: 1px solid #bfe6cd; }
+  .sg-box.gaps { background: var(--bad-soft); border: 1px solid #f3c2c2; }
+  .sg-box h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sg-box.strengths h4 { color: var(--good-deep); }
+  .sg-box.gaps h4 { color: var(--bad-deep); }
+  .sg-box ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.55; }
+  .sg-box li { margin: 3px 0; }
+
+  details > summary { cursor: pointer; color: var(--muted); font-size: 12.5px; padding: 4px 0; }
+  details > summary:hover { color: var(--text); }
+  pre.raw { background: #0f172a; color: #dbe4f0; padding: 10px 12px; border-radius: 6px; overflow-x: auto; font-size: 11.5px; max-height: 280px; }
+
+  .error-card {
+    background: var(--bad-soft); border: 1px solid #f3c2c2; border-radius: 8px;
+    padding: 10px 14px; color: var(--bad-deep); font-size: 13.5px; margin: 8px 0;
+  }
+  .error-card b { color: var(--bad-deep); }
+
+  /* golden section */
+  .golden-box {
+    background: linear-gradient(180deg, #fff7ed 0%, #fef3c7 100%);
+    border: 2px solid #fbbf24; border-radius: 10px; padding: 14px 18px;
+  }
+  .golden-box h3 { margin: 0 0 6px; font-size: 15px; color: #92400e; }
+  .golden-box p { margin: 0 0 8px; font-size: 13px; color: #78350f; }
+  .golden-box .transcript { background: rgba(255, 255, 255, 0.6); }
+
+  /* side-by-side */
+  .sxs-wrap { overflow-x: auto; }
+  .sxs { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sxs th, .sxs td { padding: 7px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+  .sxs th { background: var(--panel-2); color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .sxs td.field { color: var(--muted); font-weight: 600; }
+  .sxs td.path-a { color: var(--path-a); font-weight: 600; }
+  .sxs td.path-b { color: var(--path-b); font-weight: 600; }
+  .sxs td.path-c { color: var(--path-c); font-weight: 600; }
+
+  /* status line */
+  .status-line { font-size: 13px; color: var(--muted); padding: 4px 0; }
+  .status-line b { color: var(--good); }
+  .status-line.err b { color: var(--bad); }
+
+  /* download btn */
+  .download-card {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    border: 1px solid #67e8f9; border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .download-card .icon { font-size: 32px; }
+  .download-card .body { flex: 1; }
+  .download-card h3 { margin: 0 0 2px; font-size: 14px; color: #155e75; }
+  .download-card p { margin: 0; font-size: 12.5px; color: #0e5260; }
+
+  /* empty results */
+  .empty {
+    background: var(--panel); border: 1px dashed var(--border); border-radius: 12px;
+    padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px;
+  }
+
+  /* print styles */
+  @media print {
+    .setup, .jump-nav, .lightbox, .config-actions, .view-toggle,
+    .btn, details.raw-toggle { display: none !important; }
+    body { background: #fff; }
+    .section { break-inside: avoid; page-break-inside: avoid; }
+    .path-slide { break-inside: avoid; page-break-inside: avoid; }
+    .verdict { break-inside: avoid; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1>Sandbox — 3-way OCR comparison</h1>
-<p style="color: var(--muted, #64748b); max-width: 60ch;">
-  Drop a single-page student submission image (or pick a bundled sample) and run
-  three OCR paths side-by-side. Path A: strict zero-hallucination vision-LLM OCR +
-  scoring. Path B: Tesseract OCR locally, then LLM scoring. Path C: Tesseract +
-  vision transcripts merged by a vision LLM (the page image arbitrates) into one
-  human-like transcript, then scored. When a human-verified golden transcript
-  exists for a bundled page, each path's character error rate (CER, lower is
-  better) is shown against it. All data stays on this machine.
-</p>
-
-<div class="sandbox-grid">
-  <aside>
-    <label class="drop" id="drop">
-      <input type="file" id="file" accept="image/*">
-      <span id="drop-text">Drop a page image, or click to pick</span>
-      <img class="preview" id="preview" alt="">
-    </label>
-
-    <div>
-      <label style="font-size: 0.85rem; color: var(--muted); margin-top: 1rem; display: block;">
-        Bundled samples (handwritten Marathi, from Kagaaz.pdf)
-      </label>
-      <div class="samples" id="samples">
-        <em>Loading samples…</em>
-      </div>
-    </div>
-
-    <div class="config">
-      <div>
-        <label>Language</label>
-        <select id="language">
-          <option value="auto">Auto</option>
-          <option value="hin">Hindi</option>
-          <option value="eng">English</option>
-          <option value="mr">Marathi</option>
-        </select>
-      </div>
-      <div>
-        <label>Theme</label>
-        <select id="theme">
-          <option value="ai_education">AI in Education</option>
-          <option value="smart_agriculture">Smart Agriculture</option>
-          <option value="health_wellbeing">Health & Wellbeing</option>
-          <option value="disaster_management">Disaster Management</option>
-          <option value="environment_sustainability">Environment</option>
-          <option value="rural_innovation">Rural Innovation</option>
-          <option value="community_safety">Community Safety</option>
-        </select>
-      </div>
-    </div>
-
-    <label style="font-size: 0.85rem; margin-top: 0.75rem; display: block;">
-      Optional: pre-fill student text (otherwise the OCR result is scored directly)
-    </label>
-    <textarea id="situation" placeholder="Situation (optional)" style="width:100%; font-size: 0.85rem; min-height: 60px;"></textarea>
-    <textarea id="proposed_solution" placeholder="Proposed AI solution (optional)" style="width:100%; font-size: 0.85rem; min-height: 60px; margin-top: 0.25rem;"></textarea>
-    <textarea id="ai_description" placeholder="What is AI? (optional, student description)" style="width:100%; font-size: 0.85rem; min-height: 40px; margin-top: 0.25rem;"></textarea>
-
-    <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-      <label style="font-size: 0.85rem;">
-        <input type="checkbox" id="run_vision" checked> Run Path A (Vision LLM, strict)
-      </label>
-      <label style="font-size: 0.85rem;">
-        <input type="checkbox" id="run_tesseract" checked> Run Path B (Tesseract + LLM)
-      </label>
-      <label style="font-size: 0.85rem;">
-        <input type="checkbox" id="run_fusion" checked> Run Path C (Vision + OCR fusion)
-      </label>
-    </div>
-
-    <button class="run" id="run-btn" style="margin-top: 1rem; width: 100%;">Compare paths</button>
-    <button class="run" id="reset-btn" style="margin-top: 0.5rem; width: 100%; background: #b91c1c;">
-      Reset sandbox entries
-    </button>
-
-    <div id="status" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted);"></div>
-  </aside>
-
-  <main>
-    <div id="results">
-      <p style="color: var(--muted);">Pick an image and click <em>Compare</em> to see the paths' results.</p>
-    </div>
-  </main>
+<div class="page-head">
+  <div>
+    <h1>Sandbox — 3-way OCR comparison</h1>
+    <div class="sub">One handwritten page, three AI readers, one rubric, one human reference.</div>
+  </div>
+  <div class="status-line" id="top-status"></div>
 </div>
 
+<!-- ============ BLOG EXPLAINER ============ -->
+<details class="explainer" open id="explainer">
+  <summary>How to read this sandbox — quick guide for humans</summary>
+  <div class="explainer-grid">
+    <section>
+      <h3>What this page does</h3>
+      <p>You drop in a photo of one student's handwritten page (or pick a bundled sample). The
+        same image is sent through <b>three different AI reading pipelines</b>. Each pipeline
+        produces a transcript of the page, and then the same <b>5-criteria rubric</b> scores it.
+        When a <b>human-verified golden transcript</b> exists for the page, the page also shows
+        the per-path character error rate (CER, lower is better).</p>
+      <p>The point is to answer one question: <i>which AI reading path is closest to how a
+        human reads this page, and which one scores closest to what a teacher would award?</i></p>
+    </section>
+    <section>
+      <h3>The three paths</h3>
+      <ul>
+        <li><b style="color:#2457d6">Path A — Vision LLM (strict).</b> A vision model looks at the
+          page and transcribes what it sees. Strict mode: it is told not to invent text that
+          is not visible. Best on <b>English</b> handwritten pages.</li>
+        <li><b style="color:#b45309">Path B — Tesseract + LLM.</b> A classic open-source OCR
+          engine (Tesseract) extracts the text first; the LLM then scores that cleaned text.
+          Cheaper and faster, but struggles on <b>non-Latin scripts and cursive</b>.</li>
+        <li><b style="color:#6d28d9">Path C — Vision + Tesseract fusion.</b> Both A and B run.
+          A vision LLM merges the two transcripts using the page image as the referee, producing
+          a human-like reading. A <b>gate</b> automatically skips fusion when Tesseract's output
+          is much longer than vision's (a sign Tesseract is hallucinating noise) — in that case
+          Path C just uses the vision transcript. Best on <b>Marathi</b> pages.</li>
+      </ul>
+    </section>
+    <section>
+      <h3>How to judge the numbers</h3>
+      <ul>
+        <li><b>Score /50</b> — total rubric points awarded. The rubric has 5 criteria, each out
+          of 10. Higher is better.</li>
+        <li><b>Percent</b> — score as a percentage of the total.</li>
+        <li><b>Confidence</b> — the LLM's self-reported certainty in its own scoring. Treat as
+          a hint, not a guarantee.</li>
+        <li><b>CER vs golden</b> — character error rate against the human-verified transcript.
+          <b>Lower is better.</b> Roughly: &lt;15% good, 15–40% rough, &gt;40% failed.</li>
+        <li><b>Tokens / elapsed</b> — cost and latency. Path A cheapest, Path C most expensive.</li>
+      </ul>
+    </section>
+    <section class="crit">
+      <h3>The rubric (5 criteria, 10 pts each)</h3>
+      <ul>
+        <li><b>relevance</b> — how well the proposal fits the chosen theme.</li>
+        <li><b>feasibility</b> — how realistic it is to build in the student's context.</li>
+        <li><b>originality</b> — how original / non-trivially-copied the idea is.</li>
+        <li><b>ai_understanding</b> — how clearly the student explains how AI is used.</li>
+        <li><b>communication</b> — clarity, structure, and respect for the word-count guidance.</li>
+      </ul>
+    </section>
+  </div>
+</details>
+
+<!-- ============ RUN SETUP ============ -->
+<div class="setup" id="setup">
+  <div class="setup-head">
+    <h2>① Run setup — pick an image, choose paths, click <i>Compare</i></h2>
+    <button class="toggle" id="setup-toggle" type="button">Hide</button>
+  </div>
+  <div class="setup-body">
+    <div>
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept="image/*">
+        <span id="drop-text">Drop a page image, or click to pick</span>
+        <img class="preview" id="preview" alt="">
+      </label>
+      <div style="margin-top: 10px;">
+        <label style="font-size: 12px; color: var(--muted); font-weight: 600;">
+          Bundled samples <span style="font-weight:400; color: var(--muted);">(✓ = human-verified golden available)</span>
+        </label>
+        <div class="samples" id="samples"><em>Loading samples…</em></div>
+      </div>
+    </div>
+    <div>
+      <div class="config-grid">
+        <div>
+          <label>Language</label>
+          <select id="language">
+            <option value="auto">Auto</option>
+            <option value="hin">Hindi</option>
+            <option value="eng">English</option>
+            <option value="mr">Marathi</option>
+          </select>
+        </div>
+        <div>
+          <label>Theme</label>
+          <select id="theme">
+            <option value="ai_education">AI in Education</option>
+            <option value="smart_agriculture">Smart Agriculture</option>
+            <option value="health_wellbeing">Health & Wellbeing</option>
+            <option value="disaster_management">Disaster Management</option>
+            <option value="environment_sustainability">Environment</option>
+            <option value="rural_innovation">Rural Innovation</option>
+            <option value="community_safety">Community Safety</option>
+          </select>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label>Vision + scoring model (compare models on the same page)</label>
+          <select id="model">
+            <option value="">(use configured default)</option>
+            <option value="MiniMax-M3">MiniMax-M3 (vision-capable)</option>
+            <option value="MiniMax-M3.1-Flash-Preview">MiniMax-M3.1-Flash-Preview (scoring only — returns no vision text)</option>
+          </select>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label>Optional: pre-fill student text (otherwise the OCR result is scored directly)</label>
+        </div>
+        <div>
+          <textarea id="situation" placeholder="Situation (optional)"></textarea>
+        </div>
+        <div>
+          <textarea id="proposed_solution" placeholder="Proposed AI solution (optional)"></textarea>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <textarea id="ai_description" placeholder="What is AI? (optional, student description)"></textarea>
+        </div>
+        <div class="config-actions">
+          <div class="paths-toggle">
+            <label><input type="checkbox" id="run_vision" checked> Path A (vision-LLM)</label>
+            <label><input type="checkbox" id="run_tesseract" checked> Path B (tesseract+LLM)</label>
+            <label><input type="checkbox" id="run_fusion" checked> Path C (fusion)</label>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn primary" id="run-btn" type="button">Compare paths →</button>
+          <button class="btn danger" id="reset-btn" type="button">Reset sandbox</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ JUMP NAV (appears after a run) ============ -->
+<nav class="jump-nav" id="jump-nav">
+  <span class="jump-label">Jump to:</span>
+  <a href="#sec-page">🖼 The Page</a>
+  <a href="#sec-scoreboard" class="path-a">🏆 Scoreboard</a>
+  <a href="#sec-path-a" class="path-a">A</a>
+  <a href="#sec-path-b" class="path-b">B</a>
+  <a href="#sec-path-c" class="path-c">C</a>
+  <a href="#sec-sxs">⚖ Side-by-side</a>
+  <a href="#sec-golden">✍ Golden</a>
+  <span class="spacer"></span>
+  <a href="#sec-download">⬇ Report</a>
+</nav>
+
+<!-- ============ RESULTS ============ -->
+<div id="results">
+  <div class="empty" id="empty-results">
+    <p style="margin: 0 0 8px;">👆 Pick an image above and click <b>Compare paths</b>.</p>
+    <p style="margin: 0; font-size: 12.5px;">Bundled samples with ✓ already have a human-verified golden transcript, so CER will be computed.</p>
+  </div>
+</div>
+
+<!-- ============ LIGHTBOX ============ -->
+<div class="lightbox" id="lightbox"><img id="lightbox-img" alt=""></div>
+
 <script>
-/* Sandbox controller — vanilla JS, no CDN, no external deps. */
+/* Sandbox — presentation-mode controller. Vanilla JS, no CDN. */
 (function () {
+  // ---- DOM ----
   const drop = document.getElementById('drop');
   const fileInput = document.getElementById('file');
   const preview = document.getElementById('preview');
@@ -251,13 +568,29 @@
   const samplesEl = document.getElementById('samples');
   const runBtn = document.getElementById('run-btn');
   const resetBtn = document.getElementById('reset-btn');
-  const statusEl = document.getElementById('status');
+  const setupEl = document.getElementById('setup');
+  const setupToggle = document.getElementById('setup-toggle');
+  const jumpNav = document.getElementById('jump-nav');
   const resultsEl = document.getElementById('results');
+  const topStatus = document.getElementById('top-status');
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
 
   let currentFile = null;
+  let lastResult = null;  // last compare response, used by the report builder
 
-  function setStatus(text) { statusEl.textContent = text || ''; }
+  // ---- helpers ----
+  function setTopStatus(text, isErr) {
+    topStatus.innerHTML = text ? (isErr ? `<span class="err"><b>Error:</b> ${escapeHtml(text)}</span>` : escapeHtml(text)) : '';
+  }
 
+  function escapeHtml(s) {
+    return (s == null ? '' : String(s)).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+  }
+
+  // ---- image ----
   function loadFile(file) {
     currentFile = file;
     dropText.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
@@ -269,11 +602,10 @@
   fileInput.addEventListener('change', (e) => {
     if (e.target.files.length) loadFile(e.target.files[0]);
   });
-
-  ['dragover', 'dragenter'].forEach(ev =>
+  ['dragover', 'dragenter'].forEach((ev) =>
     drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); })
   );
-  ['dragleave', 'drop'].forEach(ev =>
+  ['dragleave', 'drop'].forEach((ev) =>
     drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); })
   );
   drop.addEventListener('drop', (e) => {
@@ -282,8 +614,22 @@
     if (f) loadFile(f);
   });
 
-  // samples
-  fetch('/sandbox/samples').then(r => r.json()).then((data) => {
+  // click image -> lightbox
+  preview.addEventListener('click', () => {
+    if (!preview.src) return;
+    lightboxImg.src = preview.src;
+    lightbox.classList.add('open');
+  });
+  lightbox.addEventListener('click', () => lightbox.classList.remove('open'));
+
+  // setup collapse
+  setupToggle.addEventListener('click', () => {
+    setupEl.classList.toggle('collapsed');
+    setupToggle.textContent = setupEl.classList.contains('collapsed') ? 'Show' : 'Hide';
+  });
+
+  // ---- samples ----
+  fetch('/sandbox/samples').then((r) => r.json()).then((data) => {
     samplesEl.innerHTML = '';
     if (!data.samples || !data.samples.length) {
       samplesEl.innerHTML = '<em>No bundled samples. Drop an image above.</em>';
@@ -291,8 +637,9 @@
     }
     data.samples.forEach((s) => {
       const btn = document.createElement('button');
-      btn.textContent = s.name.replace('page-', 'p') + (s.golden_text ? ' ✓' : '');
-      btn.title = s.golden_text ? (s.path + ' — golden transcript available') : s.path;
+      btn.textContent = s.name.replace('page-', 'p');
+      if (s.golden_text) btn.classList.add('has-golden');
+      btn.title = s.golden_text ? (s.path + ' — golden transcript available ✓') : s.path;
       btn.onclick = async () => {
         const r = await fetch(s.path);
         const blob = await r.blob();
@@ -303,173 +650,489 @@
     });
   });
 
-  function escapeHtml(s) {
-    return (s || '').replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    })[c]);
+  // ---- path titles / metadata ----
+  const PATH_META = {
+    vision: { key: 'a', title: 'Path A — Vision LLM (strict)', sub: 'Reads the page with a vision model. Zero-hallucination mode.' },
+    tesseract_llm: { key: 'b', title: 'Path B — Tesseract + LLM', sub: 'Open-source OCR engine, then LLM scoring.' },
+    vision_ocr_fusion: { key: 'c', title: 'Path C — Vision + OCR fusion', sub: 'Merges vision-LLM and tesseract transcripts with the page image as the referee.' },
+  };
+  const PATH_CSS = { vision: 'a', tesseract_llm: 'b', vision_ocr_fusion: 'c' };
+
+  // ---- word-level diff (LCS) ----
+  // Normalize the same way the backend CER does (lowercase, collapse whitespace).
+  function normalize(s) {
+    return (s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+  function tokenize(s) {
+    const norm = normalize(s);
+    if (!norm) return [];
+    return norm.match(/\S+/g) || [];
+  }
+  function lcsTable(a, b) {
+    const m = a.length, n = b.length;
+    const dp = new Array(m + 1);
+    for (let i = 0; i <= m; i++) dp[i] = new Array(n + 1).fill(0);
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+    return dp;
+  }
+  function diffWords(hyp, ref) {
+    const a = tokenize(hyp);
+    const b = tokenize(ref);
+    const dp = lcsTable(a, b);
+    // walk back to build diff
+    const ops = [];
+    let i = a.length, j = b.length;
+    while (i > 0 && j > 0) {
+      if (a[i - 1] === b[j - 1]) { ops.push({ t: '=', w: a[i - 1] }); i--; j--; }
+      else if (dp[i - 1][j] >= dp[i][j - 1]) { ops.push({ t: '-', w: a[i - 1] }); i--; }
+      else { ops.push({ t: '+', w: b[j - 1] }); j--; }
+    }
+    while (i > 0) { ops.push({ t: '-', w: a[--i] }); }
+    while (j > 0) { ops.push({ t: '+', w: b[--j] }); }
+    ops.reverse();
+    return ops;
+  }
+  function renderDiff(hyp, ref) {
+    const ops = diffWords(hyp, ref);
+    if (!ops.length) return '<span class="transcript-empty">(no text to compare)</span>';
+    // group consecutive ops of the same type for readability, separate groups
+    // with a thin marker so the eye can follow the alignment.
+    const html = [];
+    let last = null;
+    for (const op of ops) {
+      if (last && last.t !== op.t) {
+        if ((last.t === '=' && op.t !== '=') || (last.t !== '=' && op.t === '=')) {
+          html.push('<span class="skip">│</span>');
+        }
+      }
+      const safe = escapeHtml(op.w);
+      if (op.t === '=') html.push(`<span class="match">${safe}</span>`);
+      else if (op.t === '-') html.push(`<span class="miss" title="AI read this but the human read something different">${safe}</span>`);
+      else html.push(`<span class="extra" title="Human read this; AI missed it">${safe}</span>`);
+      last = op;
+    }
+    return html.join(' ');
   }
 
-  const PATH_TITLES = {
-    vision: 'Path A — Vision LLM (strict OCR + scoring)',
-    tesseract_llm: 'Path B — Tesseract OCR + LLM scoring',
-    vision_ocr_fusion: 'Path C — Vision + OCR fusion (human-like transcript)',
-  };
+  // ---- SVG score ring ----
+  function scoreRing(awarded, max, color) {
+    const pct = max ? Math.max(0, Math.min(1, awarded / max)) : 0;
+    const R = 30, C = 2 * Math.PI * R;
+    const dash = C * pct;
+    const rest = C - dash;
+    return `
+      <svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true">
+        <circle cx="38" cy="38" r="${R}" fill="none" stroke="#e2e8f0" stroke-width="7"/>
+        <circle cx="38" cy="38" r="${R}" fill="none" stroke="${color}" stroke-width="7"
+                stroke-linecap="round" stroke-dasharray="${dash.toFixed(1)} ${rest.toFixed(1)}"
+                transform="rotate(-90 38 38)"/>
+        <text x="38" y="44" text-anchor="middle" font-size="20" font-weight="800"
+              fill="#1f2a44" font-family="-apple-system, Segoe UI, Roboto, sans-serif">${Math.round(pct * 100)}<tspan font-size="10" dy="-2">%</tspan></text>
+      </svg>`;
+  }
 
-  function renderPath(label, data) {
-    const card = document.createElement('div');
-    card.className = 'path-card';
+  // ---- verdict builder ----
+  function buildVerdict(results, golden) {
+    const ok = results.filter((r) => r && r.ok && r.score);
+    if (!ok.length) {
+      return { kind: 'no-winner', label: 'No usable result', headline: 'None of the paths produced a scoreable result.', detail: 'All paths failed — see the cards below for the error each one reported.' };
+    }
+    if (!golden) {
+      return { kind: 'no-golden', label: 'No human-verified golden transcript', headline: 'Scoring is shown, but CER (accuracy vs human) is not available for this page.', detail: 'CER appears only for bundled sample pages that have a hand-written golden transcript. The per-path scores are still real and worth comparing.' };
+    }
+    // rank by CER (lowest first); null CER last
+    const ranked = ok.slice().sort((a, b) => {
+      if (a.cer == null && b.cer == null) return 0;
+      if (a.cer == null) return 1;
+      if (b.cer == null) return -1;
+      return a.cer - b.cer;
+    });
+    const winner = ranked[0];
+    const worst = ranked[ranked.length - 1];
+    const winnerMeta = PATH_META[winner.path] || { title: winner.path };
+    const winnerCER = winner.cer == null ? 'CER n/a' : `CER ${winner.cer}%`;
+    const headline = `🏆 ${winnerMeta.title.split('—')[1].trim()} read this page best — ${winnerCER}.`;
+    let detail = '';
+    if (ranked.length >= 2) {
+      const parts = ranked.map((r) => {
+        const m = PATH_META[r.path] || { title: r.path };
+        const cerTxt = r.cer == null ? 'CER n/a' : `CER ${r.cer}%`;
+        const scoreTxt = `${r.score.total_awarded.toFixed(1)} / ${r.score.total_max.toFixed(1)}`;
+        return `<b>${m.title.split('—')[0].trim()}</b> ${cerTxt}, scored ${scoreTxt}`;
+      });
+      detail = parts.join(' · ') + '.';
+      if (worst.cer != null && worst.cer > 40) {
+        const wm = PATH_META[worst.path] || { title: worst.path };
+        detail += ` ${wm.title.split('—')[0].trim()} collapsed on this page (${worst.cer}% CER) — its OCR was noise, so it honestly scored 0/50.`;
+      }
+    }
+    return { kind: 'ok', label: 'Verdict', headline, detail };
+  }
+
+  function renderVerdict(v) {
+    const cls = v.kind === 'ok' ? '' : (v.kind === 'no-winner' ? 'no-winner' : 'no-golden');
+    return `<div class="verdict ${cls}">
+      <div class="trophy">${v.kind === 'ok' ? '🏆' : (v.kind === 'no-winner' ? '⚠️' : '📋')}</div>
+      <div class="body">
+        <div class="label">${escapeHtml(v.label)}</div>
+        <div class="headline">${escapeHtml(v.headline)}</div>
+        <div class="detail">${v.detail}</div>
+      </div>
+    </div>`;
+  }
+
+  // ---- scoreboard (moved to top of results) ----
+  function buildScoreboard(results) {
+    const ok = results.filter((r) => r && r.ok && r.score);
+    if (!ok.length) return '';
+    // collect criterion names in encounter order
+    const critNames = [];
+    ok.forEach((r) => (r.score.criteria || []).forEach((c) => {
+      if (!critNames.includes(c.name)) critNames.push(c.name);
+    }));
+    // best CER / score for highlights
+    const bestCer = ok.reduce((b, r) => (b == null || (r.cer != null && r.cer < b) ? r.cer : b), null);
+    const bestScore = ok.reduce((b, r) => Math.max(b, r.score.total_awarded), -Infinity);
+    const cerCls = (c) => c == null ? 'cer-bad' : (c < 15 ? 'cer-good' : (c < 40 ? 'cer-warn' : 'cer-bad'));
+    const headerPaths = ok.map((r) => {
+      const m = PATH_META[r.path] || { title: r.path };
+      const css = PATH_CSS[r.path] || '';
+      return `<th>${escapeHtml(m.title.split('—')[0].trim())}</th>`;
+    }).join('');
+    const rows = [];
+    rows.push(['Total score', (r) => {
+      const v = r.score.total_awarded;
+      const cls = v === bestScore ? 'best score-cell' : 'score-cell';
+      return `<td class="${cls}">${v.toFixed(1)} / ${r.score.total_max.toFixed(1)}</td>`;
+    }]);
+    rows.push(['Percent', (r) => {
+      const v = r.score.percentage;
+      const cls = v === Math.max(...ok.map((x) => x.score.percentage)) ? 'best score-cell' : 'score-cell';
+      return `<td class="${cls}">${v.toFixed(1)}%</td>`;
+    }]);
+    rows.push(['Confidence', (r) => {
+      const v = r.score.confidence * 100;
+      return `<td class="score-cell">${v.toFixed(0)}%</td>`;
+    }]);
+    rows.push(['CER vs golden (lower is better)', (r) => {
+      if (r.cer == null) return `<td class="cer-bad score-cell">—</td>`;
+      const cls = r.cer === bestCer ? 'best ' + cerCls(r.cer) : cerCls(r.cer);
+      return `<td class="${cls} score-cell">${r.cer}%</td>`;
+    }]);
+    rows.push(['Input tokens', (r) => `<td class="score-cell">${(r.input_tokens || 0).toLocaleString()}</td>`]);
+    rows.push(['Cached input tokens', (r) => `<td class="score-cell">${(r.cached_tokens || 0).toLocaleString()}</td>`]);
+    rows.push(['Output tokens', (r) => `<td class="score-cell">${(r.output_tokens || 0).toLocaleString()}</td>`]);
+    rows.push(['Total tokens', (r) => `<td class="score-cell">${(r.total_tokens || 0).toLocaleString()}</td>`]);
+    rows.push(['API cost / page', (r) => `<td class="score-cell">${(r.cost && r.cost.usd != null) ? '$' + r.cost.usd.toFixed(5) : '—'}</td>`]);
+    rows.push(['Model', (r) => `<td class="score-cell" style="font-size:12px">${escapeHtml(r.model || '-')}</td>`]);
+    rows.push(['Elapsed', (r) => `<td class="score-cell">${(r.elapsed_ms || 0).toLocaleString()} ms</td>`]);
+    critNames.forEach((name) => {
+      rows.push([name, (r) => {
+        const c = (r.score.criteria || []).find((x) => x.name === name);
+        if (!c) return `<td class="score-cell">—</td>`;
+        const fullBest = c.awarded === c.max_score;
+        const zero = c.awarded === 0;
+        const cls = fullBest ? 'best score-cell' : (zero ? '' : 'score-cell');
+        return `<td class="${cls}">${c.awarded.toFixed(1)} / ${c.max_score.toFixed(1)}</td>`;
+      }]);
+    });
+
+    const body = rows.map(([label, fn]) =>
+      `<tr><td class="field">${escapeHtml(label)}</td>${ok.map(fn).join('')}</tr>`
+    ).join('');
+
+    return `<table class="scoreboard">
+      <thead><tr><th>Field</th>${headerPaths}</tr></thead>
+      <tbody>${body}</tbody>
+    </table>`;
+  }
+
+  // ---- per-path slide ----
+  function renderPathSlide(path, data) {
+    const meta = PATH_META[path] || { title: path, sub: '' };
+    const css = PATH_CSS[path] || '';
     const ok = data.ok !== false;
+    const ringColor = path === 'vision' ? '#2457d6' : (path === 'tesseract_llm' ? '#b45309' : '#6d28d9');
     const totalScore = (data.score && data.score.total_awarded) || 0;
     const totalMax = (data.score && data.score.total_max) || 0;
     const percentage = (data.score && data.score.percentage) || 0;
     const confidence = (data.score && data.score.confidence) || data.confidence || 0;
+
     const cerPill = (data.cer != null)
-      ? `<span class="pill ${data.cer < 15 ? 'ok' : (data.cer < 40 ? 'warn' : 'err')}">CER vs golden ${data.cer}%</span>`
-      : '';
-    const components = (label === 'vision_ocr_fusion')
-      ? `<details><summary>Engine transcripts (inputs to fusion)</summary>
-           <label style="font-size:0.8rem; color:var(--muted)">Vision-LLM OCR</label>
-           <textarea class="ocr" readonly style="min-height:80px">${escapeHtml(data.vision_text || '')}</textarea>
-           <label style="font-size:0.8rem; color:var(--muted)">Tesseract OCR</label>
-           <textarea class="ocr" readonly style="min-height:60px">${escapeHtml(data.tesseract_text || '')}</textarea>
-         </details>`
+      ? `<span class="pill big ${data.cer < 15 ? 'ok' : (data.cer < 40 ? 'warn' : 'err')}">CER vs golden: ${data.cer}%</span>`
       : '';
     const gateBadge = (data.fusion_skipped === true)
-      ? `<span class="pill warn" title="tess_len / vision_len > ${(data.fusion_ratio_threshold || 1.5)}; tesseract output was longer than vision, treated as noise. See docs/sandbox/fusion_gate.md">Gate: tesseract too long, used vision</span>`
+      ? `<span class="pill big warn" title="Tesseract text was much longer than vision text (ratio ${(data.fusion_ratio_threshold || 1.5).toFixed(2)}); treated as noise. See docs/sandbox/fusion_gate.md">⚠ Gate fired — fusion skipped, used vision</span>`
       : '';
+    const okPill = `<span class="pill ${ok ? 'ok' : 'err'}">${ok ? '✓ ok' : '✗ failed'}</span>`;
+    const methodPill = `<span class="pill muted">${escapeHtml(data.method || path)}</span>`;
+    const langPill = `<span class="pill muted">${escapeHtml(data.language || '-')}</span>`;
+    const timePill = `<span class="pill muted">${(data.elapsed_ms || 0).toLocaleString()} ms</span>`;
 
     let criteriaHtml = '';
     if (data.score && data.score.criteria && data.score.criteria.length) {
       criteriaHtml = '<ul class="criteria">' + data.score.criteria.map((c) => {
         const pct = c.max_score ? Math.round(100 * c.awarded / c.max_score) : 0;
+        const cls = c.awarded === c.max_score ? 'full' : (c.awarded === 0 ? 'zero' : 'partial');
         return `<li>
-          <span class="criterion-name">${escapeHtml(c.name)}</span>
+          <span class="name">${escapeHtml(c.name)}</span>
           <span class="bar"><span style="width: ${pct}%"></span></span>
-          <span class="criterion-score">${c.awarded.toFixed(1)} / ${c.max_score.toFixed(1)}</span>
+          <span class="v ${cls}">${c.awarded.toFixed(1)} / ${c.max_score.toFixed(1)}</span>
         </li>`;
       }).join('') + '</ul>';
     } else {
-      criteriaHtml = '<em>No criteria scored.</em>';
+      criteriaHtml = '<em style="color:var(--muted); font-size: 12.5px;">No criteria scored.</em>';
     }
 
-    let observations = '';
-    if (data.score && data.score.observations) {
-      observations = `<details><summary>Observations</summary><p>${escapeHtml(data.score.observations)}</p></details>`;
-    }
+    const transcript = data.ocr_text || '';
+    const isFusion = path === 'vision_ocr_fusion';
+    const engineInputs = (isFusion)
+      ? `<details style="margin-top: 10px;">
+           <summary>Engine transcripts (inputs to fusion)</summary>
+           <div style="margin-top: 6px;">
+             <label style="font-size: 11.5px; color: var(--muted); font-weight: 600;">Vision-LLM transcript</label>
+             <div class="transcript" style="min-height: 50px;">${escapeHtml(data.vision_text || '(empty)')}</div>
+             <label style="font-size: 11.5px; color: var(--muted); font-weight: 600; margin-top: 8px; display: block;">Tesseract transcript</label>
+             <div class="transcript" style="min-height: 50px;">${escapeHtml(data.tesseract_text || '(empty)')}</div>
+           </div>
+         </details>`
+      : '';
+
     let strengths = '';
     if (data.score && data.score.strengths && data.score.strengths.length) {
-      strengths = `<details open><summary>Strengths</summary><ul>${data.score.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ul></details>`;
+      strengths = `<div class="sg-box strengths"><h4>Strengths</h4><ul>${data.score.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>`;
     }
     let gaps = '';
     if (data.score && data.score.gaps && data.score.gaps.length) {
-      gaps = `<details><summary>Gaps</summary><ul>${data.score.gaps.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ul></details>`;
+      gaps = `<div class="sg-box gaps"><h4>Gaps</h4><ul>${data.score.gaps.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ul></div>`;
     }
-    let rawJson = `<details><summary>Raw response JSON</summary><pre class="raw">${escapeHtml(JSON.stringify(data, null, 2))}</pre></details>`;
+    let observations = '';
+    if (data.score && data.score.observations) {
+      observations = `<details style="margin-top: 10px;"><summary>Observations</summary><p style="margin: 6px 0 0; font-size: 13px; line-height: 1.55;">${escapeHtml(data.score.observations)}</p></details>`;
+    }
+    const rawJson = `<details class="raw-toggle" style="margin-top: 10px;"><summary>Raw response JSON</summary><pre class="raw">${escapeHtml(JSON.stringify(data, null, 2))}</pre></details>`;
 
-    const total = (data.total_tokens || 0) + ((data.score && data.score) ? 0 : 0);
-    const tokens = (data.input_tokens != null)
-      ? `<div class="stat-grid">
-           <div><strong>${data.input_tokens || 0}</strong>Input tokens</div>
-           <div><strong>${data.output_tokens || 0}</strong>Output tokens</div>
-           <div><strong>${data.total_tokens || 0}</strong>Total tokens</div>
-         </div>`
-      : '<div></div>';
+    const errorBlock = !ok ? `<div class="error-card"><b>Path failed:</b> ${escapeHtml(data.error || 'unknown error')}</div>` : '';
+    const tokensRow = (data.input_tokens != null)
+      ? `<div class="stat-row">
+           <div><strong>${(data.input_tokens || 0).toLocaleString()}</strong><span class="lbl">Input tokens</span></div>
+           <div><strong>${(data.output_tokens || 0).toLocaleString()}</strong><span class="lbl">Output tokens</span></div>
+           <div><strong>${(data.total_tokens || 0).toLocaleString()}</strong><span class="lbl">Total tokens</span></div>
+         </div>
+         ${(data.cached_tokens ? `<div class="cost-line">⚡ ${data.cached_tokens.toLocaleString()} cached input tokens billed at the reduced rate</div>` : '')}
+         ${(data.cost && data.cost.usd ? `<div class="cost-line">💵 API cost: <b>$${data.cost.usd.toFixed(5)}</b> per page${data.cost.price_verified === false ? ' <span class="pill warn">price unverified</span>' : ''}</div>` : '')}`
+      : '';
 
-    card.innerHTML = `
-      <h3>
-        ${escapeHtml(PATH_TITLES[label] || label)}
-      </h3>
-      <div class="subtitle">
-        <span class="pill ${ok ? 'ok' : 'err'}">${ok ? 'ok' : 'failed'}</span>
-        <span class="pill">${escapeHtml(data.method || label)}</span>
-        <span class="pill">${escapeHtml(data.language || '-')}</span>
-        <span class="pill">${escapeHtml(String((data.elapsed_ms || 0)))} ms</span>
-        ${cerPill}
-        ${gateBadge}
+    // The transcript viewer: 3 toggles for fusion (clean / diff / engine inputs), 2 for others
+    const idBase = `tx-${css}`;
+    const hasGolden = !!lastResult && !!lastResult.golden;
+    const transcriptView = ok ? `
+      <div style="margin-top: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div class="view-toggle" data-target="${idBase}-text" data-group="${idBase}">
+            <button type="button" data-view="clean" class="active">Clean text</button>
+            ${hasGolden ? `<button type="button" data-view="diff">Diff vs golden</button>` : ''}
+          </div>
+          ${isFusion ? `<div class="view-toggle" data-target="${idBase}-engine" data-group="${idBase}">
+            <button type="button" data-view="engine">Engine inputs</button>
+          </div>` : ''}
+        </div>
+        <div id="${idBase}-text" class="view-pane">
+          <div class="view-pane-clean">
+            <div class="transcript">${transcript ? escapeHtml(transcript) : '<span class="transcript-empty">(no text)</span>'}</div>
+          </div>
+          ${hasGolden ? `<div class="view-pane-diff" style="display: none;">
+            <div class="transcript diff-mode">${renderDiff(transcript, lastResult.golden)}</div>
+            <div style="margin-top: 6px; font-size: 11.5px; color: var(--muted);">
+              <span class="pill ok">matching</span>
+              <span class="pill err">missed by AI</span>
+              <span class="pill warn">missed by golden (extra in human read)</span>
+            </div>
+          </div>` : ''}
+        </div>
+        ${isFusion ? `<div id="${idBase}-engine" class="view-pane" style="display: none;">
+          <div style="margin-top: 6px;">
+            <label style="font-size: 11.5px; color: var(--muted); font-weight: 600;">Vision-LLM transcript</label>
+            <div class="transcript" style="min-height: 50px;">${escapeHtml(data.vision_text || '(empty)')}</div>
+            <label style="font-size: 11.5px; color: var(--muted); font-weight: 600; margin-top: 8px; display: block;">Tesseract transcript</label>
+            <div class="transcript" style="min-height: 50px;">${escapeHtml(data.tesseract_text || '(empty)')}</div>
+          </div>
+        </div>` : ''}
+      </div>` : '';
+
+    return `<section id="sec-path-${css}" class="section">
+      <div class="section-head">
+        <h2><span style="color: var(--path-${css})">②${css.toUpperCase()}</span> · ${escapeHtml(meta.title)}</h2>
+        <div class="hint">${escapeHtml(meta.sub)}</div>
       </div>
-      ${!ok ? `<p style="color:#991b1b">${escapeHtml(data.error || 'unknown error')}</p>` : ''}
-      ${tokens}
-      <div class="stat-grid">
-        <div><strong>${totalScore.toFixed(1)} / ${totalMax.toFixed(1)}</strong>Score</div>
-        <div><strong>${percentage.toFixed(1)}%</strong>Percent</div>
-        <div><strong>${(confidence * 100).toFixed(0)}%</strong>Confidence</div>
+      <div class="section-card path-slide path-${css}">
+        <div class="path-head-col">
+          <div class="name">${escapeHtml(meta.title.split('—')[0].trim())}</div>
+          <div class="sub">${escapeHtml(meta.sub)}</div>
+          ${ok ? `<div class="ring-wrap">
+            ${scoreRing(totalScore, totalMax, ringColor)}
+            <div>
+              <div class="score-num">${totalScore.toFixed(1)} <span class="of">/ ${totalMax.toFixed(1)}</span></div>
+              <div class="score-meta">${percentage.toFixed(1)}% · confidence ${(confidence * 100).toFixed(0)}%</div>
+            </div>
+          </div>` : ''}
+          <div>
+            ${okPill}${methodPill}${langPill}${timePill}<br>
+            ${cerPill}${gateBadge}
+          </div>
+          ${tokensRow}
+        </div>
+        <div>
+          ${errorBlock}
+          ${ok ? `<h3 style="margin: 0 0 6px; font-size: 13.5px;">Transcript</h3>${transcriptView}` : ''}
+          ${ok ? `<h3 style="margin: 14px 0 6px; font-size: 13.5px;">Per-criterion scores</h3>${criteriaHtml}` : ''}
+          ${ok && (strengths || gaps) ? `<div class="sg-grid">${strengths}${gaps}</div>` : ''}
+          ${observations}${rawJson}
+        </div>
       </div>
-
-      <label style="font-size:0.8rem; color:var(--muted)">OCR transcript (cleaned)</label>
-      <textarea class="ocr" readonly>${escapeHtml(data.ocr_text || '')}</textarea>
-
-      <h4 style="margin-top:1rem; font-size:0.9rem;">Per-criterion scores</h4>
-      ${criteriaHtml}
-
-      <div style="margin-top:0.75rem;">
-        ${components}
-        ${strengths}
-        ${gaps}
-        ${observations}
-        ${rawJson}
-      </div>
-    `;
-    return card;
+    </section>`;
   }
 
-  function renderComparisonDiff(results) {
-    const scored = results.filter((r) => r && r.score);
-    if (scored.length < 2) return '';
-    const headers = scored.map((r) => (PATH_TITLES[r.path] || r.path).split('—')[0].trim());
+  // ---- golden section ----
+  function renderGoldenSection(golden) {
+    if (!golden) return '';
+    return `<section id="sec-golden" class="section">
+      <div class="section-head">
+        <h2>✍ Golden transcript — what a human reads on this page</h2>
+        <div class="hint">Hand-verified by the project owner. Used as the reference for the CER pills above.</div>
+      </div>
+      <div class="golden-box">
+        <h3>Human-verified reference</h3>
+        <p>This is the ground-truth transcript the CER (character error rate) is computed against. The word-level diffs in each path slide are aligned to this text.</p>
+        <div class="transcript">${escapeHtml(golden)}</div>
+      </div>
+    </section>`;
+  }
+
+  // ---- the page section (with image) ----
+  function renderThePage(entry) {
+    const theme = entry.theme || '-';
+    const lang = entry.language || '-';
+    const ref = entry.external_ref || '-';
+    const name = (currentFile && currentFile.name) || '-';
+    return `<section id="sec-page" class="section">
+      <div class="section-head">
+        <h2>🖼 The page</h2>
+        <div class="hint">Click the image to zoom. Entry ID, theme, and language are recorded for the run.</div>
+      </div>
+      <div class="section-card the-page">
+        <div class="image-frame" id="image-frame">
+          <img id="page-image" src="${escapeHtml(preview.src || '')}" alt="Uploaded page">
+        </div>
+        <div class="meta">
+          <div class="row"><b>File</b><span>${escapeHtml(name)}</span></div>
+          <div class="row"><b>Entry</b><span>#${escapeHtml(String(entry.entry_id || '-'))} · ref ${escapeHtml(ref)}</span></div>
+          <div class="row"><b>Theme</b><span>${escapeHtml(theme)}</span></div>
+          <div class="row"><b>Language</b><span>${escapeHtml(lang)}</span></div>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  // ---- side-by-side (full per-criterion + tokens + CER) ----
+  function renderSideBySide(results) {
+    const ok = results.filter((r) => r && r.ok && r.score);
+    if (ok.length < 2) return '';
+    const headerPaths = ok.map((r) => {
+      const m = PATH_META[r.path] || { title: r.path };
+      const css = PATH_CSS[r.path] || '';
+      return `<th class="path-${css}">${escapeHtml(m.title.split('—')[0].trim())}</th>`;
+    }).join('');
     const rows = [];
-    const pushRow = (label, fn) => {
-      rows.push([label, ...scored.map(fn)]);
-    };
-    pushRow('Method', (r) => r.method || '-');
-    pushRow('Language', (r) => r.language || '-');
-    pushRow('Total score', (r) => r.score.total_awarded.toFixed(1));
-    pushRow('Percent', (r) => r.score.percentage.toFixed(1) + '%');
-    pushRow('Confidence', (r) => (r.score.confidence * 100).toFixed(0) + '%');
-    pushRow('CER vs golden (lower is better)', (r) => (r.cer != null ? r.cer + '%' : '-'));
-    pushRow('Input tokens', (r) => r.input_tokens || 0);
-    pushRow('Output tokens', (r) => r.output_tokens || 0);
-    pushRow('Total tokens', (r) => r.total_tokens || 0);
-    pushRow('Elapsed ms', (r) => r.elapsed_ms || 0);
-    // per-criterion, aligned by criterion name across paths
-    const criterionNames = [];
-    scored.forEach((r) => (r.score.criteria || []).forEach((c) => {
-      if (!criterionNames.includes(c.name)) criterionNames.push(c.name);
-    }));
-    criterionNames.forEach((name) => {
-      pushRow(name, (r) => {
+    const push = (label, fn) => rows.push(`<tr><td class="field">${escapeHtml(label)}</td>${ok.map(fn).join('')}</tr>`);
+    push('Method', (r) => `<td>${escapeHtml(r.method || '-')}</td>`);
+    push('Language', (r) => `<td>${escapeHtml(r.language || '-')}</td>`);
+    push('Total score', (r) => `<td><b>${r.score.total_awarded.toFixed(1)} / ${r.score.total_max.toFixed(1)}</b></td>`);
+    push('Percent', (r) => `<td>${r.score.percentage.toFixed(1)}%</td>`);
+    push('Confidence', (r) => `<td>${(r.score.confidence * 100).toFixed(0)}%</td>`);
+    push('CER vs golden', (r) => `<td>${r.cer != null ? r.cer + '%' : '—'}</td>`);
+push('Input tokens', (r) => `<td>${(r.input_tokens || 0).toLocaleString()}</td>`);
+    push('Cached input tokens', (r) => `<td>${(r.cached_tokens || 0).toLocaleString()}</td>`);
+    push('Total tokens', (r) => `<td>${(r.total_tokens || 0).toLocaleString()}</td>`);
+    push('API cost / page', (r) => `<td><b>${(r.cost && r.cost.usd != null) ? '$' + r.cost.usd.toFixed(5) : '—'}</b></td>`);
+    push('Model', (r) => `<td>${escapeHtml(r.model || '-')}</td>`);
+    push('Elapsed', (r) => `<td>${(r.elapsed_ms || 0).toLocaleString()} ms</td>`);
+    const critNames = [];
+    ok.forEach((r) => (r.score.criteria || []).forEach((c) => { if (!critNames.includes(c.name)) critNames.push(c.name); }));
+    critNames.forEach((name) => {
+      push(name, (r) => {
         const c = (r.score.criteria || []).find((x) => x.name === name);
-        return c ? c.awarded.toFixed(1) + '/' + c.max_score.toFixed(1) : '-';
+        return `<td>${c ? c.awarded.toFixed(1) + ' / ' + c.max_score.toFixed(1) : '—'}</td>`;
       });
     });
-    return '<h3 style="margin-top:1rem">Side-by-side diff</h3>' +
-      '<table class="diff-table"><thead><tr><th>Field</th>' +
-      headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('') +
-      '</tr></thead><tbody>' +
-      rows.map((r) => `<tr><td>${escapeHtml(r[0])}</td>${r.slice(1).map((v) => `<td>${escapeHtml(String(v))}</td>`).join('')}</tr>`).join('') +
-      '</tbody></table>';
+    return `<section id="sec-sxs" class="section">
+      <div class="section-head">
+        <h2>⚖ Side-by-side</h2>
+        <div class="hint">All numbers from the run, in one table. The scoreboard above has the colour highlights.</div>
+      </div>
+      <div class="section-card sxs-wrap">
+        <table class="sxs">
+          <thead><tr><th>Field</th>${headerPaths}</tr></thead>
+          <tbody>${rows.join('')}</tbody>
+        </table>
+      </div>
+    </section>`;
   }
 
-  function renderGolden(goldenText) {
-    if (!goldenText) return null;
-    const card = document.createElement('div');
-    card.className = 'path-card';
-    card.style.marginTop = '1rem';
-    card.innerHTML = `
-      <h3>Golden transcript (human-verified)</h3>
-      <div class="subtitle"><span class="pill ok">reference</span> used for the CER pills above</div>
-      <textarea class="ocr" readonly style="min-height:180px">${escapeHtml(goldenText)}</textarea>
-    `;
-    return card;
+  // ---- download report ----
+  function renderDownloadCard() {
+    return `<section id="sec-download" class="section">
+      <div class="section-head">
+        <h2>⬇ Download report</h2>
+        <div class="hint">Self-contained HTML. Image is embedded, all results and diffs included. No server needed.</div>
+      </div>
+      <div class="download-card">
+        <div class="icon">📄</div>
+        <div class="body">
+          <h3>Standalone HTML report</h3>
+          <p>Opens in any browser. Includes the page image (embedded), the verdict, the scoreboard, per-path transcripts and word-diffs against the golden, per-criterion scores, strengths, gaps, and the full raw JSON. Print it with Ctrl+P for a PDF.</p>
+        </div>
+        <button class="btn primary" id="download-btn" type="button">Download report</button>
+      </div>
+    </section>`;
   }
 
+  // wire view toggles for newly added nodes
+  function wireViewToggles(root) {
+    root.querySelectorAll('.view-toggle button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.view-toggle').getAttribute('data-group');
+        const view = btn.getAttribute('data-view');
+        // toggle buttons within same group
+        root.querySelectorAll(`.view-toggle[data-group="${group}"] button`).forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        // for simplicity, only one view per group is visible at a time
+        root.querySelectorAll(`#${group}-text, #${group}-engine`).forEach((pane) => { pane.style.display = 'none'; });
+        if (view === 'clean') {
+          const p = root.querySelector(`#${group}-text .view-pane-clean`);
+          if (p) p.style.display = 'block';
+          root.querySelector(`#${group}-text`).style.display = 'block';
+        } else if (view === 'diff') {
+          const p = root.querySelector(`#${group}-text .view-pane-diff`);
+          if (p) p.style.display = 'block';
+          root.querySelector(`#${group}-text`).style.display = 'block';
+        } else if (view === 'engine') {
+          root.querySelector(`#${group}-engine`).style.display = 'block';
+        }
+      });
+    });
+  }
+
+  // ---- main compare flow ----
   runBtn.addEventListener('click', async () => {
-    if (!currentFile) {
-      setStatus('Pick an image first.');
-      return;
-    }
+    if (!currentFile) { setTopStatus('Pick an image first.', true); return; }
     runBtn.disabled = true;
-    setStatus('Running paths…');
-    resultsEl.innerHTML = '';
+    setTopStatus('Running paths…');
+    resultsEl.innerHTML = '<div class="empty"><p>Running 3-way comparison…</p></div>';
 
     const fd = new FormData();
     fd.append('image', currentFile);
@@ -481,35 +1144,309 @@
     fd.append('run_vision', document.getElementById('run_vision').checked ? 'true' : 'false');
     fd.append('run_tesseract', document.getElementById('run_tesseract').checked ? 'true' : 'false');
     fd.append('run_fusion', document.getElementById('run_fusion').checked ? 'true' : 'false');
+    const modelSel = document.getElementById('model');
+    if (modelSel && modelSel.value) {
+      fd.append('text_model', modelSel.value);
+      fd.append('vision_model', modelSel.value);
+    }
 
     try {
       const res = await fetch('/sandbox/compare', { method: 'POST', body: fd });
       const json = await res.json();
       if (!res.ok) {
-        setStatus('Error: ' + (json.detail || res.statusText));
-        resultsEl.innerHTML = '<pre class="raw">' + escapeHtml(JSON.stringify(json, null, 2)) + '</pre>';
+        setTopStatus(json.detail || res.statusText, true);
+        resultsEl.innerHTML = '<div class="section-card"><pre class="raw">' + escapeHtml(JSON.stringify(json, null, 2)) + '</pre></div>';
         return;
       }
-      const wrap = document.createElement('div');
-      wrap.className = 'paths';
-      json.results.forEach((r) => wrap.appendChild(renderPath(r.path, r)));
-      resultsEl.appendChild(wrap);
-      resultsEl.insertAdjacentHTML('beforeend', renderComparisonDiff(json.results));
-      const goldenCard = renderGolden(json.golden);
-      if (goldenCard) resultsEl.appendChild(goldenCard);
-      setStatus('Done. Entry # ' + json.entry_id + ' (ref ' + json.external_ref + ')');
+      lastResult = json;
+      renderResults(json);
+      setTopStatus(`Done. Entry # ${json.entry_id} (ref ${json.external_ref})`, false);
     } catch (err) {
-      setStatus('Network error: ' + err.message);
+      setTopStatus(err.message, true);
     } finally {
       runBtn.disabled = false;
     }
   });
 
+  function renderResults(json) {
+    // build the whole results HTML
+    const verdict = buildVerdict(json.results, json.golden);
+    const order = ['vision', 'tesseract_llm', 'vision_ocr_fusion'].filter((p) => json.results.some((r) => r.path === p));
+
+    let html = '';
+    html += renderThePage(json);
+
+    // scoreboard + verdict at the TOP
+    html += `<section id="sec-scoreboard" class="section">
+      <div class="section-head">
+        <h2>🏆 Scoreboard</h2>
+        <div class="hint">The most important numbers, in one place.</div>
+      </div>
+      ${renderVerdict(verdict)}
+      <div class="section-card">${buildScoreboard(json.results)}</div>
+    </section>`;
+
+    // per-path slides (wrapped for the screenshot selector + visual grouping)
+    html += '<div class="paths">';
+    order.forEach((p) => {
+      const r = json.results.find((x) => x.path === p);
+      html += renderPathSlide(p, r);
+    });
+    html += '</div>';
+
+    // side-by-side
+    html += renderSideBySide(json.results);
+
+    // golden
+    html += renderGoldenSection(json.golden);
+
+    // download
+    html += renderDownloadCard();
+
+    resultsEl.innerHTML = html;
+    jumpNav.classList.add('visible');
+    wireViewToggles(resultsEl);
+    wireDownload();
+    setupEl.classList.add('collapsed');
+    setupToggle.textContent = 'Show';
+
+    // smooth-scroll to scoreboard after a run
+    setTimeout(() => {
+      const target = document.getElementById('sec-scoreboard');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  // ---- download report (standalone HTML) ----
+  function wireDownload() {
+    const btn = document.getElementById('download-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const html = buildReportHtml(lastResult);
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ref = (lastResult.external_ref || 'sandbox').replace(/[^a-z0-9_-]/gi, '_');
+      a.href = url;
+      a.download = `sandbox-report-${ref}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  }
+
+  function buildReportHtml(json) {
+    const verdict = buildVerdict(json.results, json.golden);
+    const cssInline = `
+      body{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Sans Devanagari",sans-serif;background:#f4f6f9;color:#17223b;margin:0;padding:0;}
+      .wrap{max-width:1100px;margin:0 auto;padding:24px;}
+      h1{font-size:24px;margin:0 0 6px;}
+      h2{font-size:17px;margin:24px 0 8px;border-bottom:1px solid #dfe5ec;padding-bottom:4px;}
+      h3{font-size:14px;margin:14px 0 6px;}
+      .muted{color:#64748b;font-size:13px;}
+      .verdict{background:linear-gradient(135deg,#fff8e1,#fde68a);border:2px solid #f59e0b;border-radius:12px;padding:16px 20px;margin:14px 0;display:flex;gap:14px;align-items:flex-start;}
+      .verdict.no-winner{background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#b91c1c;}
+      .verdict.no-golden{background:linear-gradient(135deg,#e0e7ff,#c7d2fe);border-color:#6366f1;}
+      .verdict .trophy{font-size:36px;line-height:1;}
+      .verdict .label{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;font-weight:700;color:#92400e;margin-bottom:2px;}
+      .verdict.no-winner .label{color:#8a1313;} .verdict.no-golden .label{color:#4338ca;}
+      .verdict .headline{font-size:18px;font-weight:700;line-height:1.3;color:#1a1207;margin-bottom:4px;}
+      .verdict.no-winner .headline{color:#8a1313;} .verdict.no-golden .headline{color:#312e81;}
+      .verdict .detail{font-size:13.5px;color:#4b3414;line-height:1.5;}
+      .verdict.no-winner .detail{color:#5b1818;} .verdict.no-golden .detail{color:#3730a3;}
+      .card{background:#fff;border:1px solid #dfe5ec;border-radius:10px;padding:16px;margin:10px 0;}
+      .path-card{border-top:4px solid #2457d6;}
+      .path-card.path-a{border-top-color:#2457d6;}
+      .path-card.path-b{border-color:#b45309;border-top:4px solid #b45309;}
+      .path-card.path-c{border-color:#6d28d9;border-top:4px solid #6d28d9;}
+      .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#e0e7ff;color:#3730a3;font-size:11px;font-weight:600;margin-right:3px;}
+      .pill.ok{background:#e6f6ec;color:#0e6b34;}
+      .pill.warn{background:#fdf3e3;color:#b45309;}
+      .pill.err{background:#fdecec;color:#8a1313;}
+      .pill.muted{background:#eef2f7;color:#475569;}
+      .pill.big{padding:4px 12px;font-size:12.5px;}
+      table{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0;}
+      th,td{padding:7px 10px;border-bottom:1px solid #edf1f6;text-align:left;}
+      th{background:#f8fafc;color:#64748b;font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:0.04em;}
+      .best{background:#e6f6ec;}
+      .cer-good{color:#15803d;font-weight:700;}
+      .cer-warn{color:#b45309;font-weight:600;}
+      .cer-bad{color:#b91c1c;font-weight:700;}
+      .transcript{background:#f8fafc;border:1px solid #dfe5ec;border-radius:8px;padding:12px 14px;font-size:14px;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+      .transcript .match{color:#1e293b;}
+      .transcript .miss{background:#fee2e2;color:#991b1b;padding:1px 3px;border-radius:3px;text-decoration:line-through;}
+      .transcript .extra{background:#fef3c7;color:#92400e;padding:1px 3px;border-radius:3px;}
+      .transcript .skip{display:inline-block;margin:6px 0;color:#64748b;font-size:12px;font-style:italic;}
+      .golden-box{background:linear-gradient(180deg,#fff7ed,#fef3c7);border:2px solid #fbbf24;border-radius:10px;padding:14px 18px;}
+      .criteria{list-style:none;padding:0;margin:8px 0;}
+      .criteria li{display:grid;grid-template-columns:140px 1fr 70px;gap:10px;align-items:center;padding:4px 0;font-size:13px;}
+      .bar{height:8px;background:#e2e8f0;border-radius:4px;position:relative;overflow:hidden;}
+      .bar>span{position:absolute;left:0;top:0;bottom:0;border-radius:4px;}
+      .path-a .bar>span{background:#2457d6;}
+      .path-b .bar>span{background:#b45309;}
+      .path-c .bar>span{background:#6d28d9;}
+      .sg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+      .sg-box{border-radius:8px;padding:12px 14px;}
+      .sg-box.strengths{background:#e6f6ec;border:1px solid #bfe6cd;}
+      .sg-box.gaps{background:#fdecec;border:1px solid #f3c2c2;}
+      .sg-box h4{margin:0 0 6px;font-size:12.5px;text-transform:uppercase;}
+      .sg-box.strengths h4{color:#0e6b34;} .sg-box.gaps h4{color:#8a1313;}
+      .sg-box ul{margin:0;padding-left:20px;font-size:13px;}
+      .meta{font-size:13px;color:#475569;}
+      .meta b{color:#17223b;}
+      .image-frame{border:1px solid #dfe5ec;border-radius:10px;overflow:hidden;background:#0f172a;text-align:center;max-height:60vh;}
+      .image-frame img{max-width:100%;max-height:60vh;object-fit:contain;}
+      pre.raw{background:#0f172a;color:#dbe4f0;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:11.5px;max-height:280px;}
+      .header-bar{background:#101a33;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+      .header-bar .title{font-size:16px;font-weight:700;}
+      .header-bar .meta-c{font-size:12px;color:#cdd6e4;}
+      .toc{background:#eef4ff;border:1px solid #c7d8f4;border-radius:10px;padding:12px 18px;margin:14px 0;}
+      .toc a{color:#2457d6;text-decoration:none;font-weight:600;margin-right:14px;font-size:13px;}
+    `;
+
+    const order = ['vision', 'tesseract_llm', 'vision_ocr_fusion'].filter((p) => json.results.some((r) => r.path === p));
+
+    const tocLinks = [
+      '<a href="#sec-page">🖼 The Page</a>',
+      '<a href="#sec-scoreboard">🏆 Scoreboard</a>',
+      ...order.map((p) => {
+        const css = PATH_CSS[p];
+        return `<a href="#sec-path-${css}" style="color: var(--path-${css}, ${css === 'a' ? '#2457d6' : css === 'b' ? '#b45309' : '#6d28d9'})">${css.toUpperCase()} · ${(PATH_META[p] || {}).title?.split('—')[0]?.trim() || p}</a>`;
+      }),
+      '<a href="#sec-sxs">⚖ Side-by-side</a>',
+      '<a href="#sec-golden">✍ Golden</a>',
+    ].join('');
+
+    const pathSlides = order.map((p) => {
+      const r = json.results.find((x) => x.path === p);
+      const css = PATH_CSS[p];
+      const meta = PATH_META[p] || { title: p, sub: '' };
+      const ok = r.ok !== false;
+      const totalScore = (r.score && r.score.total_awarded) || 0;
+      const totalMax = (r.score && r.score.total_max) || 0;
+      const percentage = (r.score && r.score.percentage) || 0;
+      const confidence = (r.score && r.score.confidence) || r.confidence || 0;
+      const transcript = r.ocr_text || '';
+
+      const cerPill = (r.cer != null)
+        ? `<span class="pill big ${r.cer < 15 ? 'ok' : (r.cer < 40 ? 'warn' : 'err')}">CER vs golden: ${r.cer}%</span>` : '';
+      const gateBadge = (r.fusion_skipped === true)
+        ? `<span class="pill big warn">⚠ Gate fired — fusion skipped, used vision</span>` : '';
+      const errorBlock = !ok ? `<div style="background:#fdecec;border:1px solid #f3c2c2;border-radius:8px;padding:10px 14px;color:#8a1313;font-size:13.5px;"><b>Path failed:</b> ${escapeHtml(r.error || 'unknown error')}</div>` : '';
+
+      const criteriaHtml = (r.score && r.score.criteria && r.score.criteria.length) ?
+        '<ul class="criteria">' + r.score.criteria.map((c) => {
+          const pct = c.max_score ? Math.round(100 * c.awarded / c.max_score) : 0;
+          return `<li><span>${escapeHtml(c.name)}</span><span class="bar"><span style="width: ${pct}%"></span></span><span><b>${c.awarded.toFixed(1)} / ${c.max_score.toFixed(1)}</b></span></li>`;
+        }).join('') + '</ul>' : '<em>No criteria scored.</em>';
+
+      const strengths = (r.score && r.score.strengths && r.score.strengths.length)
+        ? `<div class="sg-box strengths"><h4>Strengths</h4><ul>${r.score.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>` : '';
+      const gaps = (r.score && r.score.gaps && r.score.gaps.length)
+        ? `<div class="sg-box gaps"><h4>Gaps</h4><ul>${r.score.gaps.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ul></div>` : '';
+      const observations = (r.score && r.score.observations)
+        ? `<p style="font-size:13px;line-height:1.55;background:#f8fafc;padding:10px 12px;border-radius:6px;"><b>Observations:</b> ${escapeHtml(r.score.observations)}</p>` : '';
+
+      const engineInputs = (p === 'vision_ocr_fusion')
+        ? `<h3>Engine inputs</h3>
+           <div class="muted" style="margin-bottom: 6px;">What each engine produced before the vision LLM merged them.</div>
+           <div><b>Vision-LLM transcript</b></div>
+           <div class="transcript" style="min-height: 40px;">${escapeHtml(r.vision_text || '(empty)')}</div>
+           <div style="margin-top: 8px;"><b>Tesseract transcript</b></div>
+           <div class="transcript" style="min-height: 40px;">${escapeHtml(r.tesseract_text || '(empty)')}</div>` : '';
+
+      const diffBlock = json.golden ? `<h3>Transcript — diff vs golden</h3>
+        <div class="transcript" style="font-size: 15px; line-height: 1.75;">${renderDiff(transcript, json.golden)}</div>
+        <div style="margin-top: 6px; font-size: 11.5px;" class="muted">
+          <span class="pill ok">matching</span>
+          <span class="pill err">missed by AI (red strike)</span>
+          <span class="pill warn">missed by golden (amber highlight)</span>
+        </div>` : '';
+
+      return `<section id="sec-path-${css}" class="card path-card path-${css}">
+        <h2>${css.toUpperCase()} · ${escapeHtml(meta.title)}</h2>
+        <p class="muted">${escapeHtml(meta.sub)}</p>
+        <p>
+          <span class="pill ${ok ? 'ok' : 'err'}">${ok ? '✓ ok' : '✗ failed'}</span>
+          <span class="pill muted">${escapeHtml(r.method || p)}</span>
+          <span class="pill muted">${escapeHtml(r.language || '-')}</span>
+          <span class="pill muted">${(r.elapsed_ms || 0).toLocaleString()} ms</span>
+          ${cerPill}${gateBadge}
+        </p>
+        ${ok ? `<p style="font-size: 22px; font-weight: 800; margin: 4px 0;">${totalScore.toFixed(1)} / ${totalMax.toFixed(1)} <span class="muted" style="font-size: 14px; font-weight: 500;">(${percentage.toFixed(1)}%, confidence ${(confidence * 100).toFixed(0)}%)</span></p>` : ''}
+        ${errorBlock}
+        ${ok ? `<h3>Transcript</h3>
+          <div class="transcript">${transcript ? escapeHtml(transcript) : '<em>(no text)</em>'}</div>
+          ${diffBlock}
+          ${engineInputs}
+          <h3>Per-criterion scores</h3>${criteriaHtml}
+          ${(strengths || gaps) ? `<h3>Strengths & Gaps</h3><div class="sg-grid">${strengths}${gaps}</div>` : ''}
+          ${observations}
+          <h3>Raw response JSON</h3><pre class="raw">${escapeHtml(JSON.stringify(r, null, 2))}</pre>` : ''}
+      </section>`;
+    }).join('\n');
+
+    const thePage = `<section id="sec-page" class="card">
+      <h2>🖼 The page</h2>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px;">
+        <div class="image-frame"><img src="${escapeHtml(preview.src || '')}" alt="Uploaded page"></div>
+        <div class="meta">
+          <div style="padding: 5px 0; border-bottom: 1px dashed #dfe5ec;"><b>File:</b> ${escapeHtml((currentFile && currentFile.name) || '-')}</div>
+          <div style="padding: 5px 0; border-bottom: 1px dashed #dfe5ec;"><b>Entry:</b> #${escapeHtml(String(json.entry_id || '-'))} · ref ${escapeHtml(json.external_ref || '-')}</div>
+          <div style="padding: 5px 0; border-bottom: 1px dashed #dfe5ec;"><b>Theme:</b> ${escapeHtml(json.theme || '-')}</div>
+          <div style="padding: 5px 0;"><b>Language:</b> ${escapeHtml(json.language || '-')}</div>
+        </div>
+      </div>
+    </section>`;
+
+    const scoreboard = `<section id="sec-scoreboard" class="card">
+      <h2>🏆 Scoreboard</h2>
+      ${renderVerdict(verdict)}
+      ${buildScoreboard(json.results)}
+    </section>`;
+
+    const sxs = renderSideBySide(json.results);
+    const golden = renderGoldenSection(json.golden);
+
+    return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sandbox report — entry #${escapeHtml(String(json.entry_id || ''))}</title>
+<style>${cssInline}</style>
+</head>
+<body>
+<div class="header-bar">
+  <div>
+    <div class="title">Sandbox — 3-way OCR comparison</div>
+    <div class="meta-c">Entry #${escapeHtml(String(json.entry_id || '-'))} · ref ${escapeHtml(json.external_ref || '-')} · generated ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC</div>
+  </div>
+  <div class="meta-c">self-contained · all data on-machine</div>
+</div>
+<div class="wrap">
+  <h1>Run report</h1>
+  <p class="muted">One handwritten page, three AI readers, one rubric, one human reference (when golden is available).</p>
+  <div class="toc"><b>Contents:</b> ${tocLinks}</div>
+  ${thePage}
+  ${scoreboard}
+  ${pathSlides}
+  ${sxs}
+  ${golden}
+  <p class="muted" style="margin-top: 30px; text-align: center; font-size: 11.5px;">
+    Generated by the Entry Eval sandbox. CER (character error rate) computed by Levenshtein distance, case- and whitespace-normalized, against the human-verified golden transcript (when present).
+  </p>
+</div>
+</body>
+</html>`;
+  }
+
+  // ---- reset ----
   resetBtn.addEventListener('click', async () => {
     if (!confirm('Delete all sandbox-created entries? Real program entries are safe.')) return;
     const res = await fetch('/sandbox/reset', { method: 'POST' });
     const json = await res.json();
-    setStatus('Deleted ' + json.deleted_entries + ' sandbox entries.');
+    setTopStatus(`Deleted ${json.deleted_entries} sandbox entries.`, false);
   });
 })();
 </script>
