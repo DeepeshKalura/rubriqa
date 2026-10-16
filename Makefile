@@ -3,7 +3,7 @@
 
 COMPOSE = docker compose
 
-.PHONY: up down logs ps build migrate shell test seed demo screenshots fmt reset score-replay bench-scoring
+.PHONY: up down logs ps build migrate shell test check seed demo screenshots fmt reset score-replay bench-scoring
 
 up:            ## start db + web
 	$(COMPOSE) up --build -d
@@ -51,6 +51,25 @@ screenshots:   ## Playwright UI verification + screenshots (host browsers)
 
 fmt:
 	$(COMPOSE) run --rm web python -m compileall -q app scripts
+
+check:         ## prove the tree is sound: compileall + guards + full suite
+	@echo "== 1/3 byte-compile (syntax only; cannot catch AttributeError) =="
+	$(COMPOSE) run --rm web python -m compileall -q app scripts
+	@echo "== 2/3 static guards =="
+	$(COMPOSE) run --rm \
+		-e STORAGE_ROOT=/tmp/entry-eval-tests \
+		web pytest -q \
+			tests/test_settings_references.py \
+			tests/test_golden_alignment.py \
+			tests/test_logging_helpers.py
+	@echo "== 3/3 full suite =="
+	$(MAKE) test
+	@echo ""
+	@echo "check: OK"
+	@echo ""
+	@echo "Not covered here: there is no CI. This must be run by hand or by"
+	@echo "something else, or these guards protect nothing. See Phase 5 notes in"
+	@echo "docs/architecture.md."
 
 score-replay:  ## re-run rubric scoring on entries that have a human_score
 	$(COMPOSE) run --rm web python -m scripts.score_replay

@@ -16,6 +16,7 @@ MIME_TYPES = {
     ".jpeg": "image/jpeg",
     ".pdf": "application/pdf",
     ".txt": "text/plain; charset=utf-8",
+    ".html": "text/html; charset=utf-8",
 }
 
 
