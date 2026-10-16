@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "Which golden transcript belongs to which page IMAGE.",
+    "This file exists because the golden set was silently misaligned: the",
+    "transcripts for images 08/09/10 were filed as page-07/08/09, and images",
+    "07 and 11 never had a matching transcript. Every benchmark number computed",
+    "before 2026-10-14 against pages 07-11 was therefore wrong, including the",
+    "figures in docs/ocr-engine-decision.md. The misalignment was found by",
+    "cross-correlating a competent transcription against every golden file",
+    "(scripts/bench_cloud_ocr.py::--align) rather than by trusting filenames.",
+    "Bench scripts must resolve goldens through this map, never by filename."
+  ],
+  "alignment_proven_by": {
+    "method": "gemini-3.1-flash-lite transcription of every image scored against every golden",
+    "date": "2026-10-14",
+    "decisive_pairs": {
+      "page-08": {"previous_filename": "page-07.txt", "cer_pct": 0.3},
+      "page-09": {"previous_filename": "page-08.txt", "cer_pct": 4.2},
+      "page-10": {"previous_filename": "page-09.txt", "cer_pct": 8.4}
+    }
+  },
+  "map": {
+    "page-01": "page-01.txt",
+    "page-02": "page-02.txt",
+    "page-03": "page-03.txt",
+    "page-04": "page-04.txt",
+    "page-05": "page-05.txt",
+    "page-06": "page-06.txt",
+    "page-08": "page-08.txt",
+    "page-09": "page-09.txt",
+    "page-10": "page-10.txt"
+  },
+  "images_without_golden": {
+    "page-07": "no transcript matched this image (best cross-CER 79.0%)",
+    "page-11": "no transcript matched this image (best cross-CER 75.6%)"
+  },
+  "unmatched_transcripts": {
+    "_orphans/prev-page-10.txt": "transcript for an image not present in data/samples/pages",
+    "_orphans/prev-page-11.txt": "transcript for an image not present in data/samples/pages"
+  },
+  "scored_pages": 9,
+  "held_out": {
+    "note": "see data/samples/holdout.json - page-11 is listed there but has no golden; fix before using"
+  }
+}

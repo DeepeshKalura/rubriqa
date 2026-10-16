@@ -19,6 +19,7 @@ as JSON; the HTML page renders the comparison.
 from __future__ import annotations
 
 import asyncio
+import json
 import shutil as _shutil
 import time
 from pathlib import Path
@@ -188,17 +189,44 @@ def _char_error_rate(reference: str, hypothesis: str) -> float | None:
     return prev[-1] / len(ref)
 
 
+def load_golden_map(samples_root: Path) -> dict[str, str]:
+    """Map page-image stem -> golden transcript *filename*.
+
+    Goldens are deliberately NOT resolved by filename. They were misaligned
+    once already (the transcripts for images 08/09/10 were filed as
+    page-07/08/09), which silently produced CER figures up to 209% in this
+    endpoint and in every report built on it. `manifest.json` is the only
+    supported source of truth; see tests/test_golden_alignment.py.
+    """
+    manifest = samples_root / "golden" / "manifest.json"
+    if not manifest.exists():
+        return {}
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        logger.warning("golden_manifest_unreadable", path=str(manifest))
+        return {}
+    return {k: v for k, v in (data.get("map") or {}).items() if v}
+
+
 def _golden_transcripts(settings) -> dict[str, str]:
-    """Map sha256(page image) -> human-verified golden transcript. Golden
-    files live in `data/samples/golden/<page-stem>.txt` next to the bundled
-    `data/samples/pages/` images."""
+    """Map sha256(page image) -> human-verified golden transcript.
+
+    Only images listed in `golden/manifest.json` get a transcript. An image
+    without one is left out rather than matched to whatever file shares its
+    name.
+    """
     samples_root = settings.storage_root / "samples"
     golden_dir = samples_root / "golden"
+    mapping = load_golden_map(samples_root)
     out: dict[str, str] = {}
-    if not golden_dir.exists():
+    if not golden_dir.exists() or not mapping:
         return out
     for page in sorted(samples_root.glob("pages/page-*.png")):
-        gt = golden_dir / f"{page.stem}.txt"
+        filename = mapping.get(page.stem)
+        if not filename:
+            continue
+        gt = golden_dir / filename
         if gt.exists():
             out[sha256_of(page)] = gt.read_text(encoding="utf-8").strip()
     return out
@@ -241,8 +269,20 @@ async def sandbox_compare(
     run_vision: str = Form("true"),
     run_tesseract: str = Form("true"),
     run_fusion: str = Form("true"),
+    text_model: str = Form(""),
+    vision_model: str = Form(""),
 ):
     settings = get_settings()
+    # Model overrides let the benchmark harness (scripts/bench_models.py) compare
+    # models through the real pipeline instead of a parallel code path. Empty =
+    # use the configured default, so the sandbox UI is unaffected.
+    overrides: dict = {}
+    if text_model.strip():
+        overrides["minimax_text_model"] = text_model.strip()
+    if vision_model.strip():
+        overrides["minimax_vision_model"] = vision_model.strip()
+    if overrides:
+        settings = settings.model_copy(update=overrides)
     if not settings.api_key:
         raise HTTPException(
             400,
@@ -274,6 +314,20 @@ async def sandbox_compare(
 
     sm = get_sessionmaker()
 
+    # Per-path usage accumulator. The provider's usage_hook is the only place
+    # that sees cached-token splits per LLM call, so we collect them here and
+    # attach the totals to each path result. Cost is computed by
+    # app/services/cost.py so the pricing table stays in one place.
+    usage: dict[str, dict[str, int]] = {}
+
+    async def _usage_hook(payload: dict) -> None:
+        usage["input_tokens"] += payload.get("prompt_tokens") or 0
+        usage["cached_tokens"] += payload.get("cached_tokens") or 0
+        usage["output_tokens"] += payload.get("completion_tokens") or 0
+
+    def _build_provider():
+        return build_provider(settings, usage_hook=_usage_hook)
+
     # The two paths share one Entry row, and each path writes its OCR output
     # into entry.situation before scoring. Without a reset between paths the
     # second path would score the FIRST path's text (dishonest comparison).
@@ -293,6 +347,25 @@ async def sandbox_compare(
 
     results: list[dict] = []
 
+    async def _run_with_usage(label: str, coro_factory) -> dict:
+        """Run one path and stamp it with the token usage it consumed.
+
+        Paths run strictly sequentially, so resetting the shared accumulator
+        before each one attributes tokens to the correct path.
+        """
+        usage.clear()
+        usage.update({"input_tokens": 0, "cached_tokens": 0, "output_tokens": 0})
+        result = await _run_path(label, coro_factory)
+        result["input_tokens"] = usage["input_tokens"]
+        result["output_tokens"] = usage["output_tokens"]
+        result["total_tokens"] = usage["input_tokens"] + usage["output_tokens"]
+        result["cached_tokens"] = usage["cached_tokens"]
+        result["model"] = (
+            vision_model.strip() if (label == "vision" or label == "vision_ocr_fusion") and vision_model.strip()
+            else (text_model.strip() if text_model.strip() else settings.minimax_text_model)
+        )
+        return result
+
     if run_vision.lower() == "true":
         await _restore_entry_fields()
 
@@ -302,11 +375,11 @@ async def sandbox_compare(
                 return await process_entry_via_vision(
                     path_session, local_entry,
                     settings=settings,
-                    llm=build_provider(settings),
+                    llm=_build_provider(),
                     rubric_id=rubric,
                 )
 
-        results.append(await _run_path("vision", _vision))
+        results.append(await _run_with_usage("vision", _vision))
 
     if run_tesseract.lower() == "true":
         await _restore_entry_fields()
@@ -317,11 +390,11 @@ async def sandbox_compare(
                 return await process_entry_via_tesseract_then_llm(
                     path_session, local_entry,
                     settings=settings,
-                    llm=build_provider(settings),
+                    llm=_build_provider(),
                     rubric_id=rubric,
                 )
 
-        results.append(await _run_path("tesseract_llm", _tess))
+        results.append(await _run_with_usage("tesseract_llm", _tess))
 
     if run_fusion.lower() == "true":
         await _restore_entry_fields()
@@ -332,11 +405,11 @@ async def sandbox_compare(
                 return await process_entry_via_fusion(
                     path_session, local_entry,
                     settings=settings,
-                    llm=build_provider(settings),
+                    llm=_build_provider(),
                     rubric_id=rubric,
                 )
 
-        results.append(await _run_path("vision_ocr_fusion", _fusion))
+        results.append(await _run_with_usage("vision_ocr_fusion", _fusion))
 
     if not results:
         raise HTTPException(400, "Choose at least one path to run")
@@ -358,6 +431,20 @@ async def sandbox_compare(
     # reload entry so we have the latest state (paths snapshot/restore the
     # shared row, so it is back to its pristine form here)
     final = await session.get(Entry, entry.id)
+
+    # Attach a per-path cost breakdown so the client (and the benchmark
+    # harness) never has to re-derive pricing. Cached input is billed
+    # separately, so it must travel with the token counts.
+    from app.services.cost import CostBreakdown
+
+    for r in results:
+        breakdown = CostBreakdown(
+            input_tokens=r.get("input_tokens") or 0,
+            cached_tokens=r.get("cached_tokens") or 0,
+            output_tokens=r.get("output_tokens") or 0,
+        )
+        r["cost"] = breakdown.as_dict(r.get("model"))
+
     return {
         "entry_id": entry.id,
         "external_ref": entry.external_ref,
@@ -367,6 +454,13 @@ async def sandbox_compare(
         "results": results,
         "rubric_id": rubric,
         "golden": golden_text,
+        "models": {
+            "text": text_model.strip() or settings.minimax_text_model,
+            "vision": vision_model.strip() or settings.minimax_vision_model,
+        },
+        "total_cost_usd": round(
+            sum(r["cost"]["usd"] for r in results), 6
+        ),
     }
 
 
@@ -374,21 +468,28 @@ async def sandbox_compare(
 async def list_sandbox_samples():
     """List the bundled handwritten sample pages (from data/samples/pages/)
     so the HTML sandbox can let the user pick one as a quick fixture. Each
-    sample carries its human-verified golden transcript (from
-    data/samples/golden/<page>.txt) when one exists."""
+    sample carries its human-verified golden transcript when the manifest lists
+    one for it; images without a verified transcript are listed with
+    `golden_text: null` so the UI can say so instead of silently scoring them
+    against a mismatched file."""
     settings = get_settings()
     samples_root = settings.storage_root / "samples"
     pages_root = samples_root / "pages"
     golden_dir = samples_root / "golden"
+    mapping = load_golden_map(samples_root)
     samples: list[dict] = []
     if pages_root.exists():
         for p in sorted(pages_root.glob("page-*.png")):
-            gt = golden_dir / f"{p.stem}.txt"
+            filename = mapping.get(p.stem)
+            gt = (golden_dir / filename) if filename else None
             samples.append(
                 {
                     "name": p.name,
                     "path": f"/files/{p}",
-                    "golden_text": gt.read_text(encoding="utf-8").strip() if gt.exists() else None,
+                    "has_golden": bool(gt and gt.exists()),
+                    "golden_text": gt.read_text(encoding="utf-8").strip()
+                    if gt and gt.exists()
+                    else None,
                 }
             )
     return {"samples": samples}

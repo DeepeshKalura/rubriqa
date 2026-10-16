@@ -18,7 +18,7 @@ from typing import Any, Callable
 import httpx
 
 from app.config import Settings, get_settings
-from app.logging import get_logger, redact
+from app.logging import get_logger, brief
 from app.providers.llm.base import LLMError, strip_reasoning
 from app.schemas import LLMMessage, LLMResult
 
@@ -145,6 +145,7 @@ class MiniMaxProvider:
                 message = choice.get("message", {})
                 content = strip_reasoning(message.get("content") or "")
                 usage = data.get("usage") or {}
+                prompt_details = usage.get("prompt_tokens_details") or {}
                 result = LLMResult(
                     text=content,
                     provider=self.name,
@@ -152,6 +153,7 @@ class MiniMaxProvider:
                     prompt_tokens=usage.get("prompt_tokens"),
                     completion_tokens=usage.get("completion_tokens"),
                     total_tokens=usage.get("total_tokens"),
+                    cached_tokens=prompt_details.get("cached_tokens"),
                     latency_ms=int((time.perf_counter() - started) * 1000),
                     raw=None,
                 )
@@ -175,13 +177,13 @@ class MiniMaxProvider:
                 stage=stage,
                 attempt=attempt,
                 delay_s=round(delay, 2),
-                error=redact(last_error),
+                error=brief(last_error),
             )
             await asyncio.sleep(delay)
 
         await self._record(stage, context, None, error=last_error)
         raise LLMError(
-            f"MiniMax call failed after {attempt} attempts: {redact(last_error)}",
+            f"MiniMax call failed after {attempt} attempts: {brief(last_error)}",
             code="exhausted_retries",
             retryable=True,
         )
@@ -206,6 +208,7 @@ class MiniMaxProvider:
                     "prompt_tokens": result.prompt_tokens if result else None,
                     "completion_tokens": result.completion_tokens if result else None,
                     "total_tokens": result.total_tokens if result else None,
+                    "cached_tokens": result.cached_tokens if result else None,
                     "latency_ms": result.latency_ms if result else None,
                     **(context or {}),
                 }

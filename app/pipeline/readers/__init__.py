@@ -30,13 +30,17 @@ def build_reader(
         "pdf_text": PdfTextReader(),
         "tesseract": TesseractReader(settings),
     }
-    if mode in ("hybrid", "minimax_vision"):
+    if mode in ("hybrid", "minimax_vision", "gemini_vision"):
         if llm is None:
             raise ReaderError(
                 f"reader_mode={mode} needs an LLM provider but none was supplied",
                 code="missing_llm",
             )
+        # The vision reader is provider-agnostic: it talks to whatever `llm` it
+        # is handed. `gemini_vision` selects it on top of the Gemini provider,
+        # so there is one reader implementation and no duplicated prompt.
         primitives["minimax_vision"] = MiniMaxVisionReader(llm, settings)
+        primitives["gemini_vision"] = primitives["minimax_vision"]
 
     if mode in primitives:
         return primitives[mode]

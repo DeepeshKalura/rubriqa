@@ -1,7 +1,7 @@
 """Provider-agnostic LLM interface."""
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from app.schemas import LLMMessage, LLMResult
 
@@ -15,7 +15,12 @@ class LLMError(Exception):
         self.retryable = retryable
 
 
+@runtime_checkable
 class LLMProvider(Protocol):
+    """Provider-agnostic seam. `@runtime_checkable` so conformance is
+    checkable at runtime - otherwise a provider missing `complete()` only fails
+    when a page is being read."""
+
     name: str
     model: str | None
 

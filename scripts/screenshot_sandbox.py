@@ -71,9 +71,10 @@ async def main() -> None:
 
         # Run comparison
         await page.click("#run-btn")
-        # wait for results to render
-        await page.wait_for_selector(".paths", timeout=180000)
-        await page.wait_for_timeout(800)
+        # 3-way compare can take ~150-180s end-to-end; allow generous headroom.
+        await page.wait_for_selector(".paths .section-card", timeout=300000)
+        # give the diff renderer + lightbox wiring a moment
+        await page.wait_for_timeout(1500)
         await page.screenshot(path=str(out / "sandbox_compare.png"), full_page=True)
         print("sandbox_compare.png done")
 
