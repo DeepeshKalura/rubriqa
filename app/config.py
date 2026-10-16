@@ -32,10 +32,35 @@ class Settings(BaseSettings):
     minimax_max_retries: int = 3
     minimax_max_output_tokens: int = 4096
     minimax_disable_thinking: bool = True
-    llm_provider: Literal["minimax", "fake"] = "minimax"
+    llm_provider: Literal["minimax", "gemini", "fake"] = "minimax"
+
+    # --- Google Gemini (alternative OCR provider; free tier, no card needed)
+    # Used for handwriting transcription only. Rubric scoring stays on the
+    # configured text provider. Pricing verified 2026-10-14:
+    # https://ai.google.dev/gemini-api/docs/pricing
+    google_api_key: str = ""
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    # Pinned, not "latest": Google retires ids without warning (2.5-flash-lite
+    # was already closed to new users on 2026-10-14, the day this was written).
+    # 3.1-flash-lite is the cheapest id that still accepts
+    # `thinkingConfig.thinkingBudget: 0`; 3.5-flash-lite rejects it with a 400.
+    gemini_model: str = "gemini-3.1-flash-lite"
+    gemini_timeout_seconds: int = 120
+    gemini_max_retries: int = 3
+    gemini_max_output_tokens: int = 4096
+    # Transcription is a mechanical task; thinking tokens are billed and only
+    # eat the output budget. Mirrors MINIMAX_DISABLE_THINKING.
+    gemini_disable_thinking: bool = True
+
+    # --- cost guardrails
+    # Hard ceiling for one ingestion run. 0 disables the cap. A run that would
+    # exceed it stops *before* the next billable call rather than after.
+    llm_spend_cap_usd: float = 0.0
 
     # --- reader feature flags
-    reader_mode: Literal["pdf_text", "tesseract", "minimax_vision", "hybrid"] = "hybrid"
+    reader_mode: Literal[
+        "pdf_text", "tesseract", "minimax_vision", "gemini_vision", "hybrid"
+    ] = "hybrid"
     hybrid_reader_chain: str = "pdf_text,tesseract,minimax_vision"
     hybrid_accept_confidence: float = 0.75
     hybrid_escalate_below: float = 0.60
@@ -88,6 +113,11 @@ class Settings(BaseSettings):
     def api_key(self) -> str:
         """Accept either MINIMAX_API_KEY or LLM_API_KEY."""
         return (self.minimax_api_key or self.llm_api_key or "").strip()
+
+    @property
+    def gemini_key(self) -> str:
+        """Google AI Studio key. Never logged; redacted by app.logging."""
+        return (self.google_api_key or "").strip()
 
     @property
     def storage_originals(self) -> Path:

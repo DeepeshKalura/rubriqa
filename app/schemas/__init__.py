@@ -151,5 +151,10 @@ class LLMResult(BaseModel):
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
     total_tokens: int | None = None
+    # Prompt tokens served from the provider's cache. Billed at a lower rate
+    # than fresh input, so the cost engine needs them split out; see
+    # app/services/cost.py. MiniMax reports these under
+    # usage.prompt_tokens_details.cached_tokens.
+    cached_tokens: int | None = None
     latency_ms: int | None = None
     raw: dict[str, Any] | None = None
