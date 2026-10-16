@@ -5,8 +5,12 @@ them. They live in `PRICING` (a feature-flag-friendly table, not code) so a
 new model is one row, not a change to the maths.
 
 Every projection here is derived from **measured** runs — see
-`docs/sandbox_text_report.txt` for the source data and `scripts/bench_models.py`
-for the harness that produces fresh numbers. Two rules this module enforces:
+`scripts/bench_models.py` for the harness and `scripts/bench_cloud_ocr.py` for
+the Gemini runs. The rendered report they emit is written by
+`scripts/render_bench_report.py` and is **not committed**: the previous
+committed copy was built against the retired Tesseract path and the misaligned
+golden set, so shipping it would have meant committing numbers known to be
+wrong. Re-render it locally when you need it. Two rules this module enforces:
 
 1. Latency projections use a caller-supplied percentile (default p95), never
    the mean. Path C's mean is 41 s and its max is 72 s: a mean-based 25k
