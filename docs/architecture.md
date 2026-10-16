@@ -39,30 +39,56 @@ overrides, drive file metadata).
 *Rejected:* SQLite (single-writer would serialize the future worker + web
 process), MongoDB (no uniqueness guarantees we need).
 
-### OCR: Tesseract + MiniMax M3 vision behind one interface
+### OCR: Gemini vision first, Tesseract behind one interface
 
-Tesseract is CPU-cheap and adequate for printed Hindi/English; MiniMax M3
-vision is strong on both handwriting and printed pages and needs no local
-GPU. Both sit behind `DocumentReader`. The hybrid chain escalates only
-low-confidence pages, so API spend tracks actual difficulty rather than page
-count. On a text-layer PDF, no OCR or vision call happens at all.
+Measured on 9 human-verified handwritten pages (Hindi + Marathi + English),
+same CER method for both engines:
+
+| engine | mean CER | best page | $/page |
+|---|---:|---:|---:|
+| Tesseract (psm 11) | 82.4% | 70.8% | 0 |
+| **Gemini 3.1 Flash-Lite** | **4.6%** | **0.3%** | $0.00065 |
+| PP-OCRv3 (ONNX, rejected) | 90.7% | 78.8% | 0 |
+
+Gemini won **9 of 9**. Tesseract stays in the hybrid chain as a CPU-only
+fallback (useful when the API is rate-limiting or unreachable), not because it
+is accurate. `READER_MODE=gemini_vision` with `LLM_PROVIDER=gemini` is the
+shipped default; scoring still runs on MiniMax M3, which is strong at
+text-only grading and cheap there.
+
+Language disqualified two cloud OCR products before price ever mattered: AWS
+Textract's handwriting is English-only, and Azure Document Intelligence's
+handwriting model covers 9 languages with no Devanagari. "Just use Textract" is
+not an option for Devanagari handwriting.
 
 *Rejected:* PaddleOCR / EasyOCR / Surya (torch adds 2-4 GB to the image and
-CPU inference on an i5 is slow), OCR-only (fails handwriting), vision-only
-(latency and cost on every page, needs internet for everything).
+CPU inference on an i5 is slow), OCR-only (fails handwriting), vision-only with
+no local fallback (an API outage then means zero throughput).
 
-Historical measurement on synthetic pages (see `reports/reader_bench_*.json`,
-not re-run): answer recall 0.72 tesseract, 0.92 vision, 0.83 hybrid at
-roughly 2 s / 13 s / 4 s per page.
+Full evidence, including the corrected golden-set alignment and the rejected
+PP-OCR measurement, is in `docs/ocr-engine-decision.md`.
 
-### LLM provider: MiniMax via OpenAI-compatible endpoint
+### LLM providers: MiniMax for scoring, Gemini for OCR
 
-`/v1/chat/completions` with `response_format=json_object` and
-`thinking: {type: disabled}` for mechanical stages (verified against the live
-API — otherwise the reasoning preamble eats the token budget). Rubric scoring
-keeps thinking enabled. Retries with exponential backoff + jitter on
-429/5xx/timeouts. `FakeProvider` implements the same interface so the whole
-suite runs without network.
+Both sit behind one `LLMProvider` protocol (`app/providers/llm/base.py`), which
+is `@runtime_checkable` so conformance is testable.
+
+- **MiniMax** via its OpenAI-compatible endpoint, with
+  `thinking: {type: disabled}` for mechanical stages (verified against the live
+  API — otherwise the reasoning preamble eats the token budget). Rubric scoring
+  keeps thinking enabled.
+- **Gemini** via `generateContent` with `thinkingBudget: 0` for transcription.
+  Its free tier costs $0 and needs no billing card, but is marked *"used to
+  improve our products: Yes"* — goldens only unless a paid key is used. The
+  model id is **pinned**: Google retires ids without warning
+  (`gemini-2.5-flash-lite` was closed to new keys on 2026-10-14), and a 404 now
+  raises `model_retired` carrying Google's own suggested replacement.
+
+Retries use exponential backoff + jitter on 429/5xx/timeouts, with
+`SpendCapExceeded` re-raised rather than retried — a cap that retries spends
+more time for the same guaranteed refusal. `LLM_SPEND_CAP_USD` caps one run and
+is checked *before* each billable call. `FakeProvider` implements the same
+interface so the whole suite runs without network.
 
 ### Storage: content-addressed files on disk
 
@@ -122,6 +148,58 @@ Setting   (key/value feature-flag overrides, editable from /settings)
   keeps the raw OCR text forever. The `reconstructed_text` is the LLM
   rewrite. Per-criterion rationales in `entry_score_criteria` let a human
   reviewer see what the LLM thought the student meant.
+
+## The failure mode where every test still passes
+
+> A component is completely broken, the suite is green, and nobody notices.
+
+This is not hypothetical — it shipped. `app/pipeline/readers/minimax_vision.py`
+read `settings.low_legibility_threshold`, a field that has never existed. Every
+page that went through the vision reader raised `AttributeError` **after** a
+successful, billable LLM call. It was only found while wiring an unrelated
+provider.
+
+Four mechanisms allowed it, and all four had to go:
+
+| Mechanism | Why it let the bug through | Guard now |
+|---|---|---|
+| `make fmt` is `compileall` | byte-compiles, so it only catches `SyntaxError`. An `AttributeError` is not a syntax error. | kept as-is; it is honestly labelled in `make check` |
+| no linter or typechecker | a nonexistent `settings.<name>` is statically detectable and nothing checked | `tests/test_settings_references.py` walks the AST of `app/` and `scripts/` and fails on any `settings.<name>` that is not a real field/property. It also validates `model_copy(update={...})` keys, which pydantic silently drops. |
+| no test for the reader | nothing ever executed it | `tests/test_reader_smoke.py` builds every `READER_MODE` and every provider from settings and runs one real page each. It asserts *aliveness* (no raise, legal status), not accuracy — `pdf_text` correctly returns `EMPTY` on an image with no text layer, and a test that demanded text would force the code to lie. |
+| no CI | the suite only ran when a human ran it | **not fixed** — see below |
+
+Three more, found while fixing it:
+
+- **The secret-redaction guard did not match this repo's own key names.**
+  `_REDACT_KEYS` was exact-match, so `minimax_api_key`, `google_api_key`,
+  `llm_api_key`, `access_token` and `session_secret` all passed straight
+  through. It is now substring-based (`app/logging.py`), recurses into nested
+  dicts and lists, and deliberately does **not** match a bare `token` — the
+  usage hooks log `prompt_tokens`/`completion_tokens`/`total_tokens` and the
+  cost report is built from them.
+- **`redact()` was being applied to error messages**, collapsing
+  `httpx.ReadTimeout: timed out...` into `Read...` and hiding a real transport
+  failure for an hour. `brief()` now truncates diagnostics and `redact()` is
+  documented as secrets-only.
+- **`LLMProvider` was not `@runtime_checkable`**, so provider conformance could
+  not be verified even in a test.
+
+### What is still not protected
+
+- **No CI.** `make check` must be run by hand. Every guard above is only as
+  strong as the last time somebody executed it. This is the single biggest
+  remaining hole in the setup and it is a deliberate, recorded choice.
+- **Secrets inside free-text exception strings are not scrubbed.** The
+  automatic guard masks secret-bearing *keys*; it does not pattern-match values
+  like `error="... key AQ.Ab8R ..."`. This is intentional — mangling free text
+  to hunt for a key pattern produces unreadable diagnostics, which is exactly
+  the mistake `redact()` was making. The contract is instead that a provider
+  must never put a key in a message, pinned for Gemini by
+  `tests/test_providers_gemini.py::test_api_key_is_never_in_the_payload_or_url`.
+- **Aliveness is not correctness.** The smoke tests prove each reader *runs*.
+  They do not prove Tesseract reads Devanagari well (it does not — see
+  `docs/ocr-engine-decision.md`), and the golden set is 9 verified pages, not
+  67 (issue #6).
 
 ## What we explicitly did NOT build
 

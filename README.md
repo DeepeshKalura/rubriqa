@@ -15,18 +15,31 @@ make up                     # docker compose up --build -d
 
 Open <http://127.0.0.1:8090>. Postgres is exposed on `127.0.0.1:5435`.
 
-## Two paths, one sandbox (`/sandbox`)
+## Sandbox — 3-way OCR comparison (`/sandbox`)
 
 The sandbox is the central testing tool: drop a handwritten page image (or pick
-a bundled sample from `data/samples/pages/`) and run both OCR paths side by
-side against your configured MiniMax endpoint:
+a bundled sample from `data/samples/pages/`) and run all three OCR paths side
+by side against your configured MiniMax endpoint:
 
-- **Path A** — vision-capable LLM does OCR + scoring in one model call.
-- **Path B** — Tesseract OCR locally, then LLM scores the cleaned text.
+- **Path A** — vision-capable LLM does strict OCR (no hallucination) + scoring
+  in one model call. Best on **English** handwritten pages.
+- **Path B** — Tesseract OCR locally, then LLM scores the cleaned text. Cheaper
+  and faster; struggles on **non-Latin scripts and cursive**.
+- **Path C** — Tesseract + vision transcripts merged by a vision LLM with the
+  page image as the referee, producing a human-like reading. A **gate**
+  automatically skips fusion when Tesseract's text is much longer than vision's
+  (a sign Tesseract is hallucinating noise) — in that case Path C just uses the
+  vision transcript. Best on **Marathi** pages.
 
-Both paths show OCR text, per-criterion rubric results with bars, strengths /
-gaps / observations, token usage, and elapsed time. A side-by-side diff table
-at the bottom highlights where the two paths agree and disagree.
+The page is laid out as a presentation: page image at the top, a **verdict
+banner** declaring which path read the page best (with a plain-language
+sentence), a colour-coded scoreboard table, then one slide per path with a
+**word-level diff vs the human-verified golden transcript** (matching words
+plain, deviations red-strike), per-criterion bars, and strengths/gaps. A
+sticky jump-nav (Page · Scoreboard · A · B · C · Side-by-side · Golden ·
+Report) lets you jump between sections, and a **Download report** button
+generates a self-contained standalone HTML file (image embedded, all results
+included) for sharing or printing.
 
 ## What works today
 

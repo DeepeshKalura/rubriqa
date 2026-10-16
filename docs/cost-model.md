@@ -1,0 +1,169 @@
+# Cost, time and storage model — OCR paths at 25k scale
+
+All numbers here come from **live runs** of `POST /sandbox/compare` over the 11
+bundled sample pages with human-verified golden transcripts. The harness is
+`scripts/bench_models.py`; the raw data is `reports/bench_models.json`; the
+rendered view is `/files/reports/bench_report.html`.
+
+## Why this document exists
+
+A 25,000-record run is a real money and real-time decision. Three things had to
+be measured rather than assumed:
+
+1. **What a path costs** — tokens are not free and they are not uniform.
+2. **How long it takes** — and whether the mean is even the right number.
+3. **Whether we can store the result** — which turned out to be the binding
+   constraint, not the API bill.
+
+## Pricing
+
+USD per million tokens, MiniMax pay-as-you-go list rates:
+
+| Model | Input | Cached input | Output |
+|---|---:|---:|---:|
+| `MiniMax-M3` | $0.30 | $0.06 | $1.20 |
+| `MiniMax-M3.1-Flash-Preview` | *unverified* | *unverified* | *unverified* |
+
+**Cached input matters.** MiniMax reports `usage.prompt_tokens_details.cached_tokens`
+and our rubric-scoring prompt is byte-identical on every page, so the system
+prompt is served from cache on almost every call. Ignoring that would overstate
+scoring cost several-fold. `app/services/cost.py` splits cached from fresh input
+and `tests/test_cost.py` pins the behaviour.
+
+The flash-preview row is deliberately marked `price_verified: false`. It is a
+placeholder carried over from M3, and a report must never present it as fact.
+
+## Cloud OCR APIs — the language filter comes before the price filter
+
+The obvious first move for "free OCR" is a document-OCR API. For handwritten
+Devanagari, two of the three cheap ones are disqualified by **language**, not by
+cost:
+
+| API | Handwritten Devanagari | Price | Free tier | Card needed |
+|---|---|---|---|---|
+| AWS Textract | **No** (handwriting = English only) | $1.50/1k pages | 1,000 pages/mo, 3 months | yes |
+| Azure Document Intelligence Read | **No** (handwriting = 9 languages, no Devanagari) | $1.50/1k pages | 500 pages/mo | yes |
+| Google Cloud Vision `document_text_detection` | `Deva` = **Experimental** | $1.50/1k units | 1,000 units/mo | yes |
+| Google Document AI Enterprise OCR | same engine | $1.50/1k | 1,000 counts/mo | yes |
+| **Gemini vision** | **yes** | $0.25 in / $1.50 out per 1M | **$0, no card** | **no** |
+
+Verified 2026-10-14 against `ai.google.dev/gemini-api/docs/pricing`,
+`cloud.google.com/vision/pricing`, `cloud.google.com/document-ai/pricing`, and
+Microsoft Learn / AWS docs for the handwriting language lists. Note that
+enabling the Google Cloud OCR APIs requires linking a billing card even though
+the free tier is $0 — confirmed in Google's own developer forum.
+
+## Gemini vision — measured cost
+
+Model: `gemini-3.1-flash-lite`, 2200px, thinking disabled. Numbers are from
+`reports/cloud_ocr_bench.json` (usage read from `usageMetadata`, priced with
+`app/services/cost.py`), not projected.
+
+| | per page | 300-entry program | 25,000 pages |
+|---|---:|---:|---:|
+| tokens | 1,107 in / 151 out | — | — |
+| Gemini 3.1 Flash-Lite | **$0.00065** | **$0.20** | $16 |
+| MiniMax M3 (Path A) | $0.0033 | $0.99 | $83 |
+| Path C fusion | $0.0073 | $2.19 | $183 |
+
+**The saving is token count, not token price.** Flash-Lite's output rate
+($1.50/1M) is *higher* than M3's ($1.20/1M); it wins because it returns a bare
+transcript instead of a reasoning preamble and encodes the page in roughly a
+fifth of the tokens. `tests/test_providers_gemini.py` pins this so nobody
+"optimises" by raising `max_tokens`.
+
+**Free tier is $0 and needs no card.** It is also marked *"used to improve our
+products: Yes"* (paid tier: "No"). So: goldens on the free tier, real student
+pages on a paid key, where the same page costs $0.00065.
+
+**Latency is throttled, not slow.** Clean calls returned in 3–8 s; the measured
+mean of 20.7 s/page is free-tier 429 backoff. Do not project it.
+
+## Spend guardrails
+
+`LLM_SPEND_CAP_USD` (default `0` = off) caps one run. `SpendGuard.check()` runs
+*before* each billable call and raises `SpendCapExceeded` rather than after, and
+the provider re-raises it instead of retrying — a cap that retries is worse than
+no cap. `estimate_run_cost()` produces the pre-run figure to show the user.
+Count billable *calls*, not pages: the vision path is one read plus one score,
+so a path that looks cheap per page can double.
+
+## Measured per-page cost and latency (MiniMax-M3)
+
+| Path | in tok | cached | out tok | $/record | mean | p95 |
+|---|---:|---:|---:|---:|---:|---:|
+| A — vision LLM | ~5,100 | ~250 | ~2,700 | ~$0.0033 | 23 s | ~45 s |
+| B — tesseract + LLM | ~1,000 | ~150 | ~1,300 | ~$0.0016 | 16 s | ~21 s |
+| C — vision + fusion | ~8,800 | ~430 | ~4,800 | ~$0.0073 | 41 s | ~72 s |
+
+## Why every projection uses p95, not the mean
+
+Path C's mean is 41 s and its p95 is 72 s. A 25k projection built on the mean
+understates wall clock by roughly **3×**, which is the kind of error that only
+surfaces when the run is already in flight. `project_records()` takes a
+percentile and defaults to p95; `tests/test_cost.py::test_p95_never_below_mean_for_the_measured_spread`
+pins the invariant.
+
+## Scaling to 25,000 records
+
+Cost is linear in records and **independent of worker count** — splitting work
+across more workers changes wall clock, never the bill
+(`test_projection_cost_independent_of_worker_count`).
+
+Time is not linear in workers. Each path has a different ceiling:
+
+- **Path A / C** are IO-bound (network calls) and parallelise well — bounded by
+  provider rate limits and `llm_concurrency`, not CPU.
+- **Path B** is CPU-bound (Tesseract runs locally). Eight concurrent OCR jobs on
+  8 cores will saturate and then thrash, so its worker scaling is an *upper
+  bound*, not a promise.
+
+The current in-flight cap is `llm_concurrency = 3` (`app/config.py`), which binds
+before worker count does. The real ceiling is **unmeasured** — tracked as
+issue #7.
+
+## Storage is the binding constraint
+
+Measured from the 11 bundled samples: **2.07 MB per page image**.
+
+| Records | Storage (originals only) |
+|---:|---:|
+| 11 (today) | 0.02 GB |
+| 1,000 | 2.1 GB |
+| 25,000 | **50.5 GB** |
+
+This excludes rendered/derived copies and the golden set. Golden **text** is
+negligible (~0.6 KB/page); golden **images** are not, which is why expanding the
+benchmark set past 11 pages does not mean storing 67 images (issue #6).
+
+**Do not start a 25k ingestion run until free disk is confirmed.** API cost for
+25k is roughly $80–$180 depending on path — that is not the constraint.
+
+## Model capability finding
+
+`MiniMax-M3.1-Flash-Preview` is reachable on the current API key but is **absent
+from `GET /v1/models`**, and two properties were confirmed against the live API:
+
+1. It answers text prompts normally.
+2. It **cannot disable its reasoning preamble**, and it rejects full-page image
+   payloads. The thinking block consumes the entire `max_tokens` budget, the
+   response ends with `finish_reason: length`, and `message.content` is empty.
+
+In this pipeline that makes flash-preview a **scoring-only** candidate. It cannot
+serve as an OCR engine, so it must not be compared on CER — it simply has no
+vision output to measure.
+
+## What is deliberately not modelled
+
+- **OpenRouter / Claude.** No subscription is configured. The `LLMProvider`
+  protocol is the seam; adding a provider is ~80 lines when there is a key and a
+  reason. `REFERENCE_PRICING` in `app/services/cost.py` carries report-only
+  rates so a swap can be costed without being executed.
+  *Gemini used to sit in this list. It is no longer an unimplemented idea: it is
+  an executable provider with measured rates and a measured CER, so its row moved
+  to `PRICING` and the placeholder was deleted rather than left to rot.*
+- **Retry / failure amplification.** Retries are not included in the per-record
+  figures. A path that retries 1-in-10 costs and takes proportionally more.
+- **Model score variance.** Scores from the rubric LLM vary run to run on the
+  same page (measured spread 10–21/50 in earlier work). CER is the stable
+  signal; scores are not. Cost and latency figures are stable.

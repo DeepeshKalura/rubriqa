@@ -1,0 +1,2714 @@
+
+================================================================================
+PAGE  PAGE-01  •  Entry #23  •  ref sandbox-33d52f76197b-d6efe0fa
+theme=ai_education  language=auto  golden=YES (553 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  Name : - Anshul Sharma
+  Class - 8th
+  Topic : AI in Health and well being
+  School : UPS , Mehtoli
+  
+  Situation : - As we grew up we are careless about what we are eating, and theyfore we have to face diffrent challegs releted to our health later on. And as in women they are always iron deficient. which makes them fall and then they are considered weak.
+  
+  Proposed AI solution : - I will make app that remids women to have Iron rich food one a day that sysgts them in the morny diffret thing a day that can make up for the required amon of Iron in their body.
+
+VERDICT: A (Vision LLM (strict)) read this page best — CER 8.7%
+  Path A — Vision LLM (strict)                      CER 8.7%      score 17.0/50  conf  80%   16.1s
+  Path B — Tesseract + LLM                          CER 71.1%     score 25.0/50  conf  68%   21.1s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 11.1%     score 17.0/50  conf  81%   27.9s
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  8.7%
+  Score:  17.0 / 50  (34.0%,  conf 80%)
+  Tokens:  in 4,902  out 1,694  total 6,596
+  Elapsed:  16,079 ms
+  Per-criterion:
+    - relevance             3.0 / 10
+    - feasibility           5.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 575 chars):
+    Name : - [crossed out] Aashna sharma
+    Class -    8th
+    Topic : AI in Health and well being
+    School : UPS, Mitoli
+    
+    Situation : - As we grew up we are careless about what we are eating, and therefore we have to face different challegs related to our health later on. And as in women they are always iron deficient. which makes them fall and then they are considered weak.
+    
+    Proposed Solution : - I will make app that gives to women to have Iron rich food once a day that syggts them in the morning difficult thing a day but can make up for the required amount of Iron in their body.
+
+  DIFF vs GOLDEN (word-level):
+      name : -
+      [-] [crossed out] aashna
+      [+] anshul
+      sharma class - 8th topic : ai in health and well being school :
+      [-] ups, mitoli
+      [+] ups , mehtoli
+      situation : - as we grew up we are careless about what we are eating, and
+      [-] therefore
+      [+] theyfore
+      we have to face
+      [-] different
+      [+] diffrent
+      challegs
+      [-] related
+      [+] releted
+      to our health later on. and as in women they are always iron deficient. which makes them fall and then they are considered weak. proposed
+      [+] ai
+      solution : - i will make app that
+      [-] gives to
+      [+] remids
+      women to have iron rich food
+      [-] once
+      [+] one
+      a day that
+      [-] syggts
+      [+] sysgts
+      them in the
+      [-] morning difficult
+      [+] morny diffret
+      thing a day
+      [-] but
+      [+] that
+      can make up for the required
+      [-] amount
+      [+] amon
+      of iron in their body.
+  Summary: 97/112 golden words matched (87%);  hyp 113 words, golden 112 words
+
+  Strengths:
+    + The student identifies a real-world health concern (iron deficiency in women) and shows empathy for an under-discussed issue.
+    + The chosen AI solution direction (language translation + step-by-step tutoring) is a plausible education use-case that could help Hindi-medium learners.
+
+  Gaps:
+    - Major mismatch: the situation is about health/nutrition, but the proposed AI solution is about math tutoring — neither solution actually addresses the stated problem.
+    - No explanation of how AI works under the proposed solution: no mention of models, data, training, or specific AI techniques.
+    - Frequent spelling errors, crossed-out personal information, and unclear phrasing weaken the overall presentation.
+
+  Observations: The submission shows a caring intent — the student noticed a real health issue among women and proposed an app idea, then separately proposed an education AI tool. However, the two halves of the submission are disconnected, so it is unclear which problem the student actually intends to solve. The AI understanding is at a very early stage: the student can name AI but cannot yet describe its mechanism. For a stronger submission, the student should pick one consistent problem, tie the AI solution directly to it, and explain in simple terms how the AI would learn, what inputs it takes, and what outputs it produces.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  71.1%
+  Score:  25.0 / 50  (50.0%,  conf 68%)
+  Tokens:  in 964  out 1,460  total 2,424
+  Elapsed:  21,103 ms
+  Per-criterion:
+    - relevance             6.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 441 chars):
+    हैं?“ Rw fest oer nn
+    “Tope % A| ay tuelth Pay | 0४ btn
+    Achorl: VPS Nadel |
+    i ; J AL २0८८०८८४-*८
+    Abobo: -- 6८ we quae? bp we Aue
+    Cheat (3८४४४ wl nu alu, ww हु
+    Rudy born “Ly २०. cael re
+    lide कद abt “2, tn
+    Utes Yul so १८५ oy ea
+    On-~ typo od Ws wore /
+    ae LS paw olpient wm ee हि
+    wel Prem fet wid fr, ry Mw
+    trwdtiid woEA Irole opp (rat
+    Lepored 6 chub — J wall Orr 2८०
+    i : 4, bow
+    ४4७ dd wove eh ayte* tiem
+    fed or Oe tg a hig 7
+    if |
+    CL booty -
+    _ ||
+
+  DIFF vs GOLDEN (word-level):
+      [-] हैं?“ rw fest oer nn “tope % a| ay tuelth pay | 0४ btn achorl: vps nadel |
+      [+] name : - anshul sharma class - 8th topic : ai in health and well being school : ups , mehtoli situation : - as we grew up we are careless about what we are eating, and theyfore we have to face diffrent challegs releted to our health later on. and as in women they are always iron deficient. which makes them fall and then they are considered weak. proposed ai solution : -
+      i
+      [-] ; j al २0८८०८८४-*८ abobo: -- 6८ we quae? bp we aue cheat (3८४४४ wl nu alu, ww हु rudy born “ly २०. cael re lide कद abt “2, tn utes yul so १८५ oy ea on-~ typo od ws wore / ae ls paw olpient wm ee हि wel prem fet wid fr, ry mw trwdtiid woea irole opp (rat lepored 6 chub — j wall orr 2८० i : 4, bow ४4७ dd wove eh ayte* tiem fed or oe tg
+      [+] will make app that remids women to have iron rich food one
+      a
+      [-] hig 7 if | cl booty - _ ||
+      [+] day that sysgts them in the morny diffret thing a day that can make up for the required amon of iron in their body.
+  Summary: 2/112 golden words matched (2%);  hyp 112 words, golden 112 words
+
+  Strengths:
+    + The AI definition is a clear, age-appropriate explanation of how AI learns from examples.
+    + The proposed solution is focused and concrete, targeting a specific learner pain point (Hindi-medium students struggling with word problems).
+    + The solution stays within the suggested word-count range and is easy to read.
+
+  Gaps:
+    - The situation text is completely garbled/illegible, so the real-life problem the student wants to solve cannot be understood.
+    - No detail is given on how AI actually performs the translation, step-explanation, or practice-generation tasks.
+    - The idea overlaps heavily with existing AI tutoring products (Khanmigo, etc.), so originality is limited.
+
+  Observations: The student shows a workable intuition for applying AI to education in a Hindi-language context, and the AI definition demonstrates basic conceptual understanding. However, the submission is significantly weakened by the situation field being unreadable—essentially the half of the deliverable that motivates the project is missing. Additionally, the solution would benefit from explaining the AI techniques involved (e.g., language models, prompt design, or fine-tuning) and from articulating why their idea is distinct from existing AI tutoring platforms.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  11.1%
+  Score:  17.0 / 50  (34.0%,  conf 81%)
+  Tokens:  in 9,266  out 2,791  total 12,057
+  Elapsed:  27,866 ms
+  Per-criterion:
+    - relevance             5.0 / 10
+    - feasibility           5.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      2.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 574 chars):
+    Name:- ~~[crossed out]~~ Mashmi sharma
+    Class-    8th
+    Topic  :  AI in Health and well being
+    School:  UPS, Mitoli
+    
+    Situation:- As we grows up we are careless
+    about what we are eating, and
+    threfore we have to face different
+    chalngs related to our health later
+    on. And as in women they are
+    almways iron deficient. which
+    makes them fall and then they are
+    considered weak.
+    
+    Proposed solution:- I will make app that
+    gends to women to have Iron rich
+    food one a day that systts them
+    in the morning difficult thing a day that
+    can make up for the required amount
+    of Iron in thier body.
+
+  DIFF vs GOLDEN (word-level):
+      [-] name:- ~~[crossed out]~~ mashmi
+      [+] name : - anshul
+      sharma
+      [-] class-
+      [+] class -
+      8th topic : ai in health and well being
+      [-] school: ups, mitoli situation:-
+      [+] school : ups , mehtoli situation : -
+      as we
+      [-] grows
+      [+] grew
+      up we are careless about what we are eating, and
+      [-] threfore
+      [+] theyfore
+      we have to face
+      [-] different chalngs related
+      [+] diffrent challegs releted
+      to our health later on. and as in women they are
+      [-] almways
+      [+] always
+      iron deficient. which makes them fall and then they are considered weak. proposed
+      [-] solution:-
+      [+] ai solution : -
+      i will make app that
+      [-] gends to
+      [+] remids
+      women to have iron rich food one a day that
+      [-] systts
+      [+] sysgts
+      them in the
+      [-] morning difficult
+      [+] morny diffret
+      thing a day that can make up for the required
+      [-] amount
+      [+] amon
+      of iron in
+      [-] thier
+      [+] their
+      body.
+  Summary: 82/112 golden words matched (73%);  hyp 105 words, golden 112 words
+
+  Strengths:
+    + Corrects to a basic but accurate definition of AI (learning patterns from examples to solve new problems).
+    + Identifies a real and relatable problem—iron deficiency in women—that could genuinely benefit from a technological intervention.
+    + Chooses a theme-relevant AI use case (education tutor) in the proposed AI solution.
+
+  Gaps:
+    - Major mismatch: the situation is about women's health/iron intake, but the proposed AI solution describes an education tutor—these do not connect.
+    - No explanation of how AI actually functions in the solution (model type, data, learning mechanism).
+    - Many spelling errors and disorganized writing reduce clarity and violate word-count guidance.
+
+  Observations: The submission shows that the student can identify a genuine real-world problem (iron deficiency in women) and can define AI at a surface level. The core weakness is the disconnect between the situation and the proposed AI solution: the student switches from a health-reminder app idea to an education word-problem tutor without explanation. The rubric penalizes this inconsistency under both relevance and feasibility. Additionally, the proposal lacks any meaningful technical description of how AI is used, and the writing contains numerous spelling errors. To improve, the student should pick one coherent problem–solution pair, stick to the chosen theme, and briefly describe what AI technique the solution would rely on.
+
+
+================================================================================
+PAGE  PAGE-02  •  Entry #24  •  ref sandbox-c13ea310fa89-bd228535
+theme=ai_education  language=auto  golden=YES (1068 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  NAME:- INDRAKUMAR LAXMAN PALVI
+  SCHOOL:- BUBALI
+  CLASS:- 10th
+  SUBJECT:- AI द्वारे स्मार्ट शेती आणि ग्रामीण नवोपक्रम.
+  
+  परिस्थीती / समस्या.
+  आमच्या गावात अनेक लोक शेती करतात. शेतामध्ये
+  अनेक प्रकारचे पिक घेतात. पण काही शेतकऱ्यांना चांगल्या
+  प्रकार उत्पन्न मिळते तर काही यांना मिळत नाही तसेच,
+  शेतीमध्ये पिकांवर रोग पडतात. त्यासाठी काय उपाय करायला
+  पाहिजे हे शेतकऱ्यांना माहिती नसते, आज शेती करण्यासाठी
+  लोकांकडे पैसे नसल्यामुळे ते हवं तसं खत आणू शकत
+  नाही त्यामुळे पिकांवर परिणाम होत असतो. तसेच खतांच
+  भाव वाढल्यामुळे शेतकऱ्यांना शेती करण्यासाठी विविध
+  समस्यांना समोर जावे लागते.
+  
+  प्रस्तावित AI उपाय.
+  शेतीमध्ये (AI) च्या माध्यमातून अनेक आधुनिक
+  आणि प्रभावी उपाय करता येतील जसे की. पिक आणि
+  किटक व्यवस्थापन मोबाईल ऑप्सच्या मदतीने पिकांवर
+  पडलेले कीटक आणि रोगाची पाहणी. तसेच हवामानातील
+  बदलाचा अंदाज घेऊन AI च्या माध्यमातून मातीतील
+  ओलावा आणि तापमानाची माहिती. AI च्या माध्यमातून
+  मातीची गुणवत्ता सुधारण्यासाठी खते किती प्रमाणात
+  वापरावी याची माहिती.
+  
+  मौलिकतेची घोषणा॥.
+  मी AI द्वारे स्मार्ट शेती आणि ग्रामीण
+  नवोपक्रम या विषयावर परिस्थिती/समस्या आणि प्रस्तावित
+  AI उपाय हे स्व:ता लिहिले आहेत.
+
+VERDICT: A (Vision LLM (strict)) read this page best — CER 20.5%
+  Path A — Vision LLM (strict)                      CER 20.5%     score 14.0/50  conf  80%   28.2s
+  Path B — Tesseract + LLM                          CER 74.4%     score 26.0/50  conf  70%   18.6s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 21.3%     score 12.0/50  conf  81%   40.2s
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  20.5%
+  Score:  14.0 / 50  (28.0%,  conf 80%)
+  Tokens:  in 5,395  out 3,585  total 8,980
+  Elapsed:  28,207 ms
+  Per-criterion:
+    - relevance             2.0 / 10
+    - feasibility           4.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 1055 chars):
+    NAME:- INDRAKUMAR LAXMAN PALVI
+    SCHOOL:- BUBALI
+    CLASS:- 10th
+    SUBJECT:- AI द्वारे स्मार्ट शेती आणि ग्रामीण नावीन्यपूर्ण
+    
+    परिचयी/समस्या.
+    आपल्या गावात अनेक लोक शेती करतात. त्यामध्ये अनेक प्रकारचे पिक घेतात. पण काही शेतकऱ्यांना त्यांच्या प्रकार उत्पन्न मिळत नर काही यांना. मिळत नाही तसेच शेतीमध्ये पिकावर रोग पडतात. त्यासाठी कोण उपाय करायचा पाहिजे हे शेतकऱ्यांना माहिती करत नाही शेती करताना कोण कोणत्या पैसा लागतो ते हव तर आणि शेतीवर पिकवा नाही त्याक पिकवार परिणाम होत असतो. तसेच खर्चाचे भाव वाढल्याक रोतकर्यांना शेती करण्यासाठी विषय समस्यांना सामोर जाव लागत.
+    
+    प्रस्तावित AI उपाय.
+    शेतीमंध्ये (AI) च्या माध्यमातुन अनेक अडचणी आणि प्रभावी उपाय करता। येणे न खे मी पिक आणे किटक व्यवस्थापन मोडाईल ची स्लाच्या मदतीने पिकावर पडलेल करूक आणि रोगांचा पाठणे. तसेच हवामानाची बदलाचा। आपण हेअन AI च्या माध्यमातुन मानसिक शाखा। आणि तापमानाचे माहिती.मी च्या माध्यमातुन माहितीचे भुगावता. सुधारणेसाठी ये ने कि प्रमाणा वाढवणे याचे माहिती.
+    
+    मार्गकानेची शेअणी.
+    मी AI द्वारे स्मार्ट शेती आणि ग्रामीण नावपक्रम या विषयावर प्रविष्ट्यता/सवास्था आणि प्रस्तावीत AI उपाय हे स्वता। लिहील आहो.
+
+  DIFF vs GOLDEN (word-level):
+      name:- indrakumar laxman palvi school:- bubali class:- 10th subject:- ai द्वारे स्मार्ट शेती आणि ग्रामीण
+      [-] नावीन्यपूर्ण परिचयी/समस्या. आपल्या
+      [+] नवोपक्रम. परिस्थीती / समस्या. आमच्या
+      गावात अनेक लोक शेती करतात.
+      [-] त्यामध्ये
+      [+] शेतामध्ये
+      अनेक प्रकारचे पिक घेतात. पण काही शेतकऱ्यांना
+      [-] त्यांच्या
+      [+] चांगल्या
+      प्रकार उत्पन्न
+      [-] मिळत नर
+      [+] मिळते तर
+      काही
+      [-] यांना.
+      [+] यांना
+      मिळत नाही
+      [-] तसेच
+      [+] तसेच,
+      शेतीमध्ये
+      [-] पिकावर
+      [+] पिकांवर
+      रोग पडतात. त्यासाठी
+      [-] कोण
+      [+] काय
+      उपाय
+      [-] करायचा
+      [+] करायला
+      पाहिजे हे शेतकऱ्यांना माहिती
+      [-] करत
+      [+] नसते, आज शेती करण्यासाठी लोकांकडे पैसे नसल्यामुळे ते हवं तसं खत आणू शकत
+      नाही
+      [-] शेती करताना कोण कोणत्या पैसा लागतो ते हव तर आणि शेतीवर पिकवा नाही त्याक पिकवार
+      [+] त्यामुळे पिकांवर
+      परिणाम होत असतो. तसेच
+      [-] खर्चाचे
+      [+] खतांच
+      भाव
+      [-] वाढल्याक रोतकर्यांना
+      [+] वाढल्यामुळे शेतकऱ्यांना
+      शेती करण्यासाठी
+      [-] विषय
+      [+] विविध
+      समस्यांना
+      [-] सामोर जाव लागत.
+      [+] समोर जावे लागते.
+      प्रस्तावित ai उपाय.
+      [-] शेतीमंध्ये
+      [+] शेतीमध्ये
+      (ai) च्या
+      [-] माध्यमातुन
+      [+] माध्यमातून
+      अनेक
+      [-] अडचणी
+      [+] आधुनिक
+      आणि प्रभावी उपाय
+      [-] करता। येणे न खे मी
+      [+] करता येतील जसे की.
+      पिक
+      [-] आणे
+      [+] आणि
+      किटक व्यवस्थापन
+      [-] मोडाईल ची स्लाच्या
+      [+] मोबाईल ऑप्सच्या
+      मदतीने
+      [-] पिकावर पडलेल करूक
+      [+] पिकांवर पडलेले कीटक
+      आणि
+      [-] रोगांचा पाठणे.
+      [+] रोगाची पाहणी.
+      तसेच
+      [-] हवामानाची बदलाचा। आपण हेअन
+      [+] हवामानातील बदलाचा अंदाज घेऊन
+      ai च्या
+      [-] माध्यमातुन मानसिक शाखा।
+      [+] माध्यमातून मातीतील ओलावा
+      आणि
+      [-] तापमानाचे माहिती.मी
+      [+] तापमानाची माहिती. ai
+      च्या
+      [-] माध्यमातुन माहितीचे भुगावता. सुधारणेसाठी ये ने कि प्रमाणा वाढवणे याचे
+      [+] माध्यमातून मातीची गुणवत्ता सुधारण्यासाठी खते किती प्रमाणात वापरावी याची
+      माहिती.
+      [-] मार्गकानेची शेअणी.
+      [+] मौलिकतेची घोषणा॥.
+      मी ai द्वारे स्मार्ट शेती आणि ग्रामीण
+      [-] नावपक्रम
+      [+] नवोपक्रम
+      या विषयावर
+      [-] प्रविष्ट्यता/सवास्था
+      [+] परिस्थिती/समस्या
+      आणि
+      [-] प्रस्तावीत
+      [+] प्रस्तावित
+      ai उपाय हे
+      [-] स्वता। लिहील आहो.
+      [+] स्व:ता लिहिले आहेत.
+  Summary: 83/161 golden words matched (52%);  hyp 162 words, golden 161 words
+
+  Strengths:
+    + The student shows awareness of real rural problems (crop disease, rising input costs, weather uncertainty) which is a valid real-life context, just not aligned with the ai_education theme.
+    + There is an attempt to connect AI (machine-learning definition) to a concrete domain, showing some awareness that AI is more than just a buzzword.
+
+  Gaps:
+    - The chosen theme is ai_education, but the entire situation and Marathi solution describe agricultural AI — the proposal is off-theme.
+    - The structured 'Proposed AI Solution' field (AI tutor for word problems) directly contradicts the Marathi solution (farming AI), revealing a serious coherence/assembly problem.
+    - No details on data, model, or features for the farming AI; no mention of how the system would learn or be evaluated.
+
+  Observations: The submission has a fundamental thematic mismatch: the ai_education theme calls for an education-focused AI proposal, but the student writes at length about smart farming in Marathi. Even within the farming context, the writing is hard to parse due to numerous spelling errors and fragmented sentences. The most confusing issue is that the separately provided 'Proposed AI Solution' describes an AI math tutor, which has no connection to the farming situation the student actually described. To improve, the student should (1) align the situation with the ai_education theme (e.g., AI for classroom learning, literacy, or skill training in rural schools), (2) clearly specify how AI techniques will be applied and what data is needed, and (3) ensure the problem statement and proposed solution tell the same story.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  74.4%
+  Score:  26.0 / 50  (52.0%,  conf 70%)
+  Tokens:  in 1,211  out 1,227  total 2,438
+  Elapsed:  18,551 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           7.0 / 10
+    - originality           5.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 899 chars):
+    |
+    _NAME?-INORAKUMAR LAXMAN PALVI
+    SCHOOLS - Ae Sede _ |
+    CLASS 3-10 on CG @) ayuffar
+    SUBIECTS- AL द्वोर सवा Bra? Biel आग
+    ES aay,
+    - परिश्येती! Baty, 7 हु
+    “न wey os Iq eat ae Rata PRR
+    BID Yared ~ IUD Eli, Yd) क्राही व्शंवक्रष्या वा qylaieel}
+    WANS Bot Lod तर Har यांत्रा Seed ie? ary
+    Data Waar yal प्रउ॥ ( ln! Bret 34144 रह
+    Mes spare माहिर! GRIT, pla ave? ४72,
+    OND) A3 “A 1X1 oA! Wy की आचव्‌ B12)? करत
+    _ जाली rel Sania Ue sg BRI 402. Ate
+    4 dao heap ६ 2 arouRntay DAE
+    __ सभस्याना BWI AF तागतेए Be
+    _# 7 p नीवीभंय्ये (41) A qa हलक आधुनिक:
+    Lg ymiat 744 ae ote oe की. 146 pt
+    NAZAR व्यवस्यापन MAIS BT पतच्या AGA IY aide
+    et Mow ng) Bartel? ae = el aa AT हत्ानाणाती-
+    wa 1 9140 &9न Al wT Petiiad 1171
+    7 a4 aie} तापनानार्यी/ asd? 81६41 Aigo?
+    “adv? your यु COURTS? wT HAP प्रभाणाव
+    aah याची, आती, ee
+    -मॉनीकिनिची धोषडा], i. me |
+    TI AP AT ak au, आग Biv) aaveioy |
+    लबोपक्रक ss YRC Jeti, B®) अर्तावित
+    “Al उपाय खाओंद 1 oo
+
+  DIFF vs GOLDEN (word-level):
+      [-] | _name?-inorakumar
+      [+] name:- indrakumar
+      laxman palvi
+      [-] schools - ae sede _ | class 3-10 on cg @) ayuffar subiects- al द्वोर सवा bra? biel आग es aay, - परिश्येती! baty, 7 हु “न wey os iq eat ae rata prr bid yared ~ iud eli, yd) क्राही व्शंवक्रष्या वा qylaieel} wans bot lod
+      [+] school:- bubali class:- 10th subject:- ai द्वारे स्मार्ट शेती आणि ग्रामीण नवोपक्रम. परिस्थीती / समस्या. आमच्या गावात अनेक लोक शेती करतात. शेतामध्ये अनेक प्रकारचे पिक घेतात. पण काही शेतकऱ्यांना चांगल्या प्रकार उत्पन्न मिळते
+      तर
+      [-] har यांत्रा seed ie? ary data waar yal प्रउ॥ ( ln! bret 34144 रह mes spare माहिर! grit, pla ave? ४72, ond) a3 “a 1x1 oa! wy की आचव्‌ b12)? करत _ जाली rel sania ue sg bri 402. ate 4 dao heap ६ 2 arourntay dae __ सभस्याना bwi af तागतेए be _# 7 p नीवीभंय्ये (41) a qa हलक आधुनिक: lg ymiat 744 ae ote oe
+      [+] काही यांना मिळत नाही तसेच, शेतीमध्ये पिकांवर रोग पडतात. त्यासाठी काय उपाय करायला पाहिजे हे शेतकऱ्यांना माहिती नसते, आज शेती करण्यासाठी लोकांकडे पैसे नसल्यामुळे ते हवं तसं खत आणू शकत नाही त्यामुळे पिकांवर परिणाम होत असतो. तसेच खतांच भाव वाढल्यामुळे शेतकऱ्यांना शेती करण्यासाठी विविध समस्यांना समोर जावे लागते. प्रस्तावित ai उपाय. शेतीमध्ये (ai) च्या माध्यमातून अनेक आधुनिक आणि प्रभावी उपाय करता येतील जसे
+      की.
+      [-] 146 pt nazar व्यवस्यापन mais bt पतच्या aga iy aide et mow ng) bartel? ae = el aa at हत्ानाणाती- wa 1 9140 &9न al wt petiiad 1171 7 a4 aie} तापनानार्यी/ asd? 81६41 aigo? “adv? your यु courts? wt hap प्रभाणाव aah याची, आती, ee -मॉनीकिनिची धोषडा], i. me | ti ap at ak au, आग biv) aaveioy | लबोपक्रक ss yrc jeti, b®) अर्तावित “al
+      [+] पिक आणि किटक व्यवस्थापन मोबाईल ऑप्सच्या मदतीने पिकांवर पडलेले कीटक आणि रोगाची पाहणी. तसेच हवामानातील बदलाचा अंदाज घेऊन ai च्या माध्यमातून मातीतील ओलावा आणि तापमानाची माहिती. ai च्या माध्यमातून मातीची गुणवत्ता सुधारण्यासाठी खते किती प्रमाणात वापरावी याची माहिती. मौलिकतेची घोषणा॥. मी ai द्वारे स्मार्ट शेती आणि ग्रामीण नवोपक्रम या विषयावर परिस्थिती/समस्या आणि प्रस्तावित ai
+      उपाय
+      [-] खाओंद 1 oo
+      [+] हे स्व:ता लिहिले आहेत.
+  Summary: 5/161 golden words matched (3%);  hyp 192 words, golden 161 words
+
+  Strengths:
+    + The proposed solution directly targets an educational pain point (students struggling with word problems in a non-native language).
+    + The solution mentions concrete functional features: translation, step-by-step explanation, and adaptive practice generation.
+
+  Gaps:
+    - The 'Situation' section is unintelligible text and does not clearly describe a real-life problem within the required 50–100 word range.
+    - No technical or pedagogical detail on how AI would translate/explain/generate problems (e.g., which AI techniques, data, or safeguards).
+    - The proposal does not address constraints such as device availability, connectivity, or evaluation of student progress.
+
+  Observations: The submission addresses an appropriate AI-in-education problem and proposes a coherent, buildable solution, but it is undermined by a situation description that is essentially unreadable, which violates the communication requirement and makes relevance and originality hard to fully assess. Improving the clarity of the problem statement and adding a sentence or two on why AI (rather than a rule-based tutor or human teacher) is the right approach would meaningfully strengthen the proposal. The solution itself is reasonable but somewhat generic, so emphasising the Hindi-localised, confidence-building angle more concretely would help with originality.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  21.3%
+  Score:  12.0 / 50  (24.0%,  conf 81%)
+  Tokens:  in 10,581  out 5,852  total 16,433
+  Elapsed:  40,213 ms
+  Per-criterion:
+    - relevance             1.0 / 10
+    - feasibility           3.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 1066 chars):
+    NAME:- INDRAKUMAR LAXMAN PALVI
+    SCHOOL:- BUBALI
+    CLASS:- 10th
+    SUBJECT:- AI द्वारे स्मार्ट शेती आणि ग्रामीण नावपडण.
+    
+    परिचय/समस्या.
+    आमच्या गावाने अनेक लोक शेती करतात. येथील अनेक प्रकारचे पिक घेतात. पण काही शेतकऱ्यांना त्यांच्या प्रकार उत्पन्न मिळत नाही. म्हणून त्यांना नाही तसेच शेतीसाठी पिकांचे रोग पडतात. त्यांना होणारे उपाय कशाच्या पाहिजे हे शेतकऱ्यांना माहिती करतात. आम्ही शेती करणाऱ्या लोकांकडे पैसे नसल्यामुळ नेहमी तसेच आम्ही आणि शेती नाही त्यांच्याकडे पिकांवर परिणाम होत असतो. यासाठी भाव वाढल्यामुळ शेतकऱ्यांना शेती करण्यासाठी विषय समस्यांना सामोरे जावे लागतात.
+    
+    प्रस्तावित AI उपाय.
+    शेतीसाठी (AI)च्या माध्यमातून अनेक आधुनिक आणि प्रभावी उपाय करता। येथील जसे की. पिक आणे किटक व्यवस्थापन मोठाईल वर चालतात। म्हणजे पिकावर पडलेले किटक आणि रोगांची पाहणी. तसेच हवामानाची माहिती. आधण घेऊन AI च्या माध्यमातून मानसिक हवामान. आणि तापमानाची माहिती. AI च्या माध्यमातून मातीची देखभाल. सुधारण्यासाठी आणे किटी प्रमाण वाढलीवी याची माहिती.
+    
+    मोबाईलची भूमिका.
+    ही AI द्वारे स्मार्ट शेती आणि ग्रामीण नावपडण या विषयावर प्रशिक्षणात/राज्यस्था। आणि प्रस्तावित AI उपाय हे स्वता:ला बिटले आहे.
+
+  DIFF vs GOLDEN (word-level):
+      name:- indrakumar laxman palvi school:- bubali class:- 10th subject:- ai द्वारे स्मार्ट शेती आणि ग्रामीण
+      [-] नावपडण. परिचय/समस्या.
+      [+] नवोपक्रम. परिस्थीती / समस्या.
+      आमच्या
+      [-] गावाने
+      [+] गावात
+      अनेक लोक शेती करतात.
+      [-] येथील
+      [+] शेतामध्ये
+      अनेक प्रकारचे पिक घेतात. पण काही शेतकऱ्यांना
+      [-] त्यांच्या
+      [+] चांगल्या
+      प्रकार उत्पन्न
+      [+] मिळते तर काही यांना
+      मिळत
+      [-] नाही. म्हणून त्यांना
+      नाही
+      [-] तसेच शेतीसाठी पिकांचे
+      [+] तसेच, शेतीमध्ये पिकांवर
+      रोग पडतात.
+      [-] त्यांना होणारे
+      [+] त्यासाठी काय
+      उपाय
+      [-] कशाच्या
+      [+] करायला
+      पाहिजे हे शेतकऱ्यांना माहिती
+      [-] करतात. आम्ही
+      [+] नसते, आज
+      शेती
+      [-] करणाऱ्या
+      [+] करण्यासाठी
+      लोकांकडे पैसे
+      [-] नसल्यामुळ नेहमी तसेच आम्ही आणि शेती
+      [+] नसल्यामुळे ते हवं तसं खत आणू शकत
+      नाही
+      [-] त्यांच्याकडे
+      [+] त्यामुळे
+      पिकांवर परिणाम होत असतो.
+      [-] यासाठी
+      [+] तसेच खतांच
+      भाव
+      [-] वाढल्यामुळ
+      [+] वाढल्यामुळे
+      शेतकऱ्यांना शेती करण्यासाठी
+      [-] विषय
+      [+] विविध
+      समस्यांना
+      [-] सामोरे
+      [+] समोर
+      जावे
+      [-] लागतात.
+      [+] लागते.
+      प्रस्तावित ai उपाय.
+      [-] शेतीसाठी (ai)च्या
+      [+] शेतीमध्ये (ai) च्या
+      माध्यमातून अनेक आधुनिक आणि प्रभावी उपाय
+      [-] करता। येथील
+      [+] करता येतील
+      जसे की. पिक
+      [-] आणे
+      [+] आणि
+      किटक व्यवस्थापन
+      [-] मोठाईल वर चालतात। म्हणजे पिकावर
+      [+] मोबाईल ऑप्सच्या मदतीने पिकांवर
+      पडलेले
+      [-] किटक
+      [+] कीटक
+      आणि
+      [-] रोगांची
+      [+] रोगाची
+      पाहणी. तसेच
+      [-] हवामानाची माहिती. आधण
+      [+] हवामानातील बदलाचा अंदाज
+      घेऊन ai च्या माध्यमातून
+      [-] मानसिक हवामान.
+      [+] मातीतील ओलावा
+      आणि तापमानाची माहिती. ai च्या माध्यमातून मातीची
+      [-] देखभाल.
+      [+] गुणवत्ता
+      सुधारण्यासाठी
+      [-] आणे किटी प्रमाण वाढलीवी
+      [+] खते किती प्रमाणात वापरावी
+      याची माहिती.
+      [-] मोबाईलची भूमिका. ही
+      [+] मौलिकतेची घोषणा॥. मी
+      ai द्वारे स्मार्ट शेती आणि ग्रामीण
+      [-] नावपडण
+      [+] नवोपक्रम
+      या विषयावर
+      [-] प्रशिक्षणात/राज्यस्था।
+      [+] परिस्थिती/समस्या
+      आणि प्रस्तावित ai उपाय हे
+      [-] स्वता:ला बिटले आहे.
+      [+] स्व:ता लिहिले आहेत.
+  Summary: 97/161 golden words matched (60%);  hyp 156 words, golden 161 words
+
+  Strengths:
+    + Identifies a real local problem (farmers facing low income, crop diseases, price fluctuations) and attempts to connect it with AI tools.
+    + Mentions multiple concrete AI application areas (pest detection, weather monitoring, soil management) showing breadth of awareness.
+
+  Gaps:
+    - Major mismatch: the theme is 'ai_education' but the situation is entirely about agriculture; the proposed solution text describes an AI math tutor that has no connection to the farming problem described.
+    - The situation text is well over the 50–100 word limit, contains repeated/unclear Marathi sentences, and the AI explanation lacks technical or practical detail.
+    - No specifics are given on data sources, language support, cost, or how a student in this context would actually build or access the system.
+
+  Observations: The submission shows genuine concern for farmers in the student's village, which is commendable, but it fails to address the assigned theme of AI in education. The situation and proposed solution appear to come from two different projects and were pasted together, breaking coherence. Communication is weak due to grammatical issues, repetition, and a clear word-count violation. To improve, the student should (a) align the problem with the ai_education theme, (b) write a matching AI solution, and (c) explain concretely how the AI tool would work and be delivered to the target users.
+
+
+================================================================================
+PAGE  PAGE-03  •  Entry #25  •  ref sandbox-6821f1b0fa9a-3201fa2c
+theme=ai_education  language=auto  golden=YES (878 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  NAME:- ANJALI SURESH GAVIT
+  SCHOOL:- KARANJUL
+  CLASS:- 8th
+  SUBJECT:- AI द्वारे शिक्षण आणि शिकवणे
+  
+  परिस्थीती / समस्या.
+  आज शिक्षण क्षेतामध्ये अनेक प्रकारच्या समस्या आढळून येत आहेत.
+  जैसे शाळांमध्ये वीज, पिण्याचे पाणी, स्वच्छतागृहे आणि ग्रंथालयासारख्या मुलभुत
+  सुविधा कमी प्रमाणामध्ये उपलब्ध आहेत. तसेच शाळामध्ये शिक्षक पद रिक्त असल्यामुळे
+  एकाच शिक्षकाला अनेक वर्ग सांभाळावे लागतात. आज शिक्षण क्षेतामध्ये FLN स्तर खुप
+  कमी आढळून येत आहे.
+  
+  प्रस्तावित AI उपाय :
+  आज प्रत्येक विद्यार्थ्यांची शिकवण्याची गर्जे वेगळी असते
+  त्यासाठी AI विद्यार्थ्यांची क्षमता ओळखुन त्यानुसार अभ्यासक्रम तयार करतो. तसेच
+  Chat GPT किंवा! google gemini या सारख AI टुल्स विद्यार्थ्यांना एखादी कठीण
+  सकल्पना सोप्या पद्धतीने समजायून सांगू शकतो. त्यामुळे विद्यार्थी चांगल्या प्रकार
+  अभ्यास करु शकतो.
+  
+  मौलीकतेची घोषणा.
+  मी AI द्वारे शिक्षण आणि शिकवणे या विषयावर स्व:ता चे विचार
+  मांडले आहेत आणि ही सर्व माहिती मी लिहली. आहे.
+
+VERDICT: C (Vision + OCR fusion) read this page best — CER 49.9%
+  Path A — Vision LLM (strict)                      CER 81.9%     score 17.0/50  conf  72%   44.8s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 71.7%     score 27.0/50  conf  77%   16.0s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 49.9%     score 29.0/50  conf  81%   65.8s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  81.9%
+  Score:  17.0 / 50  (34.0%,  conf 72%)
+  Tokens:  in 5,856  out 5,014  total 10,870
+  Elapsed:  44,845 ms
+  Per-criterion:
+    - relevance             4.0 / 10
+    - feasibility           5.0 / 10
+    - originality           2.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 859 chars):
+    NAME:- ANJALI SURESH GAVIT
+    SCHOOL:- KARANJUL
+    CLASS:- 8th
+    SUBJECT:- ગિતરે શિક્ષણો આનો સિકાર.
+    
+    પરિસ્થિતી/સમસ્યા।
+    આજે શિક્ષણ સેન્ટામાં મોટા પ્રમાણ સમસ્યા જોવા મળે છે અને જેને શાળામાં વહીને ગિયાને પાણી, સ્વચ્છતાનું જોણ ગેરા તચ્ચાન્ય સિસ્ટમના મુળના સ્રુતીસા. કમી પ્રમાણમાં અભ્યાસ ગાયે છે. તેના શાળામાં શિક્ષક પણ રહે છે. અને આની પાઠ શિક્ષણમા મોટા પ્રમાણમાં મેળવી શકાય છે. જો સહ્ય કમી જોવા મળે છે. આ ગિક્ષણ સેન્ટામાં FLN સાત જેવું કમી જોવા મળે છે.
+    
+    પ્રસ્તાવિત AI ઉપાય:
+    આજે પ્રત્યેક વિદ્યાર્થીને શિક્ષણ ની ગતી વધારે મળે AI વિદ્યાર્થીને લક્ષમાં કોઇયુક્ત ત્યાગુનાર માણસાનને નવાર કરતા. તમેય Chat GPT કે માં google લોને છે તાર્ક્ય AI દ્વારા વિદ્યાર્થીના જ્યાદી જ્ઞાન સંકલનતા સજ્યો પદતોને સમાનયુક્ત સારું રીતે શિક્ષણ મેળવી શકાય પ્રકારે મશીન બધાર શકી.
+    
+    મોબાઇલ એપ્લીકેશના.
+    મા AI દ્વારે શિક્ષણો આનો સિકાર ના વિદ્યાર્થીના જ્યાદી જ્ઞાન આહીને આશાએ સાદી માહિતી મળ વિહાની શકાય છે.
+
+  DIFF vs GOLDEN (word-level):
+      name:- anjali suresh gavit school:- karanjul class:- 8th subject:-
+      [-] ગિતરે શિક્ષણો આનો સિકાર. પરિસ્થિતી/સમસ્યા। આજે શિક્ષણ સેન્ટામાં મોટા પ્રમાણ સમસ્યા જોવા મળે છે અને જેને શાળામાં વહીને ગિયાને પાણી, સ્વચ્છતાનું જોણ ગેરા તચ્ચાન્ય સિસ્ટમના મુળના સ્રુતીસા. કમી પ્રમાણમાં અભ્યાસ ગાયે છે. તેના શાળામાં શિક્ષક પણ રહે છે. અને આની પાઠ શિક્ષણમા મોટા પ્રમાણમાં મેળવી શકાય છે. જો સહ્ય કમી જોવા મળે છે. આ ગિક્ષણ સેન્ટામાં
+      [+] ai द्वारे शिक्षण आणि शिकवणे परिस्थीती / समस्या. आज शिक्षण क्षेतामध्ये अनेक प्रकारच्या समस्या आढळून येत आहेत. जैसे शाळांमध्ये वीज, पिण्याचे पाणी, स्वच्छतागृहे आणि ग्रंथालयासारख्या मुलभुत सुविधा कमी प्रमाणामध्ये उपलब्ध आहेत. तसेच शाळामध्ये शिक्षक पद रिक्त असल्यामुळे एकाच शिक्षकाला अनेक वर्ग सांभाळावे लागतात. आज शिक्षण क्षेतामध्ये
+      fln
+      [-] સાત જેવું કમી જોવા મળે છે. પ્રસ્તાવિત
+      [+] स्तर खुप कमी आढळून येत आहे. प्रस्तावित
+      ai
+      [-] ઉપાય: આજે પ્રત્યેક વિદ્યાર્થીને શિક્ષણ ની ગતી વધારે મળે
+      [+] उपाय : आज प्रत्येक विद्यार्थ्यांची शिकवण्याची गर्जे वेगळी असते त्यासाठी
+      ai
+      [-] વિદ્યાર્થીને લક્ષમાં કોઇયુક્ત ત્યાગુનાર માણસાનને નવાર કરતા. તમેય
+      [+] विद्यार्थ्यांची क्षमता ओळखुन त्यानुसार अभ्यासक्रम तयार करतो. तसेच
+      chat gpt
+      [-] કે માં
+      [+] किंवा!
+      google
+      [-] લોને છે તાર્ક્ય
+      [+] gemini या सारख
+      ai
+      [-] દ્વારા વિદ્યાર્થીના જ્યાદી જ્ઞાન સંકલનતા સજ્યો પદતોને સમાનયુક્ત સારું રીતે શિક્ષણ મેળવી શકાય પ્રકારે મશીન બધાર શકી. મોબાઇલ એપ્લીકેશના. મા
+      [+] टुल्स विद्यार्थ्यांना एखादी कठीण सकल्पना सोप्या पद्धतीने समजायून सांगू शकतो. त्यामुळे विद्यार्थी चांगल्या प्रकार अभ्यास करु शकतो. मौलीकतेची घोषणा. मी
+      ai
+      [-] દ્વારે શિક્ષણો આનો સિકાર ના વિદ્યાર્થીના જ્યાદી જ્ઞાન આહીને આશાએ સાદી માહિતી મળ વિહાની શકાય છે.
+      [+] द्वारे शिक्षण आणि शिकवणे या विषयावर स्व:ता चे विचार मांडले आहेत आणि ही सर्व माहिती मी लिहली. आहे.
+  Summary: 17/130 golden words matched (13%);  hyp 138 words, golden 130 words
+
+  Strengths:
+    + The student correctly identifies AI as a tool that can support education and learning, and ties the theme to her own school context.
+    + She mentions real, concrete tools she has heard of (ChatGPT, Google) and proposes delivering the solution through a mobile app, showing some awareness of accessible delivery channels.
+    + She attempts to address learning deficiencies (FLN-style problems) in her own community, which shows intent to solve a local issue.
+
+  Gaps:
+    - The proposed AI solution (translating word problems into Hindi and giving practice sets) does not match the problems actually described in the situation (sanitation, drinking water, basic literacy gaps), so the problem–solution link is weak.
+    - There is no clear explanation of how AI specifically works here — what model, what input, what output, and why it would help.
+    - Writing in Gujarati has many spelling errors and unclear sentences, making the situation and solution hard to follow.
+
+  Observations: The student shows genuine interest in using AI to improve education in her village school and correctly understands AI at a basic level, which is a good starting point. However, the submission is weakened by a mismatch between the situation described (school infrastructure and FLN issues) and the AI solution offered (a math word-problem tutor), suggesting the proposal may have been borrowed rather than designed from her own problem. Clearer, more specific writing — both in describing the problem and in explaining how the AI system would actually work in her context — would significantly strengthen the submission.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  71.7%
+  Score:  27.0 / 50  (54.0%,  conf 77%)
+  Tokens:  in 1,100  out 1,125  total 2,225
+  Elapsed:  16,018 ms
+  Per-criterion:
+    - relevance             8.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 713 chars):
+    NAMES-ANTALT SURESH GAIT
+    SCHOOLS - KARANTUL
+    CLASS: - 84 |
+    SUBTECTS- Ale शिक्षण are) Baar
+    UR (22) A RUHR | |
+    | / ailst शिक्षण लेनाव्व्ये ठीलेक YO Keel |
+    ‘Woutrs प्री, tard 20 aifio) Wl तय Aor 1
+    07271 fae! am ‘yanney Boa Ben, atu
+    Water ‘Rigi पथ ‘Rh. BR eel कर (47124
+    {Wea Hot) Bid ad अर जला yalep alata
+    . शिक्ष॥ Arye PLN उप्र बडा कह 91852 २०
+    i ron
+    Yrandd 91 उधाय* |
+    | 5 Cy Bis” yelp विद्यजर्यीची at
+    छाती? बिक जन 910१ cus? 81 बिद्ञज्याचिी क्षमवा
+    BMY IQUE HIRI A तथार Bay aR
+    Chad 6 PE ‘4a googie Gopi ese
+    20 ret किया Cai dt 1891 abode
+    ~ | ale VEG TOF Lut Ad ised, May, elle विधा
+    TOs) Yale HRI xd Daa oO
+    “Mara aad? धोषणा, = RN
+    i हर sg ft ALR Rize pill Bone |
+    था विषराबर स्वत, TAR शउने BIT Bf
+    Pad माहिती! a? निहनीः ge |
+
+  DIFF vs GOLDEN (word-level):
+      [-] names-antalt
+      [+] name:- anjali
+      suresh
+      [-] gait schools - karantul class: - 84 | subtects- ale
+      [+] gavit school:- karanjul class:- 8th subject:- ai द्वारे
+      शिक्षण
+      [-] are) baar ur (22) a ruhr | | |
+      [+] आणि शिकवणे परिस्थीती
+      /
+      [-] ailst
+      [+] समस्या. आज
+      शिक्षण
+      [-] लेनाव्व्ये ठीलेक yo keel | ‘woutrs प्री, tard 20 aifio) wl तय aor 1 07271 fae! am ‘yanney boa ben, atu water ‘rigi पथ ‘rh. br eel कर (47124 {wea hot) bid ad अर जला yalep alata . शिक्ष॥ arye pln उप्र बडा कह 91852 २० i ron yrandd 91 उधाय* | | 5 cy bis” yelp विद्यजर्यीची at छाती? बिक जन 910१ cus? 81 बिद्ञज्याचिी क्षमवा bmy ique hiri a तथार bay ar chad 6 pe ‘4a googie gopi ese 20 ret किया cai dt 1891 abode ~ | ale veg tof lut ad ised, may, elle विधा tos) yale hri xd daa oo “mara aad? धोषणा, = rn i हर sg ft alr rize pill bone | था विषराबर स्वत, tar शउने bit bf pad माहिती! a? निहनीः ge |
+      [+] क्षेतामध्ये अनेक प्रकारच्या समस्या आढळून येत आहेत. जैसे शाळांमध्ये वीज, पिण्याचे पाणी, स्वच्छतागृहे आणि ग्रंथालयासारख्या मुलभुत सुविधा कमी प्रमाणामध्ये उपलब्ध आहेत. तसेच शाळामध्ये शिक्षक पद रिक्त असल्यामुळे एकाच शिक्षकाला अनेक वर्ग सांभाळावे लागतात. आज शिक्षण क्षेतामध्ये fln स्तर खुप कमी आढळून येत आहे. प्रस्तावित ai उपाय : आज प्रत्येक विद्यार्थ्यांची शिकवण्याची गर्जे वेगळी असते त्यासाठी ai विद्यार्थ्यांची क्षमता ओळखुन त्यानुसार अभ्यासक्रम तयार करतो. तसेच chat gpt किंवा! google gemini या सारख ai टुल्स विद्यार्थ्यांना एखादी कठीण सकल्पना सोप्या पद्धतीने समजायून सांगू शकतो. त्यामुळे विद्यार्थी चांगल्या प्रकार अभ्यास करु शकतो. मौलीकतेची घोषणा. मी ai द्वारे शिक्षण आणि शिकवणे या विषयावर स्व:ता चे विचार मांडले आहेत आणि ही सर्व माहिती मी लिहली. आहे.
+  Summary: 4/130 golden words matched (3%);  hyp 157 words, golden 130 words
+
+  Strengths:
+    + Clear and accurate student-written definition of AI showing basic conceptual understanding.
+    + Proposed solution is concise, focused, and on-theme, with a clear benefit (building confidence and speed).
+    + Identifies a concrete, relatable problem for the target learner (math word problems in Hindi).
+
+  Gaps:
+    - The situation description is largely illegible due to garbled mixed-script text, so the real-life problem is not effectively communicated.
+    - No explanation of how the AI actually works (e.g., which AI technique, training data, or model) and why it would succeed.
+    - The idea is not differentiated from existing AI math-tutor tools, showing limited originality.
+
+  Observations: The student shows a basic grasp of what AI is and proposes a thematically appropriate AI tutor for a Hindi-medium student. The solution description is short but coherent. The major weakness is the situation section, which is essentially unreadable due to what appears to be OCR or copy-paste errors mixing Devanagari and Latin scripts; this undermines the communication score heavily. To improve, the student should rewrite the situation clearly in one language, explain which AI approach (translation model, LLM, etc.) they envision, and differentiate their idea from existing tools such as Photomath or Khan Academy.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  49.9%
+  Score:  29.0 / 50  (58.0%,  conf 81%)
+  Tokens:  in 9,593  out 7,917  total 17,510
+  Elapsed:  65,848 ms
+  Per-criterion:
+    - relevance             8.0 / 10
+    - feasibility           6.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      6.0 / 10
+    - communication         5.0 / 10
+
+  EXTRACTION (cleaned OCR, 862 chars):
+    NAME:- ANJALI SURESH GAVIT
+    SCHOOL:- KARANJUL
+    CLASS:- 8th
+    SUBJECT:- AI द्वारे शिक्षण (शिकवणे)
+    
+    परिचय / स्वरूप
+    आज शिक्षण देणाऱ्याचे मोठ्या प्रमाणात आव्हाने आहेत. आणि जर शिक्षणाची विद्या वाचण्याचे, स्वतःमागाहून आणि यंत्रानी मदत केल्यास त्या करीता ज्ञान आपण्याची मदत होईल. करिता शिक्षण म्हणजे ज्ञान ग्रहण म्हणजे शिकवणे कसे आहे कळते आणि ही सामावले शिक्षणाची अमृत देणाऱ्यांची FLN साठी सुद्धा कशी आव्हाने राहू शकते आहे.
+    
+    AI चा उपयोग:
+    आज प्रत्येक विद्यार्थ्याला शिकण्याची गती वेगळी असते त्यासाठी AI विद्यार्थ्यांना माहिती अंदाज मांडून त्यानुसार मग माहितीच्या तथ्य करता. तसेच Chat GPT किंवा Google Search चा साहाय्याने AI द्वारे विद्यार्थ्यांना विविध प्रकारे सहज माहिती मिळू शकते. त्यासाठी पहिल्याला साहाय्याचे विद्यार्थ्यांच्या योग्य प्रश्न शिकवता येतात.
+    
+    मौलिकतेची शिकवण
+    AI द्वारे शिक्षण आणि शिकवणे या विषयावर स्वतः न प्रयोग करावा आणि आहे ही अंतिम माहितीची विहीणता आहे.
+
+  DIFF vs GOLDEN (word-level):
+      name:- anjali suresh gavit school:- karanjul class:- 8th subject:- ai द्वारे शिक्षण
+      [-] (शिकवणे) परिचय
+      [+] आणि शिकवणे परिस्थीती
+      /
+      [-] स्वरूप
+      [+] समस्या.
+      आज शिक्षण
+      [-] देणाऱ्याचे मोठ्या प्रमाणात आव्हाने
+      [+] क्षेतामध्ये अनेक प्रकारच्या समस्या आढळून येत
+      आहेत.
+      [+] जैसे शाळांमध्ये वीज, पिण्याचे पाणी, स्वच्छतागृहे
+      आणि
+      [-] जर शिक्षणाची विद्या वाचण्याचे, स्वतःमागाहून आणि यंत्रानी मदत केल्यास त्या करीता ज्ञान आपण्याची मदत होईल. करिता
+      [+] ग्रंथालयासारख्या मुलभुत सुविधा कमी प्रमाणामध्ये उपलब्ध आहेत. तसेच शाळामध्ये शिक्षक पद रिक्त असल्यामुळे एकाच शिक्षकाला अनेक वर्ग सांभाळावे लागतात. आज
+      शिक्षण
+      [-] म्हणजे ज्ञान ग्रहण म्हणजे शिकवणे कसे आहे कळते आणि ही सामावले शिक्षणाची अमृत देणाऱ्यांची
+      [+] क्षेतामध्ये
+      fln
+      [-] साठी सुद्धा कशी आव्हाने राहू शकते
+      [+] स्तर खुप कमी आढळून येत
+      आहे.
+      [+] प्रस्तावित
+      ai
+      [-] चा उपयोग:
+      [+] उपाय :
+      आज प्रत्येक
+      [-] विद्यार्थ्याला शिकण्याची गती
+      [+] विद्यार्थ्यांची शिकवण्याची गर्जे
+      वेगळी असते त्यासाठी ai
+      [-] विद्यार्थ्यांना माहिती अंदाज मांडून
+      [+] विद्यार्थ्यांची क्षमता ओळखुन
+      त्यानुसार
+      [-] मग माहितीच्या तथ्य करता.
+      [+] अभ्यासक्रम तयार करतो.
+      तसेच chat gpt
+      [-] किंवा
+      [+] किंवा!
+      google
+      [-] search चा साहाय्याने
+      [+] gemini या सारख
+      ai
+      [-] द्वारे
+      [+] टुल्स
+      विद्यार्थ्यांना
+      [-] विविध प्रकारे सहज माहिती मिळू शकते. त्यासाठी पहिल्याला साहाय्याचे विद्यार्थ्यांच्या योग्य प्रश्न शिकवता येतात. मौलिकतेची शिकवण
+      [+] एखादी कठीण सकल्पना सोप्या पद्धतीने समजायून सांगू शकतो. त्यामुळे विद्यार्थी चांगल्या प्रकार अभ्यास करु शकतो. मौलीकतेची घोषणा. मी
+      ai द्वारे शिक्षण आणि शिकवणे या विषयावर
+      [-] स्वतः न प्रयोग करावा
+      [+] स्व:ता चे विचार मांडले आहेत
+      आणि
+      [-] आहे
+      ही
+      [-] अंतिम माहितीची विहीणता
+      [+] सर्व माहिती मी लिहली.
+      आहे.
+  Summary: 44/130 golden words matched (34%);  hyp 129 words, golden 130 words
+
+  Strengths:
+    + Clearly identifies a real pain point: students learn at different speeds and struggle with complex word problems.
+    + The proposed solution is concrete and actionable—translate, explain, generate practice—making the idea easy to visualize.
+    + Honest acknowledgment that the student has not yet experimented with the idea themselves, showing reflective self-evaluation.
+
+  Gaps:
+    - No mention of how AI would personalize to each student's level or track progress, which is a key benefit of AI tutoring.
+    - No discussion of practical constraints: device availability, internet connectivity, language (Hindi vs. the student's Marathi medium), or offline access.
+    - The situation text is poorly structured with run-on sentences, making the actual problem being solved difficult to extract.
+
+  Observations: Anjali has chosen a relevant and age-appropriate theme and proposed a focused solution—an AI tutor that simplifies Hindi word problems and offers step-by-step explanations plus practice. The core idea is sensible but not particularly original, as similar AI tutoring tools already exist. To strengthen the proposal, she should specify the AI technique (e.g., LLM with prompt templates, simple NLP), describe how the tutor adapts to individual learners, and address real-world constraints in her school such as device access and the fact that her medium of instruction is Marathi, not Hindi. Improving sentence structure and clarity in the situation description would also make her reasoning easier to follow.
+
+
+================================================================================
+PAGE  PAGE-04  •  Entry #26  •  ref sandbox-fe0f4f665d1d-35026926
+theme=ai_education  language=auto  golden=YES (433 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  नाव - ROHAAN.
+  इयत्ता - 8th
+  शाळा - KANHERWADI
+  विषय - AI FOR EDUCATION AND LERNING
+  
+  परिस्थिती -
+  शिक्षक शिकवतात तर काही गोष्टी.
+  कळत नाहीत. त्यामुळे विद्यार्थ्यांचे
+  लक्ष लागत नाही
+  
+  प्रस्तावित AI उपाय :
+  AI चा वापर करुन ज्या .
+  गोष्टी कळत नाहीत. त्या गोष्टी
+  समजण्यास मदत होईल. आणि • AI च्या वापरामुळे विद्यार्थी उत्साहाने शिकतील
+  
+  मौलिकतेची घोषणा :
+  मी पुष्टी करतो की शेअर केलेली कल्पना माझी स्वतःची आहे - आणि
+  कोणाकडूनही ती कॉपी केलेली नाही -
+
+VERDICT: C (Vision + OCR fusion) read this page best — CER 38.6%
+  Path A — Vision LLM (strict)                      CER 57.9%     score 23.0/50  conf  76%   23.8s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 96.7%     score 27.0/50  conf  69%   13.9s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 38.6%     score 25.0/50  conf  71%   29.2s
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  57.9%
+  Score:  23.0 / 50  (46.0%,  conf 76%)
+  Tokens:  in 5,054  out 2,340  total 7,394
+  Elapsed:  23,793 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           5.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 497 chars):
+    नाम - ROHAN
+    कक्षा - 8th
+    शाळा - KANHERKHADE
+    विषय - AI FOR EDUCATION AND LERNING
+    
+    परिचयात्मक - शिक्षक शिकवण्यात AI ची भूमिका.
+    AI च्या काम नाही. त्याचे विद्यार्थ्यांचा वही माण नाही.
+    
+    प्रस्तावित AI उपाय :
+    AI चा वापर करण्याची
+    - आपण करणे नाही. AI ची सुरुवात अध्ययनासाठी
+    - मला दोन्हेल. आता. AI चा वापर करण्यासाठी
+    - विद्यार्थ्यांना उपलब्धन देकरनिग
+    
+    संभाव्य धोके :
+    - आपण युद्ध्या करणे करा शकत असणे कमी करणे. आणि AI ची पार्श्वभूमी कमी करणे अणि कोणत्याही AI च्या कशा करणे करणे अणि.
+    - AI पासून लांब राहणे आणि.
+
+  DIFF vs GOLDEN (word-level):
+      [-] नाम
+      [+] नाव
+      -
+      [-] rohan कक्षा
+      [+] rohaan. इयत्ता
+      - 8th शाळा -
+      [-] kanherkhade
+      [+] kanherwadi
+      विषय - ai for education and lerning
+      [-] परिचयात्मक
+      [+] परिस्थिती
+      - शिक्षक
+      [-] शिकवण्यात ai ची भूमिका. ai च्या काम नाही. त्याचे विद्यार्थ्यांचा वही माण नाही.
+      [+] शिकवतात तर काही गोष्टी. कळत नाहीत. त्यामुळे विद्यार्थ्यांचे लक्ष लागत नाही
+      प्रस्तावित ai उपाय : ai चा वापर
+      [-] करण्याची - आपण करणे नाही. ai ची सुरुवात अध्ययनासाठी - मला दोन्हेल. आता. ai चा वापर करण्यासाठी - विद्यार्थ्यांना उपलब्धन देकरनिग संभाव्य धोके : - आपण युद्ध्या करणे करा शकत असणे कमी करणे.
+      [+] करुन ज्या . गोष्टी कळत नाहीत. त्या गोष्टी समजण्यास मदत होईल.
+      आणि
+      [-] ai ची पार्श्वभूमी कमी करणे अणि कोणत्याही
+      [+] •
+      ai च्या
+      [-] कशा करणे करणे अणि.
+      [+] वापरामुळे विद्यार्थी उत्साहाने शिकतील मौलिकतेची घोषणा : मी पुष्टी करतो की शेअर केलेली कल्पना माझी स्वतःची आहे
+      -
+      [-] ai पासून लांब राहणे आणि.
+      [+] आणि कोणाकडूनही ती कॉपी केलेली नाही -
+  Summary: 25/77 golden words matched (32%);  hyp 92 words, golden 77 words
+
+  Strengths:
+    + The proposed AI solution (English version) is clearly written and concrete: translate word problems, explain steps, provide practice.
+    + The theme choice of using AI for student learning is appropriate and the solution targets a real pain point (Hindi-medium learners struggling with word problems).
+    + The student's own AI definition is simple but accurate at a beginner level.
+
+  Gaps:
+    - The Marathi situation text is almost entirely garbled and does not describe the real-life situation coherently, making the submission hard to evaluate.
+    - No explanation of which AI techniques, models, or tools would be used, or what data the system needs.
+    - No discussion of feasibility constraints such as internet access, smartphone availability, or accuracy concerns for a rural school context.
+
+  Observations: The submission shows a reasonable topical idea—an AI tutor for Hindi-medium math learners—but execution is uneven. The proposed solution part is the strongest element: clear, on-theme, and within the word limit. However, the situation description is largely unintelligible Marathi text that fails to articulate the real-life problem, and the student shows only surface-level understanding of how AI works. Feasibility and originality are also limited by the lack of context-specific detail. To improve, the student should rewrite the situation clearly, name the AI techniques involved, and explain why this approach fits their school/community.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  96.7%
+  Score:  27.0 / 50  (54.0%,  conf 69%)
+  Tokens:  in 1,024  out 1,181  total 2,205
+  Elapsed:  13,918 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           7.0 / 10
+    - originality           5.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 514 chars):
+    fa % के
+    ड्र / f — ;
+    72 a ik § 9
+    FA\5_- Rohan f a
+    + 1 «>> - et eae
+    पे ८ | ANSI - 1<१।११६०।३/५-८ i \ iP
+    q SSS = ar 100 FovCATION AND LERNING
+    | } ine Aeieann Th. “रह Pha” atl
+    t a ¥ : i: Mc 1, aye नव्था प्याज बल
+    ॥ ! आल = uns AU Aas es — — $$$ ws
+    । Wea) Fl ey 5४5 ऋाफऋएाएए
+    ae. Ag BL AWC eon OT
+    Sy Se: eS Oe
+    | 2 AGh Sita ! ARS . ADA AYU
+    ee | Nau Smite eed जज
+    _ = PN 30०५0 हिल he ae a कै. कि
+    Pt et of) a Se ge eee a yal छतो की
+    Pa =“ 3 GY wyIesAT AT Sth Sar a
+    | “जा =~ —————— —__—
+    34 ooo
+    की ॥ aes 1 आज
+    हब Tar meres a
+    BS
+    si
+
+  DIFF vs GOLDEN (word-level):
+      [-] fa % के ड्र / f — ; 72 a ik § 9 fa\5_- rohan f a + 1 «>>
+      [+] नाव
+      -
+      [-] et eae पे ८ | ansi
+      [+] rohaan. इयत्ता
+      -
+      [-] 1<१।११६०।३/५-८ i \ ip q sss = ar 100 fovcation
+      [+] 8th शाळा - kanherwadi विषय - ai for education
+      and lerning
+      [-] | } ine aeieann th. “रह pha” atl t a ¥
+      [+] परिस्थिती - शिक्षक शिकवतात तर काही गोष्टी. कळत नाहीत. त्यामुळे विद्यार्थ्यांचे लक्ष लागत नाही प्रस्तावित ai उपाय
+      :
+      [-] i: mc 1, aye नव्था प्याज बल ॥ ! आल = uns au aas es — — $$$ ws । wea) fl ey 5४5 ऋाफऋएाएए ae. ag bl awc eon ot sy se: es oe | 2 agh sita ! ars
+      [+] ai चा वापर करुन ज्या
+      .
+      [-] ada ayu ee | nau smite eed जज _ = pn 30०५0 हिल he ae a कै. कि pt et of) a se ge eee a yal छतो
+      [+] गोष्टी कळत नाहीत. त्या गोष्टी समजण्यास मदत होईल. आणि • ai च्या वापरामुळे विद्यार्थी उत्साहाने शिकतील मौलिकतेची घोषणा : मी पुष्टी करतो
+      की
+      [-] pa =“ 3 gy wyiesat at sth sar a | “जा =~ —————— —__— 34 ooo की ॥ aes 1 आज हब tar meres a bs si
+      [+] शेअर केलेली कल्पना माझी स्वतःची आहे - आणि कोणाकडूनही ती कॉपी केलेली नाही -
+  Summary: 7/77 golden words matched (9%);  hyp 150 words, golden 77 words
+
+  Strengths:
+    + The proposed solution is clearly stated, concrete, and actionable within a single coherent paragraph.
+    + The choice of Hindi-language scaffolding shows sensitivity to a specific learner audience.
+    + The inclusion of practice problems alongside step-by-step explanation reflects a reasonable pedagogical approach.
+
+  Gaps:
+    - The situation text is essentially unreadable (garbled Devanagari/English mix), so the actual problem being addressed cannot be verified.
+    - No explanation of what kind of AI technique or tool would power the tutor (e.g., LLM, fine-tuned model, rule-based NLP).
+    - The student context (grade level, device access, language of instruction) is not described, weakening feasibility assessment.
+
+  Observations: The proposal addresses a meaningful education problem with an AI tool that is technically buildable today, and the Hindi focus adds a useful regional angle. However, the situation description is so corrupted that a reader cannot tell what concrete pain point the student observed, which severely weakens the submission. Strengthening the submission would require a clear, readable problem statement, a brief explanation of the AI technique used, and a note on who would use the tutor and how. As it stands, the AI understanding and originality remain generic.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  38.6%
+  Score:  25.0 / 50  (50.0%,  conf 71%)
+  Tokens:  in 9,609  out 3,117  total 12,726
+  Elapsed:  29,196 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           6.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 412 chars):
+    नाव - ROHAN
+    इयत्ता - 8th
+    शाळा - KANHERKHADE
+    विषय - AI FOR EDUCATION AND LERNING
+    
+    परिचय - शिक्षण क्षेत्रामध्ये एक काही गोष्टी.
+    करणे नाहीजे त्याठिकाणीच बदल
+    करणे नाहीजे.
+    
+    प्रस्तावित AI आयडिया:
+    AI ची वापर करणे ज्या
+    ठिकाणी करणे नाहीजे. त्या ठिकाणी समजण्यासाठी
+    करणे होईल. आणि AI चा वापरासूहक
+    नियमली उपयोगीने शिकलीग
+    
+    मेमिकमेंट शिकणे: या पटी केली क
+    त्यपूर्व कंसप्त कल्या माझी सर्वात
+    आहे. आणि कणांवहनी नी कंपी कली
+    नाहीजे.
+
+  DIFF vs GOLDEN (word-level):
+      नाव -
+      [-] rohan
+      [+] rohaan.
+      इयत्ता - 8th शाळा -
+      [-] kanherkhade
+      [+] kanherwadi
+      विषय - ai for education and lerning
+      [-] परिचय
+      [+] परिस्थिती
+      -
+      [-] शिक्षण क्षेत्रामध्ये एक
+      [+] शिक्षक शिकवतात तर
+      काही गोष्टी.
+      [-] करणे नाहीजे त्याठिकाणीच बदल करणे नाहीजे.
+      [+] कळत नाहीत. त्यामुळे विद्यार्थ्यांचे लक्ष लागत नाही
+      प्रस्तावित ai
+      [-] आयडिया:
+      [+] उपाय :
+      ai
+      [-] ची
+      [+] चा
+      वापर
+      [-] करणे
+      [+] करुन
+      ज्या
+      [-] ठिकाणी करणे नाहीजे.
+      [+] . गोष्टी कळत नाहीत.
+      त्या
+      [-] ठिकाणी समजण्यासाठी करणे
+      [+] गोष्टी समजण्यास मदत
+      होईल. आणि
+      [+] •
+      ai
+      [-] चा वापरासूहक नियमली उपयोगीने शिकलीग मेमिकमेंट शिकणे: या पटी केली क त्यपूर्व कंसप्त कल्या
+      [+] च्या वापरामुळे विद्यार्थी उत्साहाने शिकतील मौलिकतेची घोषणा : मी पुष्टी करतो की शेअर केलेली कल्पना
+      माझी
+      [-] सर्वात आहे.
+      [+] स्वतःची आहे -
+      आणि
+      [-] कणांवहनी नी कंपी कली नाहीजे.
+      [+] कोणाकडूनही ती कॉपी केलेली नाही -
+  Summary: 28/77 golden words matched (36%);  hyp 70 words, golden 77 words
+
+  Strengths:
+    + Correctly identified the theme (AI for education) and framed the solution around helping students with word problems.
+    + The English solution clearly names three concrete AI functions: translation, step explanation, and practice problem generation.
+    + The student's own definition of AI is accurate at a basic level.
+
+  Gaps:
+    - The Marathi situation and idea sections are garbled and incomplete, making it unclear what specific problem the student wants to solve.
+    - No mention of which subject, grade-level topics, or how the AI would adapt to a student's pace or errors.
+    - Limited originality — the proposal reads like a generic AI tutor idea without a unique twist tied to the student's context.
+
+  Observations: The student chose a fitting theme and wrote a coherent English solution, but the Marathi portions that form the core of the situation and idea description are fragmented and difficult to interpret, suggesting limited fluency or rushed drafting. The AI understanding shown is surface-level: the student knows AI can translate and generate practice items, but does not discuss data, personalization, or evaluation. To improve, the student should clearly state the specific learning problem, why an AI approach fits it better than alternatives, and what makes their idea distinctive within the rural/semi-urban school context.
+
+
+================================================================================
+PAGE  PAGE-05  •  Entry #27  •  ref sandbox-5a3125e30450-51cb250c
+theme=ai_education  language=auto  golden=YES (448 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  नाव - GAYATRI
+  इयत्ता - 10TH
+  शाळा - MEHADAR
+  विषय - AI IN Health & community Well-being.
+  
+  परिस्थिती -
+  बऱ्याचश्या शहरात किंवा.
+  गावात दवाखाने असतात परंतु नवीन लोकांना
+  माहिती नसते - आणि त्यांना दवाखाना शोधायला अडचण निर्माण होते .
+  
+  प्रस्तावित AI उपाय :
+  
+    - AI च्या माध्यमातून नवीन लोकांना गावातील किंवा शहरातील दवाखाने शोधण्यास मदत
+      होईल .
+  
+  मौलिकतेची घोषणा : मी पुष्टी करते की शेअर केलेली कल्पना माझी स्वतःची आहे . आणि ती
+  कोणाकडूनही कॉपी केलेली नाही.
+
+VERDICT: C (Vision + OCR fusion) read this page best — CER 58.2%
+  Path A — Vision LLM (strict)                      CER 62.1%     score 24.0/50  conf  82%   17.4s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 148.6%    score 21.0/50  conf  80%   14.9s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 58.2%     score 23.0/50  conf  80%   25.8s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  62.1%
+  Score:  24.0 / 50  (48.0%,  conf 82%)
+  Tokens:  in 5,014  out 2,197  total 7,211
+  Elapsed:  17,374 ms
+  Per-criterion:
+    - relevance             6.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 425 chars):
+    नाम - GAYATRI
+    कक्षा - 10TH
+    शाखा - MEHADAR
+    विषय - AI IN Health & community well-being.
+    
+    [crossed out line]
+    
+    परिचय - बचपन से हम केवल नेवा नाम दिन ने मजे की जाडाना खेलना अडी रुसीदाना अटती मिलना कुछ अंदी बानी दिना ने
+    
+    प्रजापनता AI ज्ञाप : - AI की मददमिन्न नर्विंग टोकाटीन कीवा टायामीन साथ दिया .
+    
+    ओमिन्ट्टी गोमनी : जो पुरानी रनाती की टायामी कुछ कनामी रही टानी आदि, अपने टेक्टरी टायामी . ओमिनी कुछ गालती नाम . कुनाम की कुछ मफ़करती
+
+  DIFF vs GOLDEN (word-level):
+      [-] नाम
+      [+] नाव
+      - gayatri
+      [-] कक्षा
+      [+] इयत्ता
+      - 10th
+      [-] शाखा
+      [+] शाळा
+      - mehadar विषय - ai in health & community well-being.
+      [-] [crossed out line] परिचय
+      [+] परिस्थिती
+      -
+      [-] बचपन से हम केवल नेवा नाम दिन ने मजे की जाडाना खेलना अडी रुसीदाना अटती मिलना कुछ अंदी बानी दिना ने प्रजापनता
+      [+] बऱ्याचश्या शहरात किंवा. गावात दवाखाने असतात परंतु नवीन लोकांना माहिती नसते - आणि त्यांना दवाखाना शोधायला अडचण निर्माण होते . प्रस्तावित
+      ai
+      [-] ज्ञाप
+      [+] उपाय
+      : - ai
+      [+] च्या माध्यमातून नवीन लोकांना गावातील किंवा शहरातील दवाखाने शोधण्यास मदत होईल . मौलिकतेची घोषणा : मी पुष्टी करते
+      की
+      [-] मददमिन्न नर्विंग टोकाटीन कीवा टायामीन साथ दिया
+      [+] शेअर केलेली कल्पना माझी स्वतःची आहे
+      .
+      [-] ओमिन्ट्टी गोमनी : जो पुरानी रनाती की टायामी कुछ कनामी रही टानी आदि, अपने टेक्टरी टायामी . ओमिनी कुछ गालती नाम . कुनाम की कुछ मफ़करती
+      [+] आणि ती कोणाकडूनही कॉपी केलेली नाही.
+  Summary: 21/77 golden words matched (27%);  hyp 84 words, golden 77 words
+
+  Strengths:
+    + The AI solution sentence itself is concise, focused, and clearly states a useful function (translate, explain, give practice).
+    + The feasibility of the idea is strong — it could realistically be implemented with current tools.
+    + The choice of Hindi simplification addresses a real accessibility need for students.
+
+  Gaps:
+    - Major mismatch between the stated situation (Health & community well-being) and the proposed solution (AI math tutor).
+    - The situation description is largely incoherent/garbled text and does not describe a clear real-life problem.
+    - No explanation of the AI technique or mechanism behind translation, step-explanation, or problem generation.
+
+  Observations: The student shows a basic awareness that AI can be applied to education through translation and practice generation, and the one-line proposed solution is the clearest part of the submission. However, the situation text is almost unreadable and conflicts with the stated topic (Health & community well-being), which significantly hurts coherence. The solution also stays at a surface level — it does not show understanding of how AI works, just what it does. To improve, the student should write a clearer problem statement aligned with the chosen theme, explain the AI technique involved, and describe expected benefits in more detail.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  148.6%
+  Score:  21.0 / 50  (42.0%,  conf 80%)
+  Tokens:  in 1,184  out 1,413  total 2,597
+  Elapsed:  14,948 ms
+  Per-criterion:
+    - relevance             5.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         1.0 / 10
+
+  EXTRACTION (cleaned OCR, 770 chars):
+    7 _ a ee wed ssl le 52... és sie
+    a> ५
+    > f }
+    a = RP : 14 if. ।
+    _——_ ese SAMATEE _. 00 5
+    2 = } a हर ANS
+    = PG |) SASSY ea ee
+    ee CAS 115 5211 6 re oMmenity _
+    2 oe hd te 5 eg 1). Ue 2 0
+    a गए उए
+    आज MS aS A SSNS ACSI पका:
+    2 के) BOA AL Wo MRA Ta) quay ag ee
+    <a । oN Abi A } WWE Aut - wy
+    : की... “1? aN) अत ea कफ टच ध
+    = ed कम ११) MALAI) “४१$”५५।
+    er होने ee ee
+    a er ge ee
+    ay | pee Sa पक: 5० 2]
+    = A sy 1० 25 AY AVEDA AY, ZA SA)
+    NVA ee कप" ESVas i) % S264 ०)
+    . जबकि Zauart 2 Wnang Gn wig):
+    \ | क्र ame की et oe 2 ee fc |
+    im TAN \ पपक aA} OR. A aS ७५९० Q
+    = | ("OMe ) of We TA am
+    | | q 1०५) een ee ee — ee “ A ab ५५०५८
+    al ्ट। kd 2 जे जाण
+    / |
+    | SR Oe eS OSS जार 7"
+    *
+    I >> २ - - >_>1_>>- एएछऋऋऋञाञ॒ञाञाआ5 रन ्रभाभाभभाभनाता 5
+    s
+    s
+    3
+    bi’ ee we ee
+    >)
+    ॥ <a Ld ९: 612: 2२ न पल
+    =
+    ul } Read y ;
+
+  DIFF vs GOLDEN (word-level):
+      [-] 7 _ a ee wed ssl le 52... és sie a> ५ > f } a = rp
+      [+] नाव - gayatri इयत्ता - 10th शाळा - mehadar विषय - ai in health & community well-being. परिस्थिती - बऱ्याचश्या शहरात किंवा. गावात दवाखाने असतात परंतु नवीन लोकांना माहिती नसते - आणि त्यांना दवाखाना शोधायला अडचण निर्माण होते . प्रस्तावित ai उपाय
+      :
+      [-] 14 if. । _——_ ese samatee _. 00 5 2 = } a हर ans = pg |) sassy ea ee ee cas 115 5211 6 re ommenity _ 2 oe hd te 5 eg 1). ue 2 0 a गए उए आज ms as a ssns acsi पका: 2 के) boa al wo mra ta) quay ag ee <a । on abi a } wwe aut
+      -
+      [-] wy
+      [+] ai च्या माध्यमातून नवीन लोकांना गावातील किंवा शहरातील दवाखाने शोधण्यास मदत होईल . मौलिकतेची घोषणा
+      :
+      [-] की... “1? an) अत ea कफ टच ध = ed कम ११) malai) “४१$”५५। er होने ee ee a er ge ee ay | pee sa पक: 5० 2] = a sy 1० 25 ay aveda ay, za sa) nva ee कप" esvas i) % s264 ०)
+      [+] मी पुष्टी करते की शेअर केलेली कल्पना माझी स्वतःची आहे
+      .
+      [-] जबकि zauart 2 wnang gn wig): \ | क्र ame की et oe 2 ee fc | im tan \ पपक aa} or. a as ७५९० q = | ("ome ) of we ta am | | q 1०५) een ee ee — ee “ a ab ५५०५८ al ्ट। kd 2 जे जाण / | | sr oe es oss जार 7" * i >> २ - - >_>1_>>- एएछऋऋऋञाञ॒ञाञाआ5 रन ्रभाभाभभाभनाता 5 s s 3 bi’ ee we ee >) ॥ <a ld ९: 612: 2२ न पल = ul } read y ;
+      [+] आणि ती कोणाकडूनही कॉपी केलेली नाही.
+  Summary: 4/77 golden words matched (5%);  hyp 233 words, golden 77 words
+
+  Strengths:
+    + The AI definition, though brief, is accurate and accessible.
+    + The proposed solution targets a real and meaningful educational need (Hindi-language math support).
+    + The chosen AI capabilities (translation, explanation, practice generation) are coherent with each other.
+
+  Gaps:
+    - The 'situation' field is completely garbled and unreadable, so no real-life problem is actually described.
+    - The solution is far too short (well below the 100–150 word guideline) and lacks technical detail on how AI accomplishes the tasks.
+    - No mention of data, models, evaluation, limitations, or ethics of using AI for student tutoring.
+
+  Observations: The student's intent—building an AI math tutor that works in Hindi—is clearly on-theme and feasible, but the submission is undermined by a situation description that is unintelligible gibberish rather than a real problem statement. The solution paragraph is also far shorter than required and does not demonstrate deeper AI understanding (no mention of NLP, LLMs, training data, or how outputs would be validated). To improve, the student should rewrite the situation in clear prose within the word limit and expand the solution to explain the AI techniques involved, the data needed, and how success would be measured.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  58.2%
+  Score:  23.0 / 50  (46.0%,  conf 80%)
+  Tokens:  in 5,035  out 2,673  total 7,708
+  Elapsed:  25,774 ms
+  Gate:  fusion skipped (tess much longer than vision, ratio threshold 1.5)
+  Per-criterion:
+    - relevance             5.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 451 chars):
+    नाम - BAYATRI
+    कक्षा - 10TH
+    शाखा - MEHADAR
+    विषय - AI IN Health & community Kwell-being
+    
+    [crossed out line]
+    
+    परिचय -
+    ब-यात्री, शेहदार कक्षा दसमी
+    स्वास्थ्य समुदाय पर है
+    नविक क्लॉग महावीर नगर - अर्सी
+    रॉग), देवभाषा शोयग्नी उडन्या
+    निर्माण हॉि -
+    
+    प्रताणियों मे शुभ -
+    - AI इस महत्वपूर्ण नविक
+    - लॉग उपयोगिन किया बहुदायेन
+    - देनेध्वी ने है ।
+    - ऑनियनोलैंग होस्पिटों :- मी होनो
+    - करने के लैसे केमेती केत्युग्न मावी
+    - रहते:। उभी उड़ कगासे कांडर कवी
+    - ऊपी ककनी लाषि।
+
+  DIFF vs GOLDEN (word-level):
+      [-] नाम
+      [+] नाव
+      -
+      [-] bayatri कक्षा
+      [+] gayatri इयत्ता
+      - 10th
+      [-] शाखा
+      [+] शाळा
+      - mehadar विषय - ai in health & community
+      [-] kwell-being [crossed out line] परिचय
+      [+] well-being. परिस्थिती
+      -
+      [-] ब-यात्री, शेहदार कक्षा दसमी स्वास्थ्य समुदाय पर है नविक क्लॉग महावीर नगर
+      [+] बऱ्याचश्या शहरात किंवा. गावात दवाखाने असतात परंतु नवीन लोकांना माहिती नसते
+      -
+      [-] अर्सी रॉग), देवभाषा शोयग्नी उडन्या
+      [+] आणि त्यांना दवाखाना शोधायला अडचण
+      निर्माण
+      [-] हॉि - प्रताणियों मे शुभ -
+      [+] होते . प्रस्तावित ai उपाय :
+      - ai
+      [-] इस महत्वपूर्ण नविक - लॉग उपयोगिन किया बहुदायेन - देनेध्वी ने है । - ऑनियनोलैंग होस्पिटों :-
+      [+] च्या माध्यमातून नवीन लोकांना गावातील किंवा शहरातील दवाखाने शोधण्यास मदत होईल . मौलिकतेची घोषणा :
+      मी
+      [-] होनो - करने के लैसे केमेती केत्युग्न मावी - रहते:। उभी उड़ कगासे कांडर कवी - ऊपी ककनी लाषि।
+      [+] पुष्टी करते की शेअर केलेली कल्पना माझी स्वतःची आहे . आणि ती कोणाकडूनही कॉपी केलेली नाही.
+  Summary: 18/77 golden words matched (23%);  hyp 86 words, golden 77 words
+
+  Strengths:
+    + The proposed AI tutor idea is clearly stated and easy to understand
+    + The solution is realistic and could actually help students struggling with Hindi-medium word problems
+
+  Gaps:
+    - Major mismatch: the situation describes a health/community well-being issue, but the solution addresses an education problem
+    - The situation text is illegible in many places and the proposal is well below the required word count
+    - No explanation of how AI works behind the scenes (NLP, LLMs, data, training) — just surface-level uses
+
+  Observations: The submission shows enthusiasm but suffers from two structural problems. First, there is a clear disconnect between the described situation (which seems to involve a hospital/clinic and community health) and the proposed AI solution (an education tutor for word problems), so the proposal does not address the stated real-life problem. Second, the handwritten situation is largely unreadable and the AI solution is far shorter than the 100–150 word guidance, hurting communication. The core idea of a Hindi-language AI word-problem tutor is feasible and relevant to the 'ai_education' theme, but the student would benefit from (a) aligning the problem and the solution, (b) expanding on how AI techniques like language models or NLP would be used, and (c) adding an original twist (e.g., voice-based interaction, local dialect support, or progress tracking) to stand out.
+
+
+================================================================================
+PAGE  PAGE-06  •  Entry #28  •  ref sandbox-afa54f7640e1-afbaa6df
+theme=ai_education  language=auto  golden=YES (704 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  विषय - AI in Health and community Well- being .
+  
+  परिस्थिती - आज अनेक विद्यार्थी आणि काम करणारे लोक सतत मोबाईल , संगणक किंवा
+  अभ्यासात व्यस्त असल्यामुळे वेळेवर जेवण करणे , व पाणी पिणे आणि विश्रांती घेणे
+  विसरतात . त्यामुळे थकवा , एकाग्रता कमी होणे आणि दैनंदीन कामावर परिणाम होऊ शकतो.
+  
+  उपाय - आपण AI आरोग्यसाठी नावाचे एक स्मार्ट ॲप तयार करेल, हे ॲप AI च्या मदतीने
+  व्यक्तीचे दैनंदीन वेळापत्रक समजून घेईल आणि पाणी पिणे, जेवण करणे, विश्रांती
+  घेणे आणि व्यायामाची वेळ यासाठी योग्य वेळी सूचना देईल. व्यक्तीने एखादी सुचना
+  वारंवार दुर्लक्षित केल्यास AI तिच्या सवयींचा अभ्यास करून सुचनेची वेळ अधिक योग्य
+  पध्दतीने बदलेल.
+  
+  घोषण - मी पुष्टी करतो की शेअर केलेली कल्पना माझी स्वतःची आहे आणि कोणाकडूनही ती
+  कॉपी केलेली नाही.
+
+VERDICT: C (Vision + OCR fusion) read this page best — CER 31.0%
+  Path A — Vision LLM (strict)                      CER 32.8%     score 13.0/50  conf  86%   26.4s
+  Path B — Tesseract + LLM                          CER 82.6%     score 26.0/50  conf  75%   17.2s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 31.0%     score 14.0/50  conf  84%   54.5s
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  32.8%
+  Score:  13.0 / 50  (26.0%,  conf 86%)
+  Tokens:  in 5,214  out 2,636  total 7,850
+  Elapsed:  26,415 ms
+  Per-criterion:
+    - relevance             1.0 / 10
+    - feasibility           5.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      2.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 692 chars):
+    Topic - AI in Health and community well-being.
+    
+    * परिच्छेद - ज्ञान आणि वैद्याशास्त्री, आणि काम करणारे लाख मानव मधील संगणक बुवा अभ्यासाने व्यसन शास्त्रातून वेळवर जिवन कुटे, व पाणी पिणे आणि विषाणी घेणे विसरतात.
+    त्यामुळे आजवा, डॉक्टरांना कमी होणे आणि दैनंदीन कामावर परिणाम होत आहेता.
+    
+    * उपाय - आपण मर जारगळशासाठी नावानचे हुक स्मार्ट आणि तथार करून, हे आप मर त्या मर्दनीव व्यक्तीचे दैनंदीन वेळावर समपून वेईल आणि पाणी पिणे, जेवन करणे, विषाणी घेणे आणि त्या बागाती वेळ यासाठी योळ वेळ सूचना देईल. बदनीद याडा सूचना वारंवार डॉक्टरांना मिळयास ती नित्या नवसुचीचा अभ्यास करून सूचनाची वेळ अविष्ट योळन पहतात बदनूत.
+    
+    * योगण ती तुपटी करता की धुतर केतला कम्पना मुरूशा रहाल्या आहे आणि सोंगळुनी ती कामी कमती नाही.
+
+  DIFF vs GOLDEN (word-level):
+      [-] topic
+      [+] विषय
+      - ai in health and community
+      [-] well-being. * परिच्छेद
+      [+] well- being . परिस्थिती
+      -
+      [-] ज्ञान आणि वैद्याशास्त्री,
+      [+] आज अनेक विद्यार्थी
+      आणि काम करणारे
+      [-] लाख मानव मधील
+      [+] लोक सतत मोबाईल ,
+      संगणक
+      [-] बुवा अभ्यासाने व्यसन शास्त्रातून वेळवर जिवन कुटे,
+      [+] किंवा अभ्यासात व्यस्त असल्यामुळे वेळेवर जेवण करणे ,
+      व पाणी पिणे आणि
+      [-] विषाणी
+      [+] विश्रांती
+      घेणे
+      [-] विसरतात.
+      [+] विसरतात .
+      त्यामुळे
+      [-] आजवा, डॉक्टरांना
+      [+] थकवा , एकाग्रता
+      कमी होणे आणि दैनंदीन कामावर परिणाम
+      [-] होत आहेता. *
+      [+] होऊ शकतो.
+      उपाय - आपण
+      [-] मर जारगळशासाठी नावानचे हुक
+      [+] ai आरोग्यसाठी नावाचे एक
+      स्मार्ट
+      [-] आणि तथार करून,
+      [+] ॲप तयार करेल,
+      हे
+      [-] आप मर त्या मर्दनीव
+      [+] ॲप ai च्या मदतीने
+      व्यक्तीचे दैनंदीन
+      [-] वेळावर समपून वेईल
+      [+] वेळापत्रक समजून घेईल
+      आणि पाणी पिणे,
+      [-] जेवन
+      [+] जेवण
+      करणे,
+      [-] विषाणी
+      [+] विश्रांती
+      घेणे आणि
+      [-] त्या बागाती
+      [+] व्यायामाची
+      वेळ यासाठी
+      [-] योळ वेळ
+      [+] योग्य वेळी
+      सूचना देईल.
+      [-] बदनीद याडा सूचना
+      [+] व्यक्तीने एखादी सुचना
+      वारंवार
+      [-] डॉक्टरांना मिळयास ती नित्या नवसुचीचा
+      [+] दुर्लक्षित केल्यास ai तिच्या सवयींचा
+      अभ्यास करून
+      [-] सूचनाची
+      [+] सुचनेची
+      वेळ
+      [-] अविष्ट योळन पहतात बदनूत. * योगण ती तुपटी करता
+      [+] अधिक योग्य पध्दतीने बदलेल. घोषण - मी पुष्टी करतो
+      की
+      [-] धुतर केतला कम्पना मुरूशा रहाल्या
+      [+] शेअर केलेली कल्पना माझी स्वतःची
+      आहे आणि
+      [-] सोंगळुनी
+      [+] कोणाकडूनही
+      ती
+      [-] कामी कमती
+      [+] कॉपी केलेली
+      नाही.
+  Summary: 49/122 golden words matched (40%);  hyp 119 words, golden 122 words
+
+  Strengths:
+    + The student does attempt to link the theme (AI in health) to a real-world problem of forgetting meals, water and medicines.
+    + The idea of using smart, timely reminders has some practical merit as a starting point in the situation.
+    + The proposed tutor sentence, though short, is grammatically clear in English.
+
+  Gaps:
+    - Severe mismatch: the situation (health reminder wearable) and the proposed solution (Hindi math tutor) address two completely different problems.
+    - The Marathi situation text is largely unreadable due to repeated autocorrect/typo artifacts, so the actual problem is hard to follow.
+    - No AI techniques, data sources, or technical detail are mentioned to show understanding of how the system would work.
+
+  Observations: The submission suffers from a critical coherence problem: the situation describes a health-and-wellbeing reminder device for people neglecting self-care, yet the AI solution proposed is a Hindi mathematics word-problem tutor. These two ideas belong to different problems and themes, so relevance and clarity scores fall sharply. Additionally, the situation narrative in Marathi is too garbled by apparent autocorrect errors for a reader to confidently understand the problem being solved. To improve, the student should (1) keep the situation and the solution aligned to one problem, (2) write clearly in one language without transliteration noise, (3) describe the AI techniques (NLP, classification, recommendation, or sensor-based reasoning) that would power their system, and (4) expand the solution to the requested 100-150 word range.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  82.6%
+  Score:  26.0 / 50  (52.0%,  conf 75%)
+  Tokens:  in 903  out 1,519  total 2,422
+  Elapsed:  17,207 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 312 chars):
+    # 4 rage No.
+    lowe] | |
+    जा lee
+    [deer + AL ta Heath 074 cormonl
+    | =<. + छः आज
+    ae
+    |
+    Hi Be, a ९
+    | Pe नदान Joss SH हर
+    | [10501 tad o ८ ry 7 1 STO =, pl) दाम Am
+    | cella
+    s 0 iJ P22 न
+    | i sii % ol lt alia
+    कर्ण “थोक Asan hfs tasers -_ : wo 2. 2 लक Q
+    | pe le जाग नो जा पा केस्मेश्नी ना:
+    |
+    |
+    |
+    |
+    |
+    |
+    |
+    | |
+    ee
+    a
+    |
+    बात qq ———
+
+  DIFF vs GOLDEN (word-level):
+      [-] # 4 rage no. lowe] | | जा lee [deer + al ta heath 074 cormonl | =<. + छः
+      [+] विषय - ai in health and community well- being . परिस्थिती -
+      आज
+      [-] ae | hi be, a ९ | pe नदान joss sh हर | [10501 tad o ८ ry 7 1 sto =, pl) दाम am | cella s 0 ij p22 न | i sii % ol lt alia कर्ण “थोक asan hfs tasers -_ : wo 2. 2 लक q | pe le जाग नो जा पा केस्मेश्नी ना: | | | | | | | | | ee a | बात qq ———
+      [+] अनेक विद्यार्थी आणि काम करणारे लोक सतत मोबाईल , संगणक किंवा अभ्यासात व्यस्त असल्यामुळे वेळेवर जेवण करणे , व पाणी पिणे आणि विश्रांती घेणे विसरतात . त्यामुळे थकवा , एकाग्रता कमी होणे आणि दैनंदीन कामावर परिणाम होऊ शकतो. उपाय - आपण ai आरोग्यसाठी नावाचे एक स्मार्ट ॲप तयार करेल, हे ॲप ai च्या मदतीने व्यक्तीचे दैनंदीन वेळापत्रक समजून घेईल आणि पाणी पिणे, जेवण करणे, विश्रांती घेणे आणि व्यायामाची वेळ यासाठी योग्य वेळी सूचना देईल. व्यक्तीने एखादी सुचना वारंवार दुर्लक्षित केल्यास ai तिच्या सवयींचा अभ्यास करून सुचनेची वेळ अधिक योग्य पध्दतीने बदलेल. घोषण - मी पुष्टी करतो की शेअर केलेली कल्पना माझी स्वतःची आहे आणि कोणाकडूनही ती कॉपी केलेली नाही.
+  Summary: 1/122 golden words matched (1%);  hyp 96 words, golden 122 words
+
+  Strengths:
+    + The AI definition is concise and accurate ('a computer program that can learn patterns from examples and use those patterns to help solve new problems').
+    + The proposed solution targets a genuine gap—math word problems in regional languages like Hindi—giving it social relevance.
+    + The solution stays within the 100–150 word guidance and has a clear three-part structure: translate → explain → practice.
+
+  Gaps:
+    - The Situation field is garbled/illegible, so the real-life problem being solved is not discernible.
+    - No explanation of the underlying AI technique (NLP, LLM, fine-tuning, dataset, evaluation) was missing from the response.
+    - Originality is limited; the idea closely mirrors generic AI-tutor products already on the market.
+
+  Observations: The student shows a basic, accurate understanding of AI and proposes a relevant, technically feasible solution for Hindi-speaking math learners. However, the submission is severely weakened by an unreadable Situation section, which means the reviewer cannot confirm the student identified a concrete real-life problem. Additionally, the proposal would benefit from describing the AI method (e.g., using a pretrained language model, fine-tuning on Hindi math corpus, evaluation metrics) to demonstrate deeper understanding. Improving the clarity of the situation and adding technical depth would substantially raise the score across multiple criteria.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  31.0%
+  Score:  14.0 / 50  (28.0%,  conf 84%)
+  Tokens:  in 9,871  out 6,950  total 16,821
+  Elapsed:  54,482 ms
+  Per-criterion:
+    - relevance             2.0 / 10
+    - feasibility           4.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 704 chars):
+    विषय - AI in Health and community well-being.
+    
+    * परिचय - झान आणि विद्यार्थी आणि काम करणार ला एक मार्ग मार्गदर्शन, योग्य सूचना आभ्यासातून व्यसनमुक्त व्हावर जेवन करणे, व पाणी पिणे आणि विषाणी घेणे विसरतात.
+    व्यसनमुक्त झाल्यावर, दाखल्याना कमी होणे आणि दैनंदिन कामावर परिणाम झोळू शकतो.
+    
+    * उपाय - आपण आर् बाराइचराथीच्या नावाचे टुक्क स्महि आपे तयार करेब, हे ओप आर् च्या मदतीने व्यकिचे दैनंदिन वेळापत्रक समजून घेईल आणि पाणी पिणे, जेवन करणे, विषाणी घेणे आणि व्य्यायामाचे वेळ यासाठी योग्य वेळी सुचना देईल. व्यक्तीला डायरेट सुचना वारंवार देण्याऐवजी ती निर्ाव सवसूंची आभ्यास करून सुचनाची वेळ अचिष्ट योग्य पद्धतीने बदलेल.
+    
+    * परिणाम - ती पूस्ठी करतो की शेयर केलेला मुळ्या स्वाराना आहे आणि लोबांकडूनही ती कामी केली जाते.
+
+  DIFF vs GOLDEN (word-level):
+      विषय - ai in health and community
+      [-] well-being. * परिचय
+      [+] well- being . परिस्थिती
+      -
+      [-] झान आणि
+      [+] आज अनेक
+      विद्यार्थी आणि काम
+      [-] करणार ला एक मार्ग मार्गदर्शन, योग्य सूचना आभ्यासातून व्यसनमुक्त व्हावर जेवन करणे,
+      [+] करणारे लोक सतत मोबाईल , संगणक किंवा अभ्यासात व्यस्त असल्यामुळे वेळेवर जेवण करणे ,
+      व पाणी पिणे आणि
+      [-] विषाणी
+      [+] विश्रांती
+      घेणे
+      [-] विसरतात. व्यसनमुक्त झाल्यावर, दाखल्याना
+      [+] विसरतात . त्यामुळे थकवा , एकाग्रता
+      कमी होणे आणि
+      [-] दैनंदिन
+      [+] दैनंदीन
+      कामावर परिणाम
+      [-] झोळू
+      [+] होऊ
+      शकतो.
+      [-] *
+      उपाय - आपण
+      [-] आर् बाराइचराथीच्या
+      [+] ai आरोग्यसाठी
+      नावाचे
+      [-] टुक्क स्महि आपे
+      [+] एक स्मार्ट ॲप
+      तयार
+      [-] करेब,
+      [+] करेल,
+      हे
+      [-] ओप आर्
+      [+] ॲप ai
+      च्या मदतीने
+      [-] व्यकिचे दैनंदिन
+      [+] व्यक्तीचे दैनंदीन
+      वेळापत्रक समजून घेईल आणि पाणी पिणे,
+      [-] जेवन
+      [+] जेवण
+      करणे,
+      [-] विषाणी
+      [+] विश्रांती
+      घेणे आणि
+      [-] व्य्यायामाचे
+      [+] व्यायामाची
+      वेळ यासाठी योग्य वेळी
+      [-] सुचना
+      [+] सूचना
+      देईल.
+      [-] व्यक्तीला डायरेट
+      [+] व्यक्तीने एखादी
+      सुचना वारंवार
+      [-] देण्याऐवजी ती निर्ाव सवसूंची आभ्यास
+      [+] दुर्लक्षित केल्यास ai तिच्या सवयींचा अभ्यास
+      करून
+      [-] सुचनाची
+      [+] सुचनेची
+      वेळ
+      [-] अचिष्ट
+      [+] अधिक
+      योग्य
+      [-] पद्धतीने
+      [+] पध्दतीने
+      बदलेल.
+      [-] * परिणाम
+      [+] घोषण
+      -
+      [-] ती पूस्ठी
+      [+] मी पुष्टी
+      करतो की
+      [-] शेयर केलेला मुळ्या स्वाराना
+      [+] शेअर केलेली कल्पना माझी स्वतःची
+      आहे आणि
+      [-] लोबांकडूनही
+      [+] कोणाकडूनही
+      ती
+      [-] कामी केली जाते.
+      [+] कॉपी केलेली नाही.
+  Summary: 56/122 golden words matched (46%);  hyp 117 words, golden 122 words
+
+  Strengths:
+    + The student shows a basic understanding of what AI is in their own short definition.
+    + The health/addiction situation identifies a real and relatable problem (forgetting meals, water, medication).
+    + The idea of timing reminders based on learned user habits is a sensible AI-style approach.
+
+  Gaps:
+    - The situation and the proposed AI solution describe two completely different products, with no link between them.
+    - The theme is ai_education, but the situation is about health and addiction, so the submission is off-theme.
+    - The proposed solution is far too short, generic, and does not explain how AI is used, ignoring the word-count and detail guidance.
+
+  Observations: This submission is the most weakened by an internal mismatch: the Marathi situation text describes a personal health/addiction reminder app, while the English proposed solution is a one-sentence AI math tutor for Hindi word problems — neither of which sits cleanly within the ai_education theme. The proposed solution does not meet the 100–150 word requirement and does not describe AI techniques. The situation text, although it contains a promising idea about habit-learning reminders, is written with many typos and unclear phrasing. To improve, the student should choose one coherent education-focused problem, write the situation and solution in the same language, meet the word counts, and clearly explain which AI methods (e.g., NLP, recommendation, pattern recognition) their system would use.
+
+
+================================================================================
+PAGE  PAGE-07  •  Entry #29  •  ref sandbox-ef960aa5afc5-95bb54c1
+theme=ai_education  language=auto  golden=YES (728 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  Topic: AI in Health & Community well being
+  
+  Situation:- Mostly all of us especially working people struggle with healthy
+  routines due to busy schedules, screen time and work pressure. This affects our
+  sleep, diet, physical and overall well being.
+  
+  Approach:- AI can provide personalised reminders for water, meals (maybe 15
+  minutes recipe by just sharing picture of what we have in our fridge that week),
+  excercise breaks (movement like walk or rotate neck) and sleep based on our
+  daily routine.
+  
+  Reflections:- AI should support, not replace, human responsibility. It can help
+  people become more aware of their habits and make one more accountable by small
+  reminders. to make small consistent changes for our overall well being.
+
+VERDICT: A (Vision LLM (strict)) read this page best — CER 120.0%
+  Path A — Vision LLM (strict)                      CER 120.0%    score 23.0/50  conf  75%   25.4s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 291.2%    score 23.0/50  conf  74%   20.4s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 120.1%    score 26.0/50  conf  75%   35.5s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  120.0%
+  Score:  23.0 / 50  (46.0%,  conf 75%)
+  Tokens:  in 5,390  out 3,345  total 8,735
+  Elapsed:  25,382 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           6.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 981 chars):
+    विषय - मराठी और झोपडपट्टी
+    
+    * परिच्छेद - अनेक विद्यार्थी शिकतांना पुन्हा दुसरे विद्यार्थ्यांना घाबरतांत. मिश काम महानगरपालिका युनिक शाळेतील या झोपडपुट्ट र्यांच्या मतानील मंत्र अबुनरीट राहणार. अशा भोळ्या मनाने मस्त. त्यामुखे विद्यार्थी मंत्र म ना तचे टवाणे झाले होतुदेडू त्या विद्यार्थी ची ती वाग जाते. युकोजिन घडलेल्या करीणा वाट लागलात्य त्याचा आत्मविश्वार कमी होतो.
+    
+    * उपाय - येशे कां क्यामदेनांत विद्यार्थ्याच्या कुठ अनुनासजनिक शाळोदार म्हणुन मदत करू शकतो. विद्यार्थी त्याला शिकी वेळा वुद्र विचार करू शकतो आणि त्यासाठी त्याला कोणतीही त्याच्यावरती नसने. आणि त्याच्या विषयाचे स्पष्टिकरण पानबळीनुसार शोधा शोधण. उदाहरणार्थ मदतीन दिला मदतनिशच्या वेबसपान देक शकतो. उदाहरणार्थ शाळेतील उदाहरणासे यहेला या संबंधात या समजत नसेल तर मदत मी ना समझला- येथील रपझांमध्ने समजवून सांगु शकतो. जिल्ह्यात विद्यानतीच्या समझाल्या समझतल मर् दळेन जंबवते मिळतातील उदाहरण देऊन ती समजपण्यास मदत करू शकतो.
+    
+    * ्येष्णेग - मी पुन्ही करतांचा थेयुर केलेला न्यायाचा होश्राटाची आई आणि ती आणीचुदुनही करणे केलेना नाही.
+
+  DIFF vs GOLDEN (word-level):
+      [-] विषय - मराठी और झोपडपट्टी * परिच्छेद - अनेक विद्यार्थी शिकतांना पुन्हा दुसरे विद्यार्थ्यांना घाबरतांत. मिश काम महानगरपालिका युनिक शाळेतील या झोपडपुट्ट र्यांच्या मतानील मंत्र अबुनरीट राहणार. अशा भोळ्या मनाने मस्त. त्यामुखे विद्यार्थी मंत्र म ना तचे टवाणे झाले होतुदेडू त्या विद्यार्थी ची ती वाग जाते. युकोजिन घडलेल्या करीणा वाट लागलात्य त्याचा आत्मविश्वार कमी होतो. * उपाय - येशे कां क्यामदेनांत विद्यार्थ्याच्या कुठ अनुनासजनिक शाळोदार म्हणुन मदत करू शकतो. विद्यार्थी त्याला शिकी वेळा वुद्र विचार करू शकतो आणि त्यासाठी त्याला कोणतीही त्याच्यावरती नसने. आणि त्याच्या विषयाचे स्पष्टिकरण पानबळीनुसार शोधा शोधण. उदाहरणार्थ मदतीन दिला मदतनिशच्या वेबसपान देक शकतो. उदाहरणार्थ शाळेतील उदाहरणासे यहेला या संबंधात या समजत नसेल तर मदत मी ना समझला- येथील रपझांमध्ने समजवून सांगु शकतो. जिल्ह्यात विद्यानतीच्या समझाल्या समझतल मर् दळेन जंबवते मिळतातील उदाहरण देऊन ती समजपण्यास मदत करू शकतो. * ्येष्णेग - मी पुन्ही करतांचा थेयुर केलेला न्यायाचा होश्राटाची आई आणि ती आणीचुदुनही करणे केलेना नाही.
+      [+] topic: ai in health & community well being situation:- mostly all of us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. this affects our sleep, diet, physical and overall well being. approach:- ai can provide personalised reminders for water, meals (maybe 15 minutes recipe by just sharing picture of what we have in our fridge that week), excercise breaks (movement like walk or rotate neck) and sleep based on our daily routine. reflections:- ai should support, not replace, human responsibility. it can help people become more aware of their habits and make one more accountable by small reminders. to make small consistent changes for our overall well being.
+  Summary: 0/116 golden words matched (0%);  hyp 148 words, golden 116 words
+
+  Strengths:
+    + Clearly identifies a vulnerable target group (slum-area students losing confidence) that gives the proposal a human-centered motivation.
+    + The proposed solution is concise and focused on a concrete educational need (language simplification + step-by-step explanation + practice).
+    + Attempts to connect the solution to the student's own cultural/linguistic context (Marathi, Hindi).
+
+  Gaps:
+    - The situation text in Marathi is heavily garbled by autocorrect and is very difficult to read, weakening communication significantly.
+    - No explanation of which AI techniques (NLP, LLM, rule-based) would be used, what training data is needed, or how the system handles Marathi specifically.
+    - The proposed solution is far shorter than the 100–150 word guidance and lacks detail on how confidence-building, assessment, or feedback loops would work.
+    - Practical deployment considerations (smartphones, internet access, cost, teacher oversight) are not addressed.
+
+  Observations: The submission shows a genuine concern for underprivileged students losing confidence in learning, and the localization angle (Marathi/Hindi medium) is a meaningful touch. However, the writing quality of the situation paragraph is severely undermined by autocorrect errors, making it nearly unreadable, and the AI understanding remains surface-level — the student does not distinguish an AI approach from a conventional educational app. The proposed solution, while on-topic and feasible, is quite generic and would benefit from more specificity about what AI does, how it handles the target language, and how it would be deployed in low-resource settings.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  291.2%
+  Score:  23.0 / 50  (46.0%,  conf 74%)
+  Tokens:  in 2,269  out 1,410  total 3,679
+  Elapsed:  20,449 ms
+  Per-criterion:
+    - relevance             6.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 2317 chars):
+    | Page No. ~ *
+    Bere
+    : — a
+    i हिट TAL द्वार ८1०
+    |
+    | | ‘oe q STI) a Ta oF OT tern
+    | za Thy रू Fe ‘ कु ALS
+    शीतीम॒क्ठे उत्योच्णा_ मताजत्म HO 3g टाहजात:
+    छि; a कक काका fl
+    हि nm
+    ~ = > 4 SS) 2 पर
+    OO G09 r dt का जा teas 3h O 1 । \
+    i) पट 5 व ca] Miraid 2 b *
+    Sarat > ater का च्यामदतान SEAR BS Sn AC = ATA पे a coureplrl HA AH
+    Oe eee) Dew at atrer विन
+    | ) Q\ प्र ——
+    Vat qIC&Hjay 3 ज्त ० व् a ५
+    || oT | 22] a Ulnodla z J] ATG 5	1	1	1	18	11	1149	991	21	21	66.581055	ठ
+    5	1	1	1	18	12	1201	991	33	48	0.000000	— FI Gri
+    | ‘ as a +440 हे - “3G 5 a 8
+    ० पर Ty o1 t r L] अतः - रो Cay 0
+    Breaks fore 7
+    5	1	1	1	21	4	909	1184	10	5	39.175529	जज
+    5	1	1	1	21	5	996	1148	274	38	0.000000	serteanedk
+    5	1	1	1	21	6	1336	1171	30	11	91.868942	क
+    5	1	1	1	21	7	1394	1171	45	46	36.428699	५.
+    4	1	1	1	22	0	235	1210	1128	80	-1	
+    5	1	1	1	22	1	235	1234	6	56	86.914497	|
+    5	1	1	1	22	2	301	1233	42	21	22.702209	Add.
+    5	1	1	1	22	3	497	1232	10	8	0.000000	a
+    5	1	1	1	22	4	616	1231	31	13	10.637581	Lf
+    5	1	1	1	22	5	736	1210	111	72	44.913506	za
+    5	1	1	1	22	6	934	1232	72	19	74.917160	Aids
+    5	1	1	1	22	7	1160	1224	11	27	54.897213	[7
+    5	1	1	1	22	8	1261	1223	19	30	23.287743	ढ़
+    5	1	1	1	22	9	1360	1233	3	2	80.909218	r
+    4	1	1	1	23	0	312	1292	511	30	-1	
+    5	1	1	1	23	1	312	1296	20	23	83.258598	A
+    5	1	1	1	23	2	395	1292	89	19	15.517113	oul
+    5	1	1	1	23	3	566	1293	41	29	48.315498	on
+    5	1	1	1	23	4	668	1293	33	18	11.675423	~
+    5	1	1	1	23	5	818	1310	5	4	0.000000	m
+    4	1	1	1	24	0	233	1368	1123	108	-1	
+    5	1	1	1	24	1	233	1409	388	60	26.116493	ayer
+    5	1	1	1	24	2	485	1377	80	96	36.486282	ar
+    5	1	1	1	24	3	596	1410	7	7	42.913799	x
+    5	1	1	1	24	4	630	1374	25	57	31.131607	थी
+    5	1	1	1	24	5	601	1373	75	100	27.268906	er
+    5	1	1	1	24	6	605	1409	345	60	58.679512	ऋरतो
+    5	1	1	1	24	7	813	1373	38	100	73.202171	को
+    5	1	1	1	24	8	876	1373	75	100	43.061367	eta
+    5	1	1	1	24	9	890	1384	53	39	32.548035	A.
+    5	1	1	1	24	10	944	1371	165	105	16.017693	wR
+    5	1	1	1	24	11	1112	1379	19	30	91.971542	Q
+    5	1	1	1	24	12	1337	1368	19	56	29.759720	(\
+    4	1	1	1	25	0	232	1473	1006	56	-1	
+    5	1	1	1	25	1	232	1473	6	56	91.580032	|
+    5	1	1	1	25	2	293	1473	22	17	67.146400	81
+    5	1	1	1	25	3	410	1473	8	7	30.318596	2
+    5	1	1	1	25	4	639	1473	4	4	51.351311	५
+    5	1	1	1	25	5	871	1473	67	16	57.965630	mya
+    5	1	1	1	25	6	1041	1475	46	12	35.365738	EY
+    5	1	1	1	25	7	1179	1478	59	19	35.281540	2;
+    4	1	1	1	26	0	313	2122	1143	26	-1	
+    5	1	1	1	26	1	313	2122	1143	26	29.162819	nn
+
+  DIFF vs GOLDEN (word-level):
+      [-] | page no. ~ * bere : — a i हिट tal द्वार ८1० | | | ‘oe q sti) a ta
+      [+] topic: ai in health & community well being situation:- mostly all
+      of
+      [-] ot tern | za thy रू fe ‘ कु als शीतीम॒क्ठे उत्योच्णा_ मताजत्म ho 3g टाहजात: छि; a कक काका fl हि nm ~ = > 4 ss) 2 पर oo g09 r dt का जा teas 3h o 1 । \ i) पट 5 व ca] miraid 2 b * sarat > ater का च्यामदतान sear bs sn ac = ata पे a coureplrl ha ah oe eee) dew at atrer विन | ) q\ प्र —— vat qic&hjay 3 ज्त ० व् a ५ || ot | 22] a ulnodla z j] atg 5 1 1 1 18 11 1149 991 21 21 66.581055 ठ 5 1 1 1 18 12 1201 991 33 48 0.000000 — fi gri | ‘ as a +440 हे - “3g 5 a 8 ० पर ty o1 t r l] अतः - रो cay 0
+      [+] us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. this affects our sleep, diet, physical and overall well being. approach:- ai can provide personalised reminders for water, meals (maybe 15 minutes recipe by just sharing picture of what we have in our fridge that week), excercise
+      breaks
+      [-] fore 7 5 1 1 1 21 4 909 1184 10 5 39.175529 जज 5 1 1 1 21 5 996 1148 274 38 0.000000 serteanedk 5 1 1 1 21 6 1336 1171 30 11 91.868942 क 5 1 1 1 21 7 1394 1171 45 46 36.428699 ५. 4 1 1 1 22 0 235 1210 1128 80 -1 5 1 1 1 22 1 235 1234 6 56 86.914497 | 5 1 1 1 22 2 301 1233 42 21 22.702209 add. 5 1 1 1 22 3 497 1232 10 8 0.000000 a 5 1 1 1 22 4 616 1231 31 13 10.637581 lf 5 1 1 1 22 5 736 1210 111 72 44.913506 za 5 1 1 1 22 6 934 1232 72 19 74.917160 aids 5 1 1 1 22 7 1160 1224 11 27 54.897213 [7 5 1 1 1 22 8 1261 1223 19 30 23.287743 ढ़ 5 1 1 1 22 9 1360 1233 3 2 80.909218 r 4 1 1 1 23 0 312 1292 511 30 -1 5 1 1 1 23 1 312 1296 20 23 83.258598 a 5 1 1 1 23 2 395 1292 89 19 15.517113 oul 5 1 1 1 23 3 566 1293 41 29 48.315498
+      [+] (movement like walk or rotate neck) and sleep based
+      on
+      [-] 5 1 1 1 23 4 668 1293 33 18 11.675423 ~ 5 1 1 1 23 5 818 1310 5 4 0.000000 m 4 1 1 1 24 0 233 1368 1123 108 -1 5 1 1 1 24 1 233 1409 388 60 26.116493 ayer 5 1 1 1 24 2 485 1377 80 96 36.486282 ar 5 1 1 1 24 3 596 1410 7 7 42.913799 x 5 1 1 1 24 4 630 1374 25 57 31.131607 थी 5 1 1 1 24 5 601 1373 75 100 27.268906 er 5 1 1 1 24 6 605 1409 345 60 58.679512 ऋरतो 5 1 1 1 24 7 813 1373 38 100 73.202171 को 5 1 1 1 24 8 876 1373 75 100 43.061367 eta 5 1 1 1 24 9 890 1384 53 39 32.548035 a. 5 1 1 1 24 10 944 1371 165 105 16.017693 wr 5 1 1 1 24 11 1112 1379 19 30 91.971542 q 5 1 1 1 24 12 1337 1368 19 56 29.759720 (\ 4 1 1 1 25 0 232 1473 1006 56 -1 5 1 1 1 25 1 232 1473 6 56 91.580032 | 5 1 1 1 25 2 293 1473 22 17 67.146400 81 5 1 1 1 25 3 410 1473 8 7 30.318596 2 5 1 1 1 25 4 639 1473 4 4 51.351311 ५ 5 1 1 1 25 5 871 1473 67 16 57.965630 mya 5 1 1 1 25 6 1041 1475 46 12 35.365738 ey 5 1 1 1 25 7 1179 1478 59 19 35.281540 2; 4 1 1 1 26 0 313 2122 1143 26 -1 5 1 1 1 26 1 313 2122 1143 26 29.162819 nn
+      [+] our daily routine. reflections:- ai should support, not replace, human responsibility. it can help people become more aware of their habits and make one more accountable by small reminders. to make small consistent changes for our overall well being.
+  Summary: 3/116 golden words matched (3%);  hyp 681 words, golden 116 words
+
+  Strengths:
+    + The proposed solution is concise and clearly states what the AI tutor will do (translate, explain, generate practice).
+    + The solution is technically realistic and feasible with currently available AI tools.
+    + The Hindu-language focus adds a culturally relevant nuance to an educational AI idea.
+
+  Gaps:
+    - The situation text is garbled OCR/table data and does not describe a real-life problem in the student's own words.
+    - No explanation of the underlying AI techniques (NLP, translation models, problem-generation models) used to power the tutor.
+    - No mention of input format, evaluation method, users, data sources, or ethical/safety considerations such as accuracy of generated solutions.
+
+  Observations: The student clearly intends an AI-powered maths/word-problem tutor for Hindi-speaking learners, which fits the ai_education theme, and the solution sentence is crisp and within the word limit. However, the situation portion is unintelligible, reading like raw OCR of a Hindi table rather than a 50–100 word problem statement, which substantially undermines the submission. The solution also stays at a high-level 'AI tutor' framing without revealing which AI methods, data, or interfaces would make it work. To improve, the student should rewrite the situation as a coherent description of the real-life problem and add a few sentences on how AI specifically enables translation, step explanation, and practice generation.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  120.1%
+  Score:  26.0 / 50  (52.0%,  conf 75%)
+  Tokens:  in 5,413  out 3,712  total 9,125
+  Elapsed:  35,467 ms
+  Gate:  fusion skipped (tess much longer than vision, ratio threshold 1.5)
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 984 chars):
+    विषय - मा. ईदगाह आणि खुदा
+    
+    * परिचय - अनेक विद्यार्थी शिक्षकांना पुन्हा पुन्हा विचारतात. मि काय महानतिम किंवा स्टिक शाबरील या ओवतात. ओळी स्थानिक मतामील मत्रे अबुंनरीन रहमात. अशा ओळी स्थानिक मनात असते. त्यामुळे विद्यार्थी मत्रे म नातच दवानी ओळ दाखूदेड ट्या किंवाची भीती वाटत जाते. युहील धड्डे क्याला कळीण वाटू लागतात त्याचा आम्हील शुभ फार कमी होतो.
+    
+    * उपाय - येशी मी प्यामहून विद्यार्थ्यांचा हुङ अनृख्यासज्ञ साखोदात म्हणून मदत कार शकतो. विद्यार्थी त्यांचा विशिष्ट वेळा वृत्त विदार शकतो आणि त्यासाठी त्याला कोविणी त्यांचा िंबा ओंली वाटयाची शरय नेसते. मा ल्यान्च विषमाचे श्पटोड्यरण विद्यार्थ्यांच्या पातळीनुसार शोध्या आणि, उदाहरणेच्या मदतीने किंवा म्हणोनयाच्या देवरपात देऊ शकतो. उदाहरणार्थ शाब्तारील क। शेदा पत्र सेमपत तसेमरत बर मा ली मि शोला. बेळ्या। तप्पया/मखये समपाबुन साम्नु शुख्य. मरोच किशमातील जुप्यादी सोकपता सेपवता करतल तर देकदिन मोबतातील उदाहरण देऊन ती सन्मपण्यासे मदत कार शाओ.
+    
+    * वैशिण्य - मी पुही करतांचा शोधुवर केमदी का येमता हे स्वतःची आहे आणि ती कोणाबुदुनी कायेि देलगी नाही.
+
+  DIFF vs GOLDEN (word-level):
+      [-] विषय - मा. ईदगाह आणि खुदा * परिचय - अनेक विद्यार्थी शिक्षकांना पुन्हा पुन्हा विचारतात. मि काय महानतिम किंवा स्टिक शाबरील या ओवतात. ओळी स्थानिक मतामील मत्रे अबुंनरीन रहमात. अशा ओळी स्थानिक मनात असते. त्यामुळे विद्यार्थी मत्रे म नातच दवानी ओळ दाखूदेड ट्या किंवाची भीती वाटत जाते. युहील धड्डे क्याला कळीण वाटू लागतात त्याचा आम्हील शुभ फार कमी होतो. * उपाय - येशी मी प्यामहून विद्यार्थ्यांचा हुङ अनृख्यासज्ञ साखोदात म्हणून मदत कार शकतो. विद्यार्थी त्यांचा विशिष्ट वेळा वृत्त विदार शकतो आणि त्यासाठी त्याला कोविणी त्यांचा िंबा ओंली वाटयाची शरय नेसते. मा ल्यान्च विषमाचे श्पटोड्यरण विद्यार्थ्यांच्या पातळीनुसार शोध्या आणि, उदाहरणेच्या मदतीने किंवा म्हणोनयाच्या देवरपात देऊ शकतो. उदाहरणार्थ शाब्तारील क। शेदा पत्र सेमपत तसेमरत बर मा ली मि शोला. बेळ्या। तप्पया/मखये समपाबुन साम्नु शुख्य. मरोच किशमातील जुप्यादी सोकपता सेपवता करतल तर देकदिन मोबतातील उदाहरण देऊन ती सन्मपण्यासे मदत कार शाओ. * वैशिण्य - मी पुही करतांचा शोधुवर केमदी का येमता हे स्वतःची आहे आणि ती कोणाबुदुनी कायेि देलगी नाही.
+      [+] topic: ai in health & community well being situation:- mostly all of us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. this affects our sleep, diet, physical and overall well being. approach:- ai can provide personalised reminders for water, meals (maybe 15 minutes recipe by just sharing picture of what we have in our fridge that week), excercise breaks (movement like walk or rotate neck) and sleep based on our daily routine. reflections:- ai should support, not replace, human responsibility. it can help people become more aware of their habits and make one more accountable by small reminders. to make small consistent changes for our overall well being.
+  Summary: 0/116 golden words matched (0%);  hyp 157 words, golden 116 words
+
+  Strengths:
+    + Clearly identifies a real educational pain point (students afraid to ask questions, struggling with lessons)
+    + The proposed AI solution, though brief, covers multiple helpful functions: simplification, step-by-step explanation, and practice generation
+    + Shows genuine interest in helping peers learn better
+
+  Gaps:
+    - The situation text is severely garbled and largely unintelligible, which undermines the entire proposal
+    - The idea of an AI tutor is highly generic — no unique angle, audience, or pedagogical innovation is proposed
+    - No explanation of how AI actually works under the hood (techniques, data, model choices) is given
+
+  Observations: The student identifies a meaningful problem — students hesitant to ask questions and struggling with schoolwork — which is well-suited to an AI education solution. However, the situation description is so garbled that the full context of the problem cannot be assessed, which is a significant communication weakness. The proposed AI solution (translate, explain steps, give practice) is sensible and feasible but lacks originality, as this is one of the most common AI-in-education concepts. The student's understanding of AI, while correct in a basic sense, remains at a surface level without discussion of specific techniques, limitations, or data needs. To improve, the student should rewrite the situation clearly in one language, add a unique twist to the AI tutor (e.g., specific subject focus, personalization, voice-based interaction for shy students), and briefly explain the AI technology being used.
+
+
+================================================================================
+PAGE  PAGE-08  •  Entry #30  •  ref sandbox-fcf2a8e3243d-b42e34c7
+theme=ai_education  language=auto  golden=YES (313 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  नाम - निशा कक्षा - 8th B विद्यालय - बालिका विधा मन्दिर
+  
+  परिस्थिति : हर बच्चा कक्षा मे अध्याय समझ नही पाता और घर पर दोबारा पढ़ते समय उसे
+  समसाने वाला कोई नही होता ।
+  
+  समाधान: AI की मदद से पाठ्यपुस्तक के अध्याय को 4-5 मिनट के सरल विडियो मे बदलना॥
+  
+  यह मेरी स्वयं की सोच है। और इसकी मदद से बच्चे आसानी से सीख सकते हैं ।
+
+VERDICT: C (Vision + OCR fusion) read this page best — CER 206.1%
+  Path A — Vision LLM (strict)                      CER 207.7%    score 19.0/50  conf  84%   16.9s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER -%        score 31.0/50  conf  86%   12.5s
+  Path C — Vision + OCR fusion                      CER 206.1%    score 21.0/50  conf  82%   19.0s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  207.7%
+  Score:  19.0 / 50  (38.0%,  conf 84%)
+  Tokens:  in 4,905  out 1,945  total 6,850
+  Elapsed:  16,887 ms
+  Per-criterion:
+    - relevance             3.0 / 10
+    - feasibility           6.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 721 chars):
+    Topic:- AI in Health & community well being
+    
+    Situation:- Mostly all of us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. This effects our sleep, diet, physical and overall well being.
+    
+    Approach:- AI can provides personalized reminders for water, meals (maybe 15 minutes recipe by just showing picture of what's there in our fridge that week) exercise breaks (movement, bite will as voice notes) and sleep based on our daily routine.
+    
+    Outcome:- AI should support, not replace, human responsibility. It can help people become more aware of their habits and make one more accountable by small reminders to make small correct changes for our overall well being.
+
+  DIFF vs GOLDEN (word-level):
+      [-] topic:-
+      [+] नाम - निशा कक्षा - 8th b विद्यालय - बालिका विधा मन्दिर परिस्थिति : हर बच्चा कक्षा मे अध्याय समझ नही पाता और घर पर दोबारा पढ़ते समय उसे समसाने वाला कोई नही होता । समाधान:
+      ai
+      [-] in health & community well being situation:- mostly all of us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. this effects our sleep, diet, physical and overall well being. approach:- ai can provides personalized reminders for water, meals (maybe 15 minutes recipe by just showing picture of what's there in our fridge that week) exercise breaks (movement, bite will as voice notes) and sleep based on our daily routine. outcome:- ai should support, not replace, human responsibility. it can help people become more aware of their habits and make one more accountable by small reminders to make small correct changes for our overall well being.
+      [+] की मदद से पाठ्यपुस्तक के अध्याय को 4-5 मिनट के सरल विडियो मे बदलना॥ यह मेरी स्वयं की सोच है। और इसकी मदद से बच्चे आसानी से सीख सकते हैं ।
+  Summary: 1/68 golden words matched (1%);  hyp 115 words, golden 68 words
+
+  Strengths:
+    + Clear identification of a real pain point in the situation (busy schedules harming well-being) with a humane framing ('support, not replace').
+    + The proposed solution addresses a genuine educational need (Hindi-speaking students struggling with word problems).
+    + The tone is thoughtful and the writing, where present, is easy to read.
+
+  Gaps:
+    - The situation (health/well-being) and the proposed AI solution (Hindi math tutor) are about completely different problems and were not reconciled.
+    - The proposed solution is far below the required 100-150 word length and lacks detail on AI technique, data, workflow, or user experience.
+    - No explanation of how AI specifically performs translation, step-by-step reasoning, or practice generation, nor any novelty beyond existing tutoring apps.
+
+  Observations: The submission reads like two unrelated drafts were stitched together: a health-and-routine situation that does not match the 'ai_education' theme, and a very brief AI math-tutor solution that does match the theme but does not respond to the stated problem. To improve, the student should pick one coherent problem within the theme, expand the solution to the required word count, and describe concretely which AI capability (e.g., an LLM with prompted chain-of-thought, a small fine-tuned model, or a retrieval system over Hindi textbooks) powers each feature. Adding details such as target grade level, input/output interface, and how the system would be evaluated would also significantly strengthen feasibility and AI understanding scores.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  n/a
+  Score:  31.0 / 50  (62.0%,  conf 86%)
+  Tokens:  in 762  out 1,202  total 1,964
+  Elapsed:  12,547 ms
+  Per-criterion:
+    - relevance             9.0 / 10
+    - feasibility           8.0 / 10
+    - originality           5.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         4.0 / 10
+
+  EXTRACTION (cleaned OCR, 0 chars):
+    (empty)
+
+  DIFF vs GOLDEN (word-level):
+      [+] नाम - निशा कक्षा - 8th b विद्यालय - बालिका विधा मन्दिर परिस्थिति : हर बच्चा कक्षा मे अध्याय समझ नही पाता और घर पर दोबारा पढ़ते समय उसे समसाने वाला कोई नही होता । समाधान: ai की मदद से पाठ्यपुस्तक के अध्याय को 4-5 मिनट के सरल विडियो मे बदलना॥ यह मेरी स्वयं की सोच है। और इसकी मदद से बच्चे आसानी से सीख सकते हैं ।
+  Summary: 0/68 golden words matched (0%);  hyp 0 words, golden 68 words
+
+  Strengths:
+    + Clearly identifies a real, relatable classroom pain point tied to language barriers in math.
+    + Solution is practical, student-centered, and connects well to the chosen theme of AI in education.
+    + Mentions a meaningful outcome (confidence and speed) beyond just the technical task.
+
+  Gaps:
+    - Both the situation and solution are far below the required word counts, leaving important details missing.
+    - No explanation of the AI techniques (e.g., NLP, LLMs, prompt design) that would power the translator/tutor.
+    - Does not describe how practice problems would be generated, how correctness would be checked, or how progress would be tracked.
+
+  Observations: The submission shows a genuine understanding of a real educational problem and proposes a sensible AI-enabled response aligned with the theme. However, it stays at a high, surface-level description and does not demonstrate deeper awareness of how AI systems actually work or how this tool would be built. The most concrete issue is that both sections are significantly under the specified word limits, which limits the depth and clarity of the proposal.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  206.1%
+  Score:  21.0 / 50  (42.0%,  conf 82%)
+  Tokens:  in 9,090  out 2,449  total 11,539
+  Elapsed:  19,010 ms
+  Per-criterion:
+    - relevance             3.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 717 chars):
+    Topic :- AI in Health & Community well being
+    
+    Situation :- Mostly all of us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. This affects our sleep, diet, physical and overall well being.
+    
+    Approach:- AI can provide personalised reminders for meals (maybe 15 minute recipe by just showing picture of what we have in our fridge that week) exercise breaks (movement like walk or voice notes) and sleep based on our daily routine.
+    
+    Outcome:- AI should support, not replace, human responsibility. It can help people become more aware of their habits and make one more accountable by small reminders to make small corrections changes for our overall well being.
+
+  DIFF vs GOLDEN (word-level):
+      [-] topic :-
+      [+] नाम - निशा कक्षा - 8th b विद्यालय - बालिका विधा मन्दिर परिस्थिति : हर बच्चा कक्षा मे अध्याय समझ नही पाता और घर पर दोबारा पढ़ते समय उसे समसाने वाला कोई नही होता । समाधान:
+      ai
+      [-] in health & community well being situation :- mostly all of us especially working people struggle with healthy routines due to busy schedules, screen time and work pressure. this affects our sleep, diet, physical and overall well being. approach:- ai can provide personalised reminders for meals (maybe 15 minute recipe by just showing picture of what we have in our fridge that week) exercise breaks (movement like walk or voice notes) and sleep based on our daily routine. outcome:- ai should support, not replace, human responsibility. it can help people become more aware of their habits and make one more accountable by small reminders to make small corrections changes for our overall well being.
+      [+] की मदद से पाठ्यपुस्तक के अध्याय को 4-5 मिनट के सरल विडियो मे बदलना॥ यह मेरी स्वयं की सोच है। और इसकी मदद से बच्चे आसानी से सीख सकते हैं ।
+  Summary: 1/68 golden words matched (1%);  hyp 117 words, golden 68 words
+
+  Strengths:
+    + The student identifies a real, relatable pain point (busy professionals struggling with healthy routines).
+    + The proposed AI tutor idea, on its own, is realistic in scope and could plausibly be built.
+    + The Hindi-translation angle shows awareness of regional accessibility needs.
+
+  Gaps:
+    - The situation (health/well-being) and the proposed solution (math tutor) are completely mismatched — the submission reads like two different ideas pasted together.
+    - The solution is far too short and does not describe any AI technique, data, or workflow.
+    - Neither section respects the stated word-count guidance (50–100 for situation, 100–150 for solution).
+
+  Observations: The submission suffers from a critical coherence problem: the student frames a health-and-well-being problem but proposes an education tool. While the tutor idea is reasonable and fits the ai_education theme, it does not address the situation the student described. Additionally, both written sections are well under the requested word counts and lack any technical detail about how AI would actually accomplish the task. To improve, the student should either change the situation to match an education problem or change the solution to match a health/well-being problem, and should expand the proposal to specify the AI methods, inputs, outputs, and a rough user flow.
+
+
+================================================================================
+PAGE  PAGE-09  •  Entry #31  •  ref sandbox-0c7ac4f635f3-17e4ea3d
+theme=ai_education  language=auto  golden=YES (459 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  कवीता 10th किशनगढ़
+  
+  विषय - AI for Education & learing
+  
+  परिस्थिति - मुझे पढ़ने का मन नही करता!
+  
+  प्रस्तावित AI उपाय: AI के माध्यम से Subject को Creative तरीके से बना सकते हैं
+  like Games के माध्यम से, इससे मेरी रुचि बनी रहेगी और subject भी समझ आएगा।
+  
+  मौलिकता घोषणा: मैंने यह विचार इस आधार पर विकसित किया है कि AI व्यक्तिगत सीखने
+  में विद्यार्थियों की (मदद) कैसे कर सकता है। AI का उपयोग शिक्षक के स्थान पर नहीं,
+  बल्कि सीखने में एक सहायक के रूप में किया जाना चाहिए।
+
+VERDICT: A (Vision LLM (strict)) read this page best — CER 75.4%
+  Path A — Vision LLM (strict)                      CER 75.4%     score 25.0/50  conf  80%   24.4s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 79.8%     score 25.0/50  conf  74%   16.8s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 75.4%     score 30.0/50  conf  83%   39.3s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  75.4%
+  Score:  25.0 / 50  (50.0%,  conf 80%)
+  Tokens:  in 4,943  out 3,055  total 7,998
+  Elapsed:  24,420 ms
+  Per-criterion:
+    - relevance             8.0 / 10
+    - feasibility           5.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         4.0 / 10
+
+  EXTRACTION (cleaned OCR, 312 chars):
+    नाम - विद्या
+    कक्षा - 8th B
+    विद्यालय - बालिका विद्या मन्दिर
+    
+    परिस्थिति:- हर बेटी कहा मे अध्याय समय नही मिलता और घर
+    पर दोबारा पढ़ने समय उसे सम्मान वाला काम नही होता।
+    
+    समाधान: AI की मदद से पाउयपुस्तक के अध्याय को 4-5
+    मिनट में सरल भाषित में बदलना।
+    
+    यह मेरी स्वय की भाव है। और उसकी मदद से बच्चे आसानी
+    से पढ़व सकते है।
+
+  DIFF vs GOLDEN (word-level):
+      [-] नाम
+      [+] कवीता 10th किशनगढ़ विषय
+      -
+      [-] विद्या कक्षा
+      [+] ai for education & learing परिस्थिति
+      -
+      [-] 8th b विद्यालय - बालिका विद्या मन्दिर परिस्थिति:- हर बेटी कहा मे अध्याय समय
+      [+] मुझे पढ़ने का मन
+      नही
+      [-] मिलता
+      [+] करता! प्रस्तावित ai उपाय: ai के माध्यम से subject को creative तरीके से बना सकते हैं like games के माध्यम से, इससे मेरी रुचि बनी रहेगी
+      और
+      [-] घर
+      [+] subject भी समझ आएगा। मौलिकता घोषणा: मैंने यह विचार इस आधार
+      पर
+      [-] दोबारा पढ़ने समय उसे सम्मान वाला काम नही होता। समाधान:
+      [+] विकसित किया है कि
+      ai
+      [+] व्यक्तिगत सीखने में विद्यार्थियों
+      की
+      [-] मदद से पाउयपुस्तक
+      [+] (मदद) कैसे कर सकता है। ai का उपयोग शिक्षक
+      के
+      [-] अध्याय को 4-5 मिनट
+      [+] स्थान पर नहीं, बल्कि सीखने
+      में
+      [-] सरल भाषित
+      [+] एक सहायक के रूप
+      में
+      [-] बदलना। यह मेरी स्वय की भाव है। और उसकी मदद से बच्चे आसानी से पढ़व सकते है।
+      [+] किया जाना चाहिए।
+  Summary: 10/90 golden words matched (11%);  hyp 65 words, golden 90 words
+
+  Strengths:
+    + समस्या की पहचान स्पष्ट और भावनात्मक रूप से प्रामाणिक है — लड़कियों को घर पर अध्ययन का सम्मानजनक समय न मिलना एक वास्तविक सामाजिक मुद्दा है।
+    + समाधान का मूल विचार (4-5 मिनट में अध्याय सरल करना) व्यावहारिक और उपयोगकर्ता-केंद्रित है।
+    + AI को शिक्षा के संदर्भ में सोचने की स्पष्ट दिशा दिखाई गई है।
+
+  Gaps:
+    - प्रस्तावित समाधान 100-150 शब्दों की आवश्यकता के विरुद्ध बहुत छोटा है और अंग्रेज़ी में लिखा गया है जबकि शेष हिंदी में है — भाषा की एकरूपता और विस्तार दोनों की कमी है।
+    - AI कैसे काम करेगा (तकनीकी कार्यप्रणाली, डेटा स्रोत, मॉडल प्रकार) इसका कोई विवरण नहीं है।
+    - वर्तनी और व्याकरण में कई त्रुटियाँ हैं जो संप्रेषण की स्पष्टता को प्रभावित करती हैं।
+
+  Observations: विद्या ने एक सार्थक और वास्तविक समस्या पहचानी है — विशेष रूप से लड़कियों के लिए घर पर अध्ययन समय की कमी — और AI के उपयोग का एक प्रासंगिक विचार प्रस्तुत किया है। हालांकि, प्रस्तावित समाधान में तकनीकी गहराई की कमी है; यह स्पष्ट नहीं है कि AI किस तकनीक (NLP, LLM, translation API आदि) पर आधारित होगा। प्रस्ताव लिखने की शैली में सुधार की आवश्यकता है — शब्द सीमा का पालन, वर्तनी की शुद्धता, और AI की कार्यप्रणाली का स्पष्ट वर्णन अगले चरणों में महत्वपूर्ण होगा। कुल मिलाकर, विचार में सहानुभूति और प्रासंगिकता है, परन्तु तकनीकी और संप्रेषण दोनों पक्षों पर और विस्तार की आवश्यकता है।
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  79.8%
+  Score:  25.0 / 50  (50.0%,  conf 74%)
+  Tokens:  in 902  out 1,248  total 2,150
+  Elapsed:  16,837 ms
+  Per-criterion:
+    - relevance             7.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 264 chars):
+    = a CATE
+    a] - 8B
+    fray _ ज्राह्रिसा रिक्षा AER
+    “ah 9: हर Ved] eI -म ऋ्शय WE aA) uy ay ue
+    -पर der] पढ़त warm उस समसारं वाल af! की
+    rey: ॥7 जी ET सं बतझ्लुत्तक + ऋयाड़ कं 4-5
+    फिट पके सरल thet A oer
+    -यह् जैरी weer A—alt ढैं।जॉर qs)! wee रस get nar
+    gt eg ward है.
+    Mo
+    é
+    .
+
+  DIFF vs GOLDEN (word-level):
+      [-] = a cate a]
+      [+] कवीता 10th किशनगढ़ विषय
+      -
+      [-] 8b fray _ ज्राह्रिसा रिक्षा aer “ah 9: हर ved] ei -म ऋ्शय we aa) uy ay ue -पर der] पढ़त warm उस समसारं वाल af!
+      [+] ai for education & learing परिस्थिति - मुझे पढ़ने का मन नही करता! प्रस्तावित ai उपाय: ai के माध्यम से subject को creative तरीके से बना सकते हैं like games के माध्यम से, इससे मेरी रुचि बनी रहेगी और subject भी समझ आएगा। मौलिकता घोषणा: मैंने यह विचार इस आधार पर विकसित किया है कि ai व्यक्तिगत सीखने में विद्यार्थियों
+      की
+      [-] rey: ॥7 जी et सं बतझ्लुत्तक + ऋयाड़ कं 4-5 फिट पके सरल thet a oer -यह् जैरी weer a—alt ढैं।जॉर qs)! wee रस get nar gt eg ward है. mo é .
+      [+] (मदद) कैसे कर सकता है। ai का उपयोग शिक्षक के स्थान पर नहीं, बल्कि सीखने में एक सहायक के रूप में किया जाना चाहिए।
+  Summary: 2/90 golden words matched (2%);  hyp 65 words, golden 90 words
+
+  Strengths:
+    + The proposed solution clearly targets a real and relatable pain point: Hindi-medium students struggling with English word problems.
+    + The three-part solution (translate, explain, practice) shows a sensible pedagogical flow.
+    + The AI definition, while basic, is accurate and free of hype.
+
+  Gaps:
+    - The situation text is garbled and unreadable, so the actual problem is essentially missing.
+    - No explanation of the underlying AI technique (e.g., LLM, fine-tuning, retrieval) or data requirements.
+    - Little originality beyond a generic AI tutor; no novel angle such as voice support, offline mode, or curriculum alignment.
+
+  Observations: The student has chosen a meaningful, educationally relevant problem and proposed a sensible AI-driven approach, which shows good intuition. However, the submission is severely undermined by the unreadable situation field, which violates the basic requirement to describe the real-life problem in 50-100 words. The AI understanding is surface-level: the student knows what AI tutors can do at a user-facing level but does not articulate the mechanism. To improve, the student should rewrite the situation in clear text, specify which AI techniques the tutor would use, and add a differentiating feature to lift the originality.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  75.4%
+  Score:  30.0 / 50  (60.0%,  conf 83%)
+  Tokens:  in 9,330  out 4,456  total 13,786
+  Elapsed:  39,339 ms
+  Per-criterion:
+    - relevance             8.0 / 10
+    - feasibility           7.0 / 10
+    - originality           5.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         5.0 / 10
+
+  EXTRACTION (cleaned OCR, 322 chars):
+    नाम - विद्या
+    कक्षा - 8th B
+    विद्यालय - बालिका विद्या मन्दिर
+    
+    पारीखे है :- एक घटना कक्षा में अध्यापक समय नही पाता और बच्चे पर दोबारा पढ़ते समय उसे समझाने वाला काम नही होता।
+    
+    समाधान: AI की मदद से पाठ्यपुस्तक के अध्याय को 4-5 मिनट में सरल वीडियो में बदलना।
+    
+    यह मेरी स्वयं की सोच है। और हमारी मदद से बच्चे आसानी से सीख सकते है।
+
+  DIFF vs GOLDEN (word-level):
+      [-] नाम
+      [+] कवीता 10th किशनगढ़ विषय
+      -
+      [-] विद्या कक्षा
+      [+] ai for education & learing परिस्थिति
+      -
+      [-] 8th b विद्यालय - बालिका विद्या मन्दिर पारीखे
+      [+] मुझे पढ़ने का मन नही करता! प्रस्तावित ai उपाय: ai के माध्यम से subject को creative तरीके से बना सकते हैं like games के माध्यम से, इससे मेरी रुचि बनी रहेगी और subject भी समझ आएगा। मौलिकता घोषणा: मैंने यह विचार इस आधार पर विकसित किया
+      है
+      [-] :-
+      [+] कि ai व्यक्तिगत सीखने में विद्यार्थियों की (मदद) कैसे कर सकता है। ai का उपयोग शिक्षक के स्थान पर नहीं, बल्कि सीखने में
+      एक
+      [-] घटना कक्षा
+      [+] सहायक के रूप
+      में
+      [-] अध्यापक समय नही पाता और बच्चे पर दोबारा पढ़ते समय उसे समझाने वाला काम नही होता। समाधान: ai की मदद से पाठ्यपुस्तक के अध्याय को 4-5 मिनट में सरल वीडियो में बदलना। यह मेरी स्वयं की सोच है। और हमारी मदद से बच्चे आसानी से सीख सकते है।
+      [+] किया जाना चाहिए।
+  Summary: 5/90 golden words matched (6%);  hyp 67 words, golden 90 words
+
+  Strengths:
+    + वास्तविक और सहानुभूतिपूर्ण समस्या की पहचान — शिक्षक के पास समय न होना और घर पर पुनरावृत्ति में मदद न मिलना।
+    + समाधान विचार (AI ट्यूटर, वीडियो निर्माण) तकनीकी रूप से व्यावहारिक हैं और वर्तमान AI क्षमताओं के अनुरूप हैं।
+    + AI की बुनियादी समझ स्पष्ट रूप से व्यक्त की गई है।
+
+  Gaps:
+    - Situation में बताया समाधान (अध्याय को 4-5 मिनट के वीडियो में बदलना) और Proposed AI Solution में दिया गया समाधान (word problem solver) एक-दूसरे से मेल नहीं खाते — यह भ्रम पैदा करता है।
+    - AI कैसे काम करेगा (कौन सी तकनीक, कौन सा मॉडल, किस डेटा पर प्रशिक्षित) इसका कोई विस्तार नहीं है।
+    - समाधान की भाषा स्थिति (हिंदी) से मेल नहीं खाती; पूरा प्रस्ताव हिंदी या पूरा अंग्रेज़ी में होना चाहिए।
+
+  Observations: विद्या ने एक वास्तविक कक्षा-स्तर की समस्या पहचानी है और दो व्यावहारिक AI-आधारित विचार प्रस्तुत किए हैं, जो विषय के लिए प्रासंगिक हैं। हालाँकि, सबसे कमज़ोर पहलू यह है कि 'situation' में वर्णित समाधान (पाठ से वीडियो) और 'Proposed AI Solution' में वर्णित समाधान (word problem AI tutor) एक-दूसरे से अलग हैं — यह संगति का अभाव है। AI की कार्यप्रणाली, तकनीकी चुनौतियों और स्कूल के संसाधनों (इंटरनेट, उपकरण) पर विस्तार से चर्चा न होने से मौलिकता और AI-समझ दोनों के अंक सीमित रहते हैं।
+
+
+================================================================================
+PAGE  PAGE-10  •  Entry #32  •  ref sandbox-52a42c686e3b-bfcf0730
+theme=ai_education  language=auto  golden=YES (419 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: Kolihamar विषय: AI in Education
+  
+  परिस्थिति / मुझे पढ़ने में या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं
+  आता और घर पर उसकी मदद करने वाला कोई नहीं होता।
+  
+  उपाय : मैं एक AI बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे
+  आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके।
+  
+  मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और से कॉपी नहीं किया
+  है ।
+
+VERDICT: A (Vision LLM (strict)) read this page best — CER 76.9%
+  Path A — Vision LLM (strict)                      CER 76.9%     score 22.0/50  conf  75%   14.0s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 93.5%     score 22.0/50  conf  80%   11.0s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 97.1%     score 19.0/50  conf  85%   39.6s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  76.9%
+  Score:  22.0 / 50  (44.0%,  conf 75%)
+  Tokens:  in 4,935  out 1,722  total 6,657
+  Elapsed:  13,957 ms
+  Per-criterion:
+    - relevance             5.0 / 10
+    - feasibility           6.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 272 chars):
+    खुशी
+    विवाहित हुए बिना education & learning
+    कमजोर पड़ जाती है।
+    संस्कार व संस्कृति
+    में उनका
+    ग्रीष्मकालीन शिक्षा
+    व इसका
+    अध्ययन के विस्तार से भी मैं जानकारी
+    मानता हूँ
+    शिक्षा के बिना
+    संस्कृति की रक्षा
+    की तैयारी अधूरी रहती है।
+    बेटियों को खाली पढ़ाये
+    अंततः शिक्षा लें।
+    सर-गण-दादी
+
+  DIFF vs GOLDEN (word-level):
+      [-] खुशी विवाहित हुए बिना
+      [+] नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: kolihamar विषय: ai in
+      education
+      [-] & learning कमजोर पड़ जाती है। संस्कार व संस्कृति
+      [+] परिस्थिति / मुझे पढ़ने
+      में
+      [-] उनका ग्रीष्मकालीन शिक्षा व इसका अध्ययन
+      [+] या पढ़ाई
+      के
+      [-] विस्तार
+      [+] दौरान कोई भी कठिन सवाल या विषय समझ नहीं आता और घर पर उसकी मदद करने वाला कोई नहीं होता। उपाय : मैं एक ai बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके। मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और
+      से
+      [-] भी मैं जानकारी मानता हूँ शिक्षा के बिना संस्कृति की रक्षा की तैयारी अधूरी रहती है। बेटियों को खाली पढ़ाये अंततः शिक्षा लें। सर-गण-दादी
+      [+] कॉपी नहीं किया है ।
+  Summary: 4/89 golden words matched (4%);  hyp 48 words, golden 89 words
+
+  Strengths:
+    + Correctly aligned the proposal with the ai_education theme by focusing on tutoring and practice.
+    + Shows genuine concern for learners who struggle with language complexity in math problems.
+    + The AI definition, while basic, is accurate and shows awareness of pattern learning.
+
+  Gaps:
+    - The situation is too poetic/fragmented to identify a specific, real-life problem worth solving.
+    - The solution is far shorter than the 100–150 word requirement and lacks technical detail on how AI is applied.
+    - No discussion of data sources, user interface, evaluation, or potential limitations of the AI tutor.
+
+  Observations: The submission shows awareness that AI can support education and correctly identifies the theme, but it is held back by an unclear problem statement and an underdeveloped solution. The situation paragraph reads like scattered thoughts in Hindi rather than a focused description of a real-world issue, making it difficult to judge relevance and impact. The AI solution is a sensible but common idea — an intelligent tutoring assistant — and would benefit from concrete details about how the AI works, what input it takes, and how success would be measured. Improving structure and expanding both sections to meet the word-count guidance would substantially strengthen the proposal.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  93.5%
+  Score:  22.0 / 50  (44.0%,  conf 80%)
+  Tokens:  in 786  out 1,372  total 2,158
+  Elapsed:  10,989 ms
+  Per-criterion:
+    - relevance             4.0 / 10
+    - feasibility           7.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 73 chars):
+    “aT
+    1:11 11200 00
+    yt rues
+    ; ie jie!
+    | ane eh
+    yy 7 He pt
+    my ie
+    vf a a
+    a
+    ae
+
+  DIFF vs GOLDEN (word-level):
+      [-] “at 1:11 11200 00 yt rues ; ie jie! | ane eh yy 7 he pt my ie vf a a a ae
+      [+] नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: kolihamar विषय: ai in education परिस्थिति / मुझे पढ़ने में या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं आता और घर पर उसकी मदद करने वाला कोई नहीं होता। उपाय : मैं एक ai बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके। मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और से कॉपी नहीं किया है ।
+  Summary: 0/89 golden words matched (0%);  hyp 23 words, golden 89 words
+
+  Strengths:
+    + The proposed AI tutor addresses a clear educational need (helping students who struggle with word problems in English) by localising content into Hindi.
+    + The solution is concise, within the 100–150 word guidance, and easy to read.
+    + The proposal is technically realistic and could be built with readily available AI tools.
+
+  Gaps:
+    - The 'situation' field is unintelligible garbled text, so no real-life problem is actually described.
+    - The idea lacks originality — AI math/word-problem tutors already exist in many forms.
+    - The student does not explain which AI technique (e.g., NLP, LLM, rule-based parsing) powers the translation or step-by-step explanation.
+
+  Observations: The submission's main weakness is the completely garbled situation text, which means the proposal floats without a grounded real-life problem. The AI tutor idea itself is feasible and on-theme but generic, mirroring existing tools. The student shows a basic understanding of AI but does not articulate the underlying technology or differentiate their idea from existing solutions. To improve, the student should write a coherent problem description, add a novel angle (e.g., voice-based interaction, regional dialect support, or progress tracking), and briefly mention which AI methods enable the tutor's features.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  97.1%
+  Score:  19.0 / 50  (38.0%,  conf 85%)
+  Tokens:  in 9,543  out 6,229  total 15,772
+  Elapsed:  39,588 ms
+  Per-criterion:
+    - relevance             5.0 / 10
+    - feasibility           6.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      3.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 532 chars):
+    कबीर
+    
+    कबीरदास का जन्म - कबीरदास का जन्म
+    (काशी) / (वाराणसी)
+    में हुआ था।
+    
+    कबीरदास के पिता का नाम नीरू निषाद
+    माता का नाम नीमा थी।
+    
+    विवाह - कबीरदास का विवाह लोई नाम
+    सरनेम
+    
+    कबीर का प्रसिद्ध दोहा:
+    माला फेरत जोगी फिरै,
+    अवधर्म निकट बैठा दाम।
+    चित्त माला फेर रहे जाऊँ
+    जीव चुरा रहे निकट बैठे दाम
+    
+    इस प्रसिद्ध दोहे में कबीर
+    उसका माला की वर्णन करते हैं
+    उनका पिता का नाम
+    एक प्रसिद्ध कवि
+    
+    कबीर कौन थे? - कबीर एक भारतीय सूफी कवि
+    भक्तिकाल के प्रमुख कवि
+    और संत कवि थे!
+    भक्तिकालीन कवि कहे जाते हैं
+    जिसका प्रभाव
+    उत्तर भारत, बिहार, मध्य प्रदेश, राजस्थान
+
+  DIFF vs GOLDEN (word-level):
+      [-] कबीर कबीरदास
+      [+] नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: kolihamar विषय: ai in education परिस्थिति / मुझे पढ़ने में या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं आता और घर पर उसकी मदद करने वाला कोई नहीं होता। उपाय : मैं एक ai बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके। मौलिकता की घोषणा : यह मेरा खुद
+      का
+      [-] जन्म - कबीरदास का जन्म (काशी) / (वाराणसी) में हुआ था। कबीरदास के पिता का नाम नीरू निषाद माता का नाम नीमा थी। विवाह - कबीरदास का विवाह लोई नाम सरनेम कबीर का प्रसिद्ध दोहा: माला फेरत जोगी फिरै, अवधर्म निकट बैठा दाम। चित्त माला फेर रहे जाऊँ जीव चुरा रहे निकट बैठे दाम इस प्रसिद्ध दोहे में कबीर उसका माला की वर्णन करते हैं उनका पिता का नाम एक प्रसिद्ध कवि कबीर कौन थे? - कबीर एक भारतीय सूफी कवि भक्तिकाल के प्रमुख कवि
+      [+] आईडिया है मैंने इसे किसी
+      और
+      [-] संत कवि थे! भक्तिकालीन कवि कहे जाते हैं जिसका प्रभाव उत्तर भारत, बिहार, मध्य प्रदेश, राजस्थान
+      [+] से कॉपी नहीं किया है ।
+  Summary: 2/89 golden words matched (2%);  hyp 105 words, golden 89 words
+
+  Strengths:
+    + The student's own definition of AI shows a basic conceptual understanding of pattern learning.
+    + The proposed solution fits squarely within the ai_education theme and is a buildable concept.
+    + The solution is concise and stays roughly within the suggested word range.
+
+  Gaps:
+    - The situation does not describe a real-life problem—it is a jumbled set of facts about the poet Kabir with no clear issue to solve.
+    - There is no logical connection between the Kabir situation and the Hindi word-problem tutor proposal.
+    - The solution lacks any technical detail on how AI would actually perform translation, step explanation, or problem generation.
+
+  Observations: The submission reveals two separate pieces of work stitched together: a disorganised passage about Kabirdas and a generic Hindi word-problem AI tutor. The tutor idea itself is feasible and on-theme but is far too standard to demonstrate originality. The student should rewrite the situation as a clear problem statement (e.g., 'Hindi-medium students struggle with English word problems') and then explain which AI components—translation, reasoning, generation—power the tutor. Improving the alignment between situation and solution, and adding technical specifics, would substantially raise the scores across most criteria.
+
+
+================================================================================
+PAGE  PAGE-11  •  Entry #33  •  ref sandbox-e9d0451739cb-2b4dc33f
+theme=ai_education  language=auto  golden=YES (419 chars)
+================================================================================
+
+GOLDEN TRANSCRIPT (human-verified):
+  नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: Kolihamar विषय: AI in Education
+  
+  परिस्थिति / मुझे पढ़ने में या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं
+  आता और घर पर उसकी मदद करने वाला कोई नहीं होता।
+  
+  उपाय : मैं एक AI बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे
+  आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके।
+  
+  मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और से कॉपी नहीं किया
+  है ।
+
+VERDICT: A (Vision LLM (strict)) read this page best — CER 88.7%
+  Path A — Vision LLM (strict)                      CER 88.7%     score 19.0/50  conf  71%   17.4s  ← NOISE (scored 0/50 on bad OCR)
+  Path B — Tesseract + LLM                          CER 92.8%     score 24.0/50  conf  75%   15.3s  ← NOISE (scored 0/50 on bad OCR)
+  Path C — Vision + OCR fusion                      CER 90.4%     score 24.0/50  conf  77%   72.2s  ← NOISE (scored 0/50 on bad OCR)
+
+--------------------------------------------------------------------------------
+Path A — Vision LLM (strict)
+  CER vs golden:  88.7%
+  Score:  19.0 / 50  (38.0%,  conf 71%)
+  Tokens:  in 4,915  out 2,177  total 7,092
+  Elapsed:  17,356 ms
+  Per-criterion:
+    - relevance             4.0 / 10
+    - feasibility           6.0 / 10
+    - originality           3.0 / 10
+    - ai_understanding      4.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 290 chars):
+    शिवा बचन
+    सुनि सीता नैन बिखेरे।
+    सकल भुवन कोउ कौतुक
+    [illegible]
+    पुनि कंठ [illegible]
+    छनि उठि
+    भेटि नव [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+
+  DIFF vs GOLDEN (word-level):
+      [-] शिवा बचन सुनि सीता नैन बिखेरे। सकल भुवन कोउ कौतुक [illegible] पुनि कंठ [illegible] छनि उठि भेटि नव [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible]
+      [+] नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: kolihamar विषय: ai in education परिस्थिति / मुझे पढ़ने में या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं आता और घर पर उसकी मदद करने वाला कोई नहीं होता। उपाय : मैं एक ai बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके। मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और से कॉपी नहीं किया है ।
+  Summary: 0/89 golden words matched (0%);  hyp 34 words, golden 89 words
+
+  Strengths:
+    + The AI definition shows a correct, intuitive grasp of machine learning as pattern learning from examples.
+    + The proposed solution is concrete and pedagogically sound: translate, explain steps, and provide similar practice problems.
+    + The solution stays within the 100–150 word guidance and is easy to read.
+
+  Gaps:
+    - The situation is largely illegible / garbled, so the real problem the student wants to solve is not communicated.
+    - No description of which AI techniques (translation model, tutoring model, problem generator) the system would use.
+    - No mention of data, evaluation, or how success would be measured for students.
+
+  Observations: The submission has a coherent and age-appropriate AI-tutor idea in its solution paragraph, but the situation section is essentially unreadable, which undermines the whole proposal because the rubric evaluates alignment between problem and solution. The AI definition is acceptable but stays at a textbook level, and the proposal lacks technical detail about how translation, step-by-step explanation, or practice generation would actually be implemented. To improve, the student should resubmit a legible situation in Hindi (or English) describing the concrete learning problem, and then tie the AI solution explicitly to that problem with a brief mention of the underlying technique.
+
+--------------------------------------------------------------------------------
+Path B — Tesseract + LLM
+  CER vs golden:  92.8%
+  Score:  24.0 / 50  (48.0%,  conf 75%)
+  Tokens:  in 786  out 1,168  total 1,954
+  Elapsed:  15,287 ms
+  Per-criterion:
+    - relevance             6.0 / 10
+    - feasibility           6.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      6.0 / 10
+    - communication         2.0 / 10
+
+  EXTRACTION (cleaned OCR, 61 chars):
+    pipe 4 , oS te
+    APs ३ ५ तह) कि कर
+    कक 2227 |
+    ८-३४ aCe : sy
+    जि ८
+
+  DIFF vs GOLDEN (word-level):
+      [-] pipe 4 , os te aps ३ ५ तह) कि कर कक 2227 | ८-३४ ace
+      [+] नाम
+      :
+      [-] sy जि ८
+      [+] विरेन्द्र कुमार क्लास: 7th स्कूल: kolihamar विषय: ai in education परिस्थिति / मुझे पढ़ने में या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं आता और घर पर उसकी मदद करने वाला कोई नहीं होता। उपाय : मैं एक ai बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके। मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और से कॉपी नहीं किया है ।
+  Summary: 1/89 golden words matched (1%);  hyp 20 words, golden 89 words
+
+  Strengths:
+    + Clearly understands what AI is at a basic conceptual level and states it in their own words.
+    + The proposed solution is concrete and actionable, specifying translation, step explanation, and practice generation.
+
+  Gaps:
+    - The Situation is unreadable/corrupted, so no real problem is actually described.
+    - No mention of training data, model choice, or how the AI would actually generate explanations and varied practice problems.
+    - No details about the student's own context (class, device access, language level) to judge feasibility.
+    - The solution is a fairly standard AI tutor idea and lacks a unique twist.
+
+  Observations: The submission's biggest weakness is the Situation section, which is garbled text and does not describe any real-life problem, making the overall submission incomplete against the prompt's requirements. The AI definition and proposed solution are reasonable and show basic understanding, but the solution reads like a generic 'AI tutor' idea without originality or technical depth. To improve, the student should rewrite the Situation as a clear paragraph describing a real educational challenge they face, specify which class/board/language is involved, and add a small but distinctive feature (e.g., voice-based interaction for low-literacy parents, or image-based word problem input) to stand out.
+
+--------------------------------------------------------------------------------
+Path C — Vision + OCR fusion
+  CER vs golden:  90.4%
+  Score:  24.0 / 50  (48.0%,  conf 77%)
+  Tokens:  in 9,311  out 6,483  total 15,794
+  Elapsed:  72,241 ms
+  Per-criterion:
+    - relevance             5.0 / 10
+    - feasibility           7.0 / 10
+    - originality           4.0 / 10
+    - ai_understanding      5.0 / 10
+    - communication         3.0 / 10
+
+  EXTRACTION (cleaned OCR, 436 chars):
+    शिक्षक: नई खिड़की
+    छात्र: कब
+    कब
+    शिक्षक: 41 in 3 foundation
+    छात्र: बहुत
+    तुम
+    में
+    ने
+    होगा
+    चुड़
+    किया
+    क्योंकि
+    उसने
+    [illegible]
+    में
+    उसके
+    तुम
+    [illegible]
+    एक
+    और
+    चाहिए
+    और
+    सभी
+    अच्छे
+    बड़ी
+    [illegible]
+    नहीं
+    लेकिन
+    तुम्हारे
+    के
+    लिए
+    नई
+    [illegible]
+    मुझे
+    पता
+    थी
+    [illegible]
+    मुझे
+    सबसे
+    [illegible]
+    होगा
+    करना
+    है
+    यही
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+    [illegible]
+
+  DIFF vs GOLDEN (word-level):
+      [-] शिक्षक: नई खिड़की छात्र: कब कब शिक्षक: 41
+      [+] नाम : विरेन्द्र कुमार क्लास: 7th स्कूल: kolihamar विषय: ai
+      in
+      [-] 3 foundation छात्र: बहुत तुम
+      [+] education परिस्थिति / मुझे पढ़ने
+      में
+      [-] ने होगा चुड़
+      [+] या पढ़ाई के दौरान कोई भी कठिन सवाल या विषय समझ नहीं आता और घर पर उसकी मदद करने वाला कोई नहीं होता। उपाय : मैं एक ai बेस्ड पर्सनल ऐप तैयार करूँ उसमे छात्र अपने डाउट पूछ सके और उसे आसान भाषा में समझाया जाए ताकि उसकी पढ़ाई आसान हो सके। मौलिकता की घोषणा : यह मेरा खुद का आईडिया है मैंने इसे किसी और से कॉपी नहीं
+      किया
+      [-] क्योंकि उसने [illegible] में उसके तुम [illegible] एक और चाहिए और सभी अच्छे बड़ी [illegible] नहीं लेकिन तुम्हारे के लिए नई [illegible] मुझे पता थी [illegible] मुझे सबसे [illegible] होगा करना
+      है
+      [-] यही [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible] [illegible]
+      [+] ।
+  Summary: 4/89 golden words matched (4%);  hyp 64 words, golden 89 words
+
+  Strengths:
+    + The proposed solution directly addresses an education-related problem (math word problem difficulty in Hindi medium).
+    + The solution is concise and easy to read, covering three clear capabilities: translation, step explanation, and practice generation.
+
+  Gaps:
+    - The 'situation' is essentially unreadable: most lines are isolated fragments or marked '[illegible]', so no real problem is actually described.
+    - The proposal says what the AI does but not how (no mention of NLP/LLM techniques, dataset, language model, fine-tuning, etc.).
+    - The idea (Hindi AI math tutor) is a fairly standard, commonly seen concept with no novel angle.
+
+  Observations: The submission sits in an awkward middle ground: the AI description and the solution show some awareness of how a Hindi math tutor could work, but the situation — which is the foundation of the proposal — is unreadable and fails to describe a coherent problem in the required 50–100 words. As a result, the relevance and communication scores are pulled down sharply. Adding even one or two original features (e.g., voice interaction for low-literacy students, culturally contextual word problems, or detecting where the student gets stuck) and briefly explaining the AI approach would meaningfully raise the originality and AI-understanding scores.
+
+
+================================================================================
+SUMMARY (all pages, by CER winner)
+================================================================================
+Page         A CER  A score   B CER  B score   C CER  C score  Winner
+page-01       8.7%    17/50   71.1%    25/50   11.1%    17/50       A
+page-02      20.5%    14/50   74.4%    26/50   21.3%    12/50       A
+page-03      81.9%    17/50   71.7%    27/50   49.9%    29/50       C
+page-04      57.9%    23/50   96.7%    27/50   38.6%    25/50       C
+page-05      62.1%    24/50  148.6%    21/50   58.2%    23/50       C
+page-06      32.8%    13/50   82.6%    26/50   31.0%    14/50       C
+page-07     120.0%    23/50  291.2%    23/50  120.1%    26/50       A
+page-08     207.7%    19/50       -    31/50  206.1%    21/50       C
+page-09      75.4%    25/50   79.8%    25/50   75.4%    30/50       A
+page-10      76.9%    22/50   93.5%    22/50   97.1%    19/50       A
+page-11      88.7%    19/50   92.8%    24/50   90.4%    24/50       A
